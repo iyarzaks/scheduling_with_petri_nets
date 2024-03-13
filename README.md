@@ -1,8 +1,4 @@
 # scheduling_with_petri_nets
-repo for the research group
-
-
-Certainly! Here's a refined version with some additional rules:
 
 Rules for Collaborating in the Shared Repository:
 
