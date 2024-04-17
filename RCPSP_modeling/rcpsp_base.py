@@ -3,6 +3,7 @@ class Activity:
         self.name = name
         self.duration = duration
         self.resource_demands = resource_demands
+        # aaa
 
 
 class RcpspBase:
