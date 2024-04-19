@@ -22,11 +22,28 @@ class RcpspBase:
         ]
         self.dependencies = dependencies
         self.resources = resources
-        self.backward_dependencies = {}
+        self.backward_dependencies = self.update_backward()
 
+    def update_backward(self):
+        backward_dependencies = {}
         for key, values in self.dependencies.items():
             for value in values:
-                self.backward_dependencies.setdefault(value, []).append(key)
+                backward_dependencies.setdefault(value, []).append(key)
+        return backward_dependencies
+
+    def update_problem(self, removed_activities):
+
+        self.activities = [
+            activity
+            for activity in self.activities
+            if activity.name not in removed_activities
+        ]
+        self.dependencies = {
+            key: value
+            for key, value in self.dependencies.items()
+            if key not in removed_activities
+        }
+        self.backward_dependencies = self.update_backward()
 
     # CPM methods:
     def calculate_early_times(self):

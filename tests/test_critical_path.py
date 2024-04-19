@@ -15,3 +15,7 @@ def test_critical_path():
     duration, activities_arr = rcpsp_example.calculate_critical_path()
     print(duration)
     print(activities_arr)
+    rcpsp_example.update_problem(removed_activities=["B", "A"])
+    duration, activities_arr = rcpsp_example.calculate_critical_path()
+    print(duration)
+    print(activities_arr)
