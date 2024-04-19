@@ -47,5 +47,9 @@ class AStarSolver:
         self.start_node = RgNode(petri_net_to_solve)
         print(self.start_node)
 
+    def heuristic(self, current_rg_node):
+
+        pass
+
     def solve(self):
         pass
