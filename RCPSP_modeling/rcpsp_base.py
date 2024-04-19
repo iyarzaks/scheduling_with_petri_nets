@@ -49,9 +49,9 @@ class RcpspBase:
         activity.early_finish = max_early_finish + activity.duration
 
     def calculate_late_times(self):
-        max_early_finish = max((activity.early_finish for activity in self.activities))
+        max_late_finish = max((activity.early_finish for activity in self.activities))
         for activity in self.activities:
-            activity.late_finish = max_early_finish
+            activity.late_finish = max_late_finish
 
         visited = set()
         for activity in self.activities:
@@ -61,13 +61,15 @@ class RcpspBase:
         if activity in visited:
             return
         visited.add(activity)
-        min_late_start = float("inf")
+        min_late_start = activity.late_finish - activity.duration
         for successor in self.dependencies.get(activity.name, []):
             succ_activity = self._find_activity_by_name(successor)
             self._calculate_late_time(succ_activity, visited)
-            min_late_start = min(min_late_start, succ_activity.late_start)
-        activity.late_finish = min_late_start
-        activity.late_start = min_late_start - activity.duration
+            min_late_start = min(
+                min_late_start, succ_activity.late_start - activity.duration
+            )
+        activity.late_start = min_late_start
+        activity.late_finish = min_late_start + activity.duration
 
     def calculate_critical_path(self):
         cpm_duration = 0
@@ -77,17 +79,21 @@ class RcpspBase:
         self.calculate_late_times()
         # find the first critical activity:
         for activity in self.activities:
-            if activity.early_start == activity.late_start == 0:
-                current_critical = activity
-        while True:
-            cpm_duration += current_critical.duration
-            cp.append(current_critical.name)
-            if current_critical.name not in self.dependencies.keys():
-                break
-            else:
-                for successor in self.dependencies.get(current_critical.name):
-                    if successor.early_start == successor.late_start:
-                        current_critical = successor
+            if activity.early_start == activity.late_start:
+                cpm_duration = activity.late_finish
+                cp.append(activity.name)
+        # for current_critical in cp:
+        #     while True:
+        #         if current_critical.name not in self.dependencies.keys():
+        #             break
+        #         else:
+        #             for successor in self.dependencies.get(current_critical.name):
+        #                 successor_activity = self._find_activity_by_name(successor)
+        #                 if (
+        #                     successor_activity.early_start
+        #                     == successor_activity.late_start
+        #                 ):
+        #                     current_critical = successor_activity
 
         return (
             cpm_duration,
