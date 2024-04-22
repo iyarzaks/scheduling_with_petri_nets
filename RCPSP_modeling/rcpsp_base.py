@@ -66,7 +66,12 @@ class RcpspBase:
         activity.early_finish = max_early_finish + activity.duration
 
     def calculate_late_times(self):
-        max_late_finish = max((activity.early_finish for activity in self.activities))
+        try:
+            max_late_finish = max(
+                (activity.early_finish for activity in self.activities)
+            )
+        except Exception:
+            print("here")
         for activity in self.activities:
             activity.late_finish = max_late_finish
 
@@ -89,6 +94,11 @@ class RcpspBase:
         activity.late_finish = min_late_start + activity.duration
 
     def calculate_critical_path(self):
+        if len(self.activities) == 0:
+            return {
+                "duration": 0,
+                "critical_path_activities": [],
+            }
         cpm_duration = 0
         current_critical = None
         cp = []
@@ -112,10 +122,10 @@ class RcpspBase:
         #                 ):
         #                     current_critical = successor_activity
 
-        return (
-            cpm_duration,
-            cp,
-        )  # note: returns the cpm duration and A critical path, might be others
+        return {
+            "duration": cpm_duration,
+            "critical_path_activities": cp,
+        }  # note: returns the cpm duration and A critical path, might be others
 
     def _find_activity_by_name(self, name):
         for activity in self.activities:

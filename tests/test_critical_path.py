@@ -12,10 +12,9 @@ def test_critical_path():
         dependencies={"A": ["C"], "C": ["D"], "B": ["C"]},
         resources={"R1": 12},
     )
-    duration, activities_arr = rcpsp_example.calculate_critical_path()
-    print(duration)
-    print(activities_arr)
+    print("\n")
+    res = rcpsp_example.calculate_critical_path()
+    print(res)
     rcpsp_example.update_problem(removed_activities=["B", "A"])
-    duration, activities_arr = rcpsp_example.calculate_critical_path()
-    print(duration)
-    print(activities_arr)
+    res = rcpsp_example.calculate_critical_path()
+    print(res)
