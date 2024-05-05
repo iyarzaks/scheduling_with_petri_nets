@@ -59,7 +59,7 @@ class RcpspBase:
         visited.add(activity)
         max_early_finish = 0
         for predecessor in self.backward_dependencies.get(activity.name, []):
-            pred_activity = self._find_activity_by_name(predecessor)
+            pred_activity = self.find_activity_by_name(predecessor)
             self._calculate_early_time(pred_activity, visited)
             max_early_finish = max(max_early_finish, pred_activity.early_finish)
         activity.early_start = max_early_finish
@@ -85,7 +85,7 @@ class RcpspBase:
         visited.add(activity)
         min_late_start = activity.late_finish - activity.duration
         for successor in self.dependencies.get(activity.name, []):
-            succ_activity = self._find_activity_by_name(successor)
+            succ_activity = self.find_activity_by_name(successor)
             self._calculate_late_time(succ_activity, visited)
             min_late_start = min(
                 min_late_start, succ_activity.late_start - activity.duration
@@ -127,7 +127,7 @@ class RcpspBase:
             "critical_path_activities": cp,
         }  # note: returns the cpm duration and A critical path, might be others
 
-    def _find_activity_by_name(self, name):
+    def find_activity_by_name(self, name):
         for activity in self.activities:
             if activity.name == name:
                 return activity

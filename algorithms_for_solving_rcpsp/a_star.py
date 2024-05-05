@@ -44,9 +44,18 @@ class RgNode:
         ]
         if len(self.finished_activities) > 0:
             self.g_score = max(self.finished_activities.values())
+            # self.g_score = max(
+            #     [
+            #         rcpsp_base.find_activity_by_name(act).duration
+            #         + self.started_activities[act]
+            #         for act in self.started_activities
+            #     ]
+            # )
         else:
             self.g_score = 0
-        self.h_score = heuristic_function(rcpsp_base, self.finished_activities)
+        self.h_score = heuristic_function(
+            rcpsp_base, self.finished_activities, self.started_activities, self.marking
+        )
         self.f_score = self.g_score + self.h_score
 
     def update_marking_and_activities(
@@ -82,10 +91,27 @@ class RgNode:
         self.marking = new_marking
 
     def __lt__(self, other):
-        return self.f_score < other.f_score
+        return (
+            self.f_score < other.f_score
+            or (self.f_score == other.f_score and self.g_score < other.g_score)
+            or (
+                self.f_score == other.f_score
+                and self.g_score == other.g_score
+                and len(self.started_activities) > len(other.started_activities)
+            )
+            or (
+                self.f_score == other.f_score
+                and self.g_score == other.g_score
+                and len(self.finished_activities) > len(other.finished_activities)
+            )
+        )
 
     def __eq__(self, other):
-        return self.f_score == other.f_score
+        return (
+            self.f_score == other.f_score
+            and self.finished_activities == other.finished_activities
+            and self.started_activities == other.started_activities
+        )
 
 
 class AStarSolver:
@@ -99,7 +125,6 @@ class AStarSolver:
         self.rcpsp_base = rcpsp_base
         self.heuristic_function = heuristic_function
         self.start_node = RgNode(petri_net_to_solve, heuristic_function, rcpsp_base)
-        print(self.start_node)
 
     def is_final_node(self, node: RgNode) -> bool:
         final_places = [
@@ -112,11 +137,11 @@ class AStarSolver:
         else:
             return False
 
-    def solve(self):
+    def solve(self, beam_search_size=None):
         progress_bar = tqdm(total=1000000, desc="Processing")
-        visited = 0
         current = self.start_node
         available = []
+        closed = []
         while not self.is_final_node(current):
             available_transitions = current.available_transitions
             for transition in available_transitions:
@@ -127,17 +152,20 @@ class AStarSolver:
                     current,
                     transition,
                 )
-                if new_node not in available:
+                if new_node not in available and new_node not in closed:
                     heapq.heappush(available, new_node)
             try:
                 current = heapq.heappop(available)
-                visited += 1
-                if visited % 1000 == 0:
-                    print(current.g_score, current.h_score)
+                if beam_search_size is not None:
+                    heapq.heapify(available)
+                    available = heapq.nsmallest(beam_search_size, available)
+                closed.append(current)
+                if len(closed) % 100 == 0:
+                    print(f"activities started: {current.started_activities}")
+                    print(f"g score: {current.g_score}, h score: {current.h_score}")
                 progress_bar.update(1)
             except IndexError:
-                print(current.finished_activities)
                 print(current.started_activities)
                 print("No solution found")
-        print(current.finished_activities)
-        print(current.started_activities)
+        print(f"activities start times: {current.started_activities}")
+        print(f"makespan: {current.g_score}")
