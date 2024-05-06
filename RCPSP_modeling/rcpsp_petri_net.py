@@ -11,8 +11,11 @@ COUNT = "count"
 TIME = "time"
 
 
-def merge_dicts(dict1, dict2):
+def merge_dicts(dict1, dict2, dict3=None):
     dict2.update(dict1)
+    if dict3:
+        dict3.update(dict2)
+        return dict3
     return dict2
 
 
@@ -44,6 +47,8 @@ class PlaceTimePetriNetPlace:
 
 class RcpspPlaceTimePetriNet:
     def __init__(self, rcpsp_basic: RcpspBase):
+        self.transitions_dict = {}
+        self.places_dict = {}
         self.net = pgv.AGraph(directed=True)
         self.transitions = []
         self.places = []
@@ -114,6 +119,12 @@ class RcpspPlaceTimePetriNet:
                 arcs_out={activity.name: sum(activity.resource_demands.values()) + 1},
             )
         )
+        post_no_dependencies_dict = (
+            {POST + activity.name: 1}
+            if activity.name not in rcpsp_basic.dependencies
+            or len(rcpsp_basic.dependencies[activity.name]) == 0
+            else {}
+        )
         self.transitions.append(
             # add end of activity transition
             PlaceTimePetriNetTransition(
@@ -126,6 +137,7 @@ class RcpspPlaceTimePetriNet:
                             activity.name, []
                         )
                     },
+                    post_no_dependencies_dict,
                     {
                         resource: activity.resource_demands[resource]
                         for resource in activity.resource_demands.keys()
@@ -141,7 +153,10 @@ class RcpspPlaceTimePetriNet:
                     arcs_out={successor_activity + START: 1},
                 )
             )
-        if activity.name not in rcpsp_basic.dependencies:
+        if (
+            activity.name not in rcpsp_basic.dependencies
+            or len(rcpsp_basic.dependencies[activity.name]) == 0
+        ):
             self.places.append(
                 PlaceTimePetriNetPlace(
                     name=POST + activity.name,
@@ -160,12 +175,14 @@ class RcpspPlaceTimePetriNet:
             )
             for successor in place.arcs_in:
                 self.net.add_edge(successor, place.name, label=place.arcs_in[successor])
+            self.places_dict[place.name] = place
         for transition in self.transitions:
             self.net.add_node(transition.name, shape="box", color="lightgreen")
             for successor in transition.arcs_in:
                 self.net.add_edge(
                     successor, transition.name, label=transition.arcs_in[successor]
                 )
+            self.transitions_dict[transition.name] = transition
 
     def plot(self, filename):
         self.net.layout(prog="dot")

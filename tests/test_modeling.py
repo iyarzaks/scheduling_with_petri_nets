@@ -1,5 +1,6 @@
 from RCPSP_modeling.rcpsp_base import RcpspBase
 from RCPSP_modeling.rcpsp_petri_net import RcpspPlaceTimePetriNet
+from extract_problems.extract_problem import extract_rcpsp
 
 
 def test_modeling():
@@ -15,4 +16,13 @@ def test_modeling():
     )
     petri_example = RcpspPlaceTimePetriNet(rcpsp_example)
     petri_example.plot("test.png")
+    print(petri_example)
+
+
+def test_modeling_j_30():
+    rcpsp_example = extract_rcpsp(
+        "/Users/iyarzaks/PycharmProjects/scheduling_with_petri_nets/extract_problems/data/j3026_4.txt"
+    )
+    petri_example = RcpspPlaceTimePetriNet(rcpsp_example)
+    petri_example.plot("test_30j.png")
     print(petri_example)
