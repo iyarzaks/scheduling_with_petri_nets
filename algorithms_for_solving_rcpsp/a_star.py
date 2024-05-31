@@ -202,11 +202,12 @@ class RgNodeTimedTransition:
         )
 
     def calc_g_score(self):
-        finished_jobs_current_times = [
-            v
-            for v in self.finished_activities.values()
-            if v <= max(self.started_activities.values())
-        ]
+        finished_jobs_current_times = list(self.finished_activities.values())
+        # finished_jobs_current_times = [
+        #     v
+        #     for v in self.finished_activities.values()
+        #     if v <= max(self.started_activities.values())
+        # ]
         finished_jobs_current_times.append(0)
         return max(finished_jobs_current_times)
 
@@ -361,6 +362,13 @@ class AStarSolver:
             except IndexError:
                 print(current.started_activities)
                 print("No solution found")
+                return {
+                    "scheduling": None,
+                    "makespan": None,
+                    "nodes_visited": len(closed),
+                    "solved": False,
+                    "beam_search_size": beam_search_size,
+                }
         # print(f"activities start times: {current.started_activities}")
         # print(f"makespan: {current.g_score}")
         return {

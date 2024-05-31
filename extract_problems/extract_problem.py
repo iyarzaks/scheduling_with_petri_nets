@@ -30,6 +30,29 @@ def extract_opt_values(text_file):
     return makespan_values
 
 
+def extract_opt_values_with_time(text_file):
+    with open(text_file, "r") as file:
+        data = file.readlines()
+
+    # Initialize a dictionary to store makespan values
+    makespan_values = []
+
+    # Iterate through the lines in the file
+    for line in data:
+        # Check if the line contains parameter, instance, and makespan
+        if line.strip().replace(" ", "").replace(".", "").isdigit():
+            param, instance, makespan, time = line.split()
+            makespan_values.append(
+                {
+                    "param": param,
+                    "instance": instance,
+                    "makespan": makespan,
+                    "time": time,
+                }
+            )
+    return makespan_values
+
+
 def parse_precedence_relations(table_data):
     dependencies = {}
     for line in table_data[1:]:

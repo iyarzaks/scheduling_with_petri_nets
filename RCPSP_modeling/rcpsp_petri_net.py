@@ -1,4 +1,4 @@
-import pygraphviz as pgv
+# import pygraphviz as pgv
 
 from RCPSP_modeling.rcpsp_base import RcpspBase
 
@@ -92,27 +92,27 @@ class RcpspTimedPetriNet:
     def __init__(self):
         self.transitions_dict = {}
         self.places_dict = {}
-        self.net = pgv.AGraph(directed=True)
+        # self.net = pgv.AGraph(directed=True)
         self.transitions = []
         self.places = []
 
     def update_net(self):
         for place in self.places:
-            self.net.add_node(
-                place.name,
-                shape="circle",
-                color="lightblue",
-                label=f"{place.name}\n{place.state}",
-            )
+            # self.net.add_node(
+            #     place.name,
+            #     shape="circle",
+            #     color="lightblue",
+            #     label=f"{place.name}\n{place.state}",
+            # )
             self.places_dict[place.name] = place
-            for successor in place.arcs_in:
-                self.net.add_edge(successor, place.name, label=place.arcs_in[successor])
+            # for successor in place.arcs_in:
+            # self.net.add_edge(successor, place.name, label=place.arcs_in[successor])
         for transition in self.transitions:
-            self.net.add_node(transition.name, shape="box", color="lightgreen")
-            for successor in transition.arcs_in:
-                self.net.add_edge(
-                    successor, transition.name, label=transition.arcs_in[successor]
-                )
+            # self.net.add_node(transition.name, shape="box", color="lightgreen")
+            # for successor in transition.arcs_in:
+            #     self.net.add_edge(
+            #         successor, transition.name, label=transition.arcs_in[successor]
+            #     )
             self.transitions_dict[transition.name] = transition
 
     def plot(self, filename):

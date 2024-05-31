@@ -31,6 +31,28 @@ class RcpspBase:
                 backward_dependencies.setdefault(value, []).append(key)
         return backward_dependencies
 
+    def depends_on(self, activity, target):
+        """
+        Check if 'activity' depends on 'target' or any of its successors.
+
+        :param activity: The activity to check dependencies for.
+        :param target: The target activity to check if 'activity' depends on.
+        :return: True if 'activity' depends on 'target' or any of its successors, False otherwise.
+        """
+
+        def dfs(current, target, visited):
+            if current == target:
+                return True
+            if current in visited:
+                return False
+            visited.add(current)
+            for successor in self.dependencies.get(current, []):
+                if dfs(successor, target, visited):
+                    return True
+            return False
+
+        return dfs(activity, target, set())
+
     def update_problem(self, removed_activities):
 
         self.activities = [
