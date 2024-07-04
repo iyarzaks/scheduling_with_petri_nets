@@ -19,6 +19,13 @@ def merge_dicts(dict1, dict2, dict3=None):
     return dict2
 
 
+def get_in_place_if_existed(place, list_to_search):
+    if len(list_to_search) > 0:
+        return list_to_search[place]
+    else:
+        return 0
+
+
 class PetriNetTransition:
     def __init__(self, name, arcs_in, arcs_out, duration=None):
         self.name = name
@@ -34,14 +41,14 @@ class PetriNetTransition:
         if len(resource) == 0 or len(resource[-1]) == 0:
             return None
         resource = [r for r in resource if len(r) > 0]
-        resource = sorted(resource, key=lambda x: x["time"])
+        resource = sorted(resource, key=lambda x: x[1])
 
         accumulated_count = 0
         min_time = None
 
         for item in resource:
-            accumulated_count += item["count"]
-            min_time = item["time"]
+            accumulated_count += item[0]
+            min_time = item[1]
             if accumulated_count >= demand:
                 break
 
@@ -50,30 +57,21 @@ class PetriNetTransition:
 
         return min_time
 
-    def is_available(self, marking, current_time=None):
-        if current_time is None:
-            return all(
-                marking[place].get(COUNT, 0) >= self.arcs_in[place]
-                for place in self.arcs_in
+    def is_available(self, marking):
+
+        max_min = 0
+        for place in self.arcs_in:
+            min_time_available = PetriNetTransition.min_time_to_fulfill_demand(
+                resource=marking.get(place, []), demand=self.arcs_in[place]
             )
-        else:
-            relevant_marking = {}
-            # for place in marking:
-            #     relevant_marking[place] = [
-            #         tokens
-            #         for tokens in marking[place]
-            #         if tokens.get(TIME, 0) <= current_time
-            #     ]
-            min_times_available = []
-            for place in self.arcs_in:
-                min_time_available = PetriNetTransition.min_time_to_fulfill_demand(
-                    resource=marking[place], demand=self.arcs_in[place]
-                )
-                min_times_available.append(min_time_available)
-            if None in min_times_available:
+            if min_time_available is None:
                 return False
-            else:
-                return max(min_times_available)
+            if min_time_available > max_min:
+                max_min = min_time_available
+            # min_times_available.add(min_time_available)
+        # else:
+        #     return max(min_times_available)
+        return max_min
 
 
 class PetriNetPlace:
@@ -81,9 +79,7 @@ class PetriNetPlace:
         self.name = name
         self.arcs_in = arcs_in
         self.arcs_out = arcs_out
-        if state is None:
-            self.state = dict()
-        else:
+        if state is not None:
             self.state = state
         self.duration = duration
 
@@ -140,7 +136,7 @@ class RcpspTimedTransitionPetriNet(RcpspTimedPetriNet):
                         for activity in rcpsp_basic.activities
                         if resource in activity.resource_demands.keys()
                     },
-                    state=[{COUNT: rcpsp_basic.resources[resource], TIME: 0}],
+                    state=[[rcpsp_basic.resources[resource], 0]],
                 )
             )
         for activity in rcpsp_basic.activities:
@@ -156,7 +152,7 @@ class RcpspTimedTransitionPetriNet(RcpspTimedPetriNet):
                     arcs_in=dict(),
                     arcs_out={activity.name: 1},
                     duration=0,
-                    state=[{COUNT: 1, TIME: 0}],
+                    state=[[1, 0]],
                 )
             )
         post_no_dependencies_dict = (
@@ -204,7 +200,6 @@ class RcpspTimedTransitionPetriNet(RcpspTimedPetriNet):
                     name=POST + activity.name + PRE + successor_activity,
                     arcs_in={activity.name: 1},
                     arcs_out={successor_activity: 1},
-                    state=[{}],
                 )
             )
         if (
@@ -216,7 +211,6 @@ class RcpspTimedTransitionPetriNet(RcpspTimedPetriNet):
                     name=POST + activity.name,
                     arcs_in={activity.name: 1},
                     arcs_out=dict(),
-                    state=[{}],
                 )
             )
 
@@ -241,7 +235,7 @@ class RcpspTimedPlacePetriNet(RcpspTimedPetriNet):
                         for activity in rcpsp_basic.activities
                         if resource in activity.resource_demands.keys()
                     },
-                    state={COUNT: rcpsp_basic.resources[resource], TIME: 0},
+                    state=[rcpsp_basic.resources[resource], 0],
                 )
             )
         for activity in rcpsp_basic.activities:
@@ -257,7 +251,7 @@ class RcpspTimedPlacePetriNet(RcpspTimedPetriNet):
                     arcs_in=dict(),
                     arcs_out={activity.name + START: 1},
                     duration=0,
-                    state={COUNT: 1, TIME: 0},
+                    state=[1, 0],
                 )
             )
         self.places.append(

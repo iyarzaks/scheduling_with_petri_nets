@@ -1,6 +1,9 @@
 import copy
+import hashlib
 import heapq
+from types import MappingProxyType
 
+import orjson
 from tqdm import tqdm
 
 from RCPSP_modeling.rcpsp_petri_net import (
@@ -9,8 +12,19 @@ from RCPSP_modeling.rcpsp_petri_net import (
     COUNT,
     FINISH,
     START,
+    get_in_place_if_existed,
 )
 from RCPSP_modeling.rcpsp_petri_net import RcpspTimedPlacePetriNet
+
+
+def selective_deep_copy(original):
+    copy_dict = {}
+    for key, value in original.items():
+        if "R" in key:
+            copy_dict[key] = value.copy()
+        else:
+            copy_dict[key] = value
+    return copy_dict
 
 
 class RgNode:
@@ -121,6 +135,9 @@ class RgNode:
     def __eq__(self, other):
         return self.marking == other.marking
 
+    def update_marking_and_neighbors(self):
+        pass
+
 
 class RgNodeTimedTransition:
     def __init__(
@@ -128,24 +145,27 @@ class RgNodeTimedTransition:
         petri_net_to_solve,
         heuristic_function,
         rcpsp_base,
-        previous_rg_node=None,
+        previous_marking=None,
+        previous_rg_node_finished_activities=None,
+        previous_rg_node_started_activities=None,
         transition=None,
     ):
+        self.available_transitions = None
+        self.previous_marking = previous_marking
         self.marking = {}
-        if previous_rg_node is None:
+        self.petri_net_to_solve = petri_net_to_solve
+        self.transition = transition
+        if previous_rg_node_finished_activities is None:
             self.finished_activities = {}
             self.started_activities = {}
             for place in petri_net_to_solve.places:
-                if place.state is not None:
+                if hasattr(place, "state"):
                     self.marking[place.name] = place.state
         else:
-            self.update_marking_and_activities(
-                previous_rg_node.marking,
-                previous_rg_node.finished_activities,
-                previous_rg_node.started_activities,
-                transition[0],
-                petri_net_to_solve,
-                firing_time=transition[1],
+            self.firing_time = transition[1]
+            self.update_activities(
+                previous_finished_activities=previous_rg_node_finished_activities,
+                previous_started_activities=previous_rg_node_started_activities,
             )
         if len(self.finished_activities) > 0:
             self.g_score = self.calc_g_score()
@@ -158,9 +178,9 @@ class RgNodeTimedTransition:
             # )
         else:
             self.g_score = 0
-        self.available_transitions = self.check_available_transitions(
-            petri_net_to_solve, current_time=self.g_score
-        )
+        # self.available_transitions = self.check_available_transitions(
+        #     petri_net_to_solve, current_time=self.g_score
+        # )
 
         self.h_score = heuristic_function(
             rcpsp_base,
@@ -170,10 +190,10 @@ class RgNodeTimedTransition:
         )
         self.f_score = self.g_score + self.h_score
 
-    def check_available_transitions(self, petri_net_to_solve, current_time=None):
+    def check_available_transitions(self, optional_transitions=None):
         available_transitions = []
-        for transition in petri_net_to_solve.transitions:
-            min_time = transition.is_available(self.marking, current_time=current_time)
+        for transition in optional_transitions:
+            min_time = transition.is_available(self.marking)
             if min_time is not False:
                 available_transitions.append((transition, min_time))
         return available_transitions
@@ -195,62 +215,105 @@ class RgNodeTimedTransition:
         )
 
     def __eq__(self, other):
-        return (
-            self.f_score == other.f_score
-            and self.finished_activities == other.finished_activities
-            and self.started_activities == other.started_activities
-        )
+        return self.hash == other.hash
+
+    @staticmethod
+    def hash_dict(d):
+        """
+        Hash a dictionary using SHA-256.
+
+        Parameters:
+        d (dict): The dictionary to hash.
+
+        Returns:
+        int: The integer representation of the hash.
+        """
+        # Convert the dictionary to a JSON string with sorted keys using orjson
+        dict_bytes = orjson.dumps(d, option=orjson.OPT_SORT_KEYS)
+
+        # Create a SHA-256 hash object and update it with the bytes of the JSON string
+        hash_obj = hashlib.sha256(dict_bytes)
+
+        # Return the hexadecimal hash string as an integer
+        return int(hash_obj.hexdigest(), 16)
+
+    def __hash__(self):
+        return self.hash
 
     def calc_g_score(self):
-        finished_jobs_current_times = list(self.finished_activities.values())
-        # finished_jobs_current_times = [
-        #     v
-        #     for v in self.finished_activities.values()
-        #     if v <= max(self.started_activities.values())
-        # ]
-        finished_jobs_current_times.append(0)
-        return max(finished_jobs_current_times)
+        return max(self.finished_activities.values())
+        # finished_jobs_current_times = list(self.finished_activities.values())
+        # # finished_jobs_current_times = [
+        # #     v
+        # #     for v in self.finished_activities.values()
+        # #     if v <= max(self.started_activities.values())
+        # # ]
+        # finished_jobs_current_times.append(0)
+        # return max(finished_jobs_current_times)
 
     @staticmethod
     def consume_resource(resource, amount, current_time):
+        # Create a shallow copy of the resource list
+        resource_copy = [item[:] for item in resource]
+
         # Sort resource list by time in descending order
         if amount < 1:
-            return resource
-        resource = sorted(resource, key=lambda x: x.get(TIME, 0), reverse=True)
+            return resource_copy
+        resource_copy.sort(key=lambda x: get_in_place_if_existed(1, x), reverse=True)
 
-        for item in resource:
+        for item in resource_copy:
             if len(item) > 0:
-                if item[TIME] <= current_time:
-                    if amount <= item[COUNT]:
-                        item[COUNT] -= amount
+                if item[1] <= current_time:
+                    if amount <= item[0]:
+                        item[0] -= amount
                         break
                     else:
-                        amount -= item[COUNT]
-                        item[COUNT] = 0
+                        amount -= item[0]
+                        item[0] = 0
 
         # Remove items with count 0
-        resource = [item for item in resource if item.get(COUNT, 0) > 0]
+        resource_copy = [
+            item for item in resource_copy if get_in_place_if_existed(0, item) > 0
+        ]
 
-        return resource
+        return resource_copy
 
     @staticmethod
     def return_resource(resource, amount, return_time):
+        # Create a shallow copy of the resource list
+        resource_copy = [item[:] for item in resource]
+
         # Check if there is already an entry with the return_time
         if amount < 1:
-            return resource
+            return resource_copy
         found = False
-        for item in resource:
+        for item in resource_copy:
             if len(item) > 0:
-                if item["time"] == return_time:
-                    item["count"] += amount
+                if item[1] == return_time:
+                    item[0] += amount
                     found = True
                     break
 
         # If no entry with the return_time was found, create a new one
         if not found:
-            resource.append({"count": amount, "time": return_time})
+            resource_copy.append([amount, return_time])
 
-        return resource
+        return resource_copy
+
+    def update_activities(
+        self,
+        previous_finished_activities,
+        previous_started_activities,
+    ):
+        new_finished_activities = dict(previous_finished_activities)
+        new_started_activities = dict(previous_started_activities)
+        new_finished_activities[self.transition[0].name] = (
+            self.firing_time + self.transition[0].duration
+        )
+        new_started_activities[self.transition[0].name] = self.firing_time
+        self.finished_activities = new_finished_activities
+        self.started_activities = new_started_activities
+        self.hash = RgNodeTimedTransition.hash_dict(self.started_activities)
 
     def update_marking_and_activities(
         self,
@@ -261,16 +324,18 @@ class RgNodeTimedTransition:
         petri_net_to_solve: RcpspTimedPlacePetriNet,
         firing_time=0,
     ):
-        new_marking = previous_marking.copy()
-        new_finished_activities = previous_finished_activities.copy()
-        new_started_activities = previous_started_activities.copy()
+        new_marking = previous_marking
+        new_finished_activities = dict(previous_finished_activities)
+        new_started_activities = dict(previous_started_activities)
         for in_node in transition.arcs_in:
             new_marking[in_node] = RgNodeTimedTransition.consume_resource(
                 new_marking[in_node].copy(), transition.arcs_in[in_node], firing_time
             )
+            if not new_marking[in_node]:
+                del new_marking[in_node]
         for out_node in transition.arcs_out:
             new_marking[out_node] = RgNodeTimedTransition.return_resource(
-                new_marking[out_node].copy(),
+                new_marking.get(out_node, [[]]).copy(),
                 transition.arcs_out[out_node],
                 firing_time + transition.duration,
             )
@@ -281,6 +346,76 @@ class RgNodeTimedTransition:
         self.finished_activities = new_finished_activities
         self.started_activities = new_started_activities
         self.marking = new_marking
+
+    @staticmethod
+    def clean_empty_lists(data):
+        """
+        This function removes empty lists from a dictionary where each value is a list of lists.
+
+        Parameters:
+        data (dict): The dictionary to clean.
+
+        Returns:
+        dict: The cleaned dictionary with empty lists removed.
+        """
+        cleaned_data = {}
+        for key, value in data.items():
+            # Filter out empty lists from the value
+            cleaned_value = [lst for lst in value if lst]
+            # Add the cleaned value to the new dictionary
+            cleaned_data[key] = cleaned_value
+        return cleaned_data
+
+    def update_marking_and_neighbors(self):
+        if self.previous_marking is not None:
+            new_marking = {k: v[:] for k, v in self.previous_marking.items()}
+
+            for in_node in self.transition[0].arcs_in:
+                new_marking[in_node] = RgNodeTimedTransition.consume_resource(
+                    new_marking[in_node],
+                    self.transition[0].arcs_in[in_node],
+                    self.firing_time,
+                )
+                if not new_marking[in_node]:
+                    del new_marking[in_node]
+            for out_node in self.transition[0].arcs_out:
+                new_marking[out_node] = RgNodeTimedTransition.return_resource(
+                    new_marking.get(out_node, [[]]),
+                    self.transition[0].arcs_out[out_node],
+                    self.firing_time
+                    + self.petri_net_to_solve.transitions_dict[
+                        self.transition[0].name
+                    ].duration,
+                )
+            self.marking = RgNodeTimedTransition.clean_empty_lists(new_marking)
+        optional_transitions = self.get_optional_transitions()
+        self.available_transitions = self.check_available_transitions(
+            optional_transitions=optional_transitions
+        )
+
+    def get_optional_transitions(self):
+        if not self.transition:
+            return self.petri_net_to_solve.transitions
+
+        # Cache repeated attribute accesses
+        transitions_dict = self.petri_net_to_solve.transitions_dict
+        started_activities = self.started_activities
+        started_activities_keys = set(
+            started_activities.keys()
+        )  # Cache keys to a set for faster lookups
+
+        optional_transitions = set()
+        for transition in self.petri_net_to_solve.transitions:
+            if transition.name not in started_activities:
+                dependent_acts = {
+                    a.split("pre")[0].replace("post", "").replace("_", "")
+                    for a in transitions_dict[transition.name].arcs_in
+                    if "R" not in a
+                }
+                if dependent_acts <= started_activities_keys:
+                    optional_transitions.add(transition)
+
+        return optional_transitions
 
 
 class AStarSolver:
@@ -310,7 +445,7 @@ class AStarSolver:
         ]
         if self.timed_transition:
             if all(
-                node.marking[place.name][-1].get("count", 0) > 0
+                get_in_place_if_existed(0, node.marking.get(place.name, [[]])[-1]) > 0
                 for place in final_places
             ):
                 return True
@@ -325,37 +460,47 @@ class AStarSolver:
         if logging:
             progress_bar = tqdm(total=1000000, desc="Processing")
         current = self.start_node
+        current.update_marking_and_neighbors()
+        generated = 0
         available = []
-        closed = []
+        closed = set()
         while not self.is_final_node(current):
             available_transitions = current.available_transitions
             for transition in available_transitions:
                 if self.timed_transition:
+                    generated += 1
                     new_node = RgNodeTimedTransition(
-                        self.petri_net_to_solve,
-                        self.heuristic_function,
-                        copy.deepcopy(self.rcpsp_base),
-                        copy.deepcopy(current),
-                        transition,
+                        previous_marking=current.marking,
+                        petri_net_to_solve=self.petri_net_to_solve,
+                        heuristic_function=self.heuristic_function,
+                        rcpsp_base=self.rcpsp_base,
+                        previous_rg_node_finished_activities=MappingProxyType(
+                            current.finished_activities
+                        ),
+                        previous_rg_node_started_activities=MappingProxyType(
+                            current.started_activities
+                        ),
+                        transition=transition,
                     )
                 else:
                     new_node = RgNode(
                         self.petri_net_to_solve,
                         self.heuristic_function,
-                        copy.deepcopy(self.rcpsp_base),
+                        copy.copy(self.rcpsp_base),
                         current,
                         transition[0],
                     )
-                if new_node not in available and new_node not in closed:
+                if new_node not in closed:
                     heapq.heappush(available, new_node)
             try:
                 current = heapq.heappop(available)
                 if beam_search_size is not None:
                     heapq.heapify(available)
                     available = heapq.nsmallest(beam_search_size, available)
-                closed.append(current)
+                closed.add(current)
+                current.update_marking_and_neighbors()
                 if logging:
-                    if len(closed) % 100 == 0:
+                    if len(closed) % 10000 == 0:
                         print(f"activities started: {current.started_activities}")
                         print(f"g score: {current.g_score}, h score: {current.h_score}")
                     progress_bar.update(1)
@@ -374,7 +519,8 @@ class AStarSolver:
         return {
             "scheduling": current.started_activities,
             "makespan": current.g_score,
-            "nodes_visited": len(closed),
+            "nodes_expand": len(closed),
+            "nodes_generated": generated,
             "solved": True,
             "beam_search_size": beam_search_size,
         }

@@ -1,8 +1,8 @@
-import copy
 import json
 import os
 import re
 import signal
+import time
 
 import numpy as np
 import pandas as pd
@@ -14,6 +14,7 @@ from RCPSP_modeling.rcpsp_petri_net import (
     RcpspTimedTransitionPetriNet,
 )
 from algorithms_for_solving_rcpsp.a_star import AStarSolver
+from algorithms_for_solving_rcpsp.solve_with_mip_solver import solve_rcpsp_optimizer
 from extract_problems.extract_problem import (
     extract_rcpsp,
     extract_opt_values,
@@ -49,24 +50,32 @@ def cp_heuristic(
 
     if started_activities:
         last_activity = max(removed_activities, key=removed_activities.get)
+        rel_activities = [
+            act
+            for act in rcpsp_example.activities
+            if act.name not in started_activities
+        ]
         independent_activities = [
             act.name
-            for act in rcpsp_example.activities
-            if not rcpsp_example.depends_on(last_activity, act.name)
+            for act in rel_activities
+            if (last_activity, act.name) not in rcpsp_example.dependencies_deep_set
         ]
         unk_time = current_time - max(started_activities.values())
     else:
         independent_activities = []
         unk_time = 0
-    opt_1 = copy.deepcopy(rcpsp_example)
-    opt_1.update_problem(
-        removed_activities=list(started_activities) + independent_activities
-    )
-    opt_2 = copy.deepcopy(rcpsp_example)
-    opt_2.update_problem(removed_activities=list(started_activities))
+    # rcpsp_example.get_all_critical_path_of_sub()
+    # opt_1 = copy.copy(rcpsp_example)
+    # opt_1.update_problem(
+    #     removed_activities=list(started_activities) + independent_activities
+    # )
+    # opt_2 = copy.copy(rcpsp_example)
+    # opt_2.update_problem(removed_activities=list(started_activities))
     return max(
-        opt_1.calculate_critical_path()["duration"],
-        opt_2.calculate_critical_path()["duration"] - unk_time,
+        rcpsp_example.get_all_critical_path_of_sub(
+            executed=list(started_activities) + independent_activities
+        ),
+        rcpsp_example.get_all_critical_path_of_sub(list(started_activities)) - unk_time,
     )
 
 
@@ -104,8 +113,8 @@ def analyze_results(dir_path):
                     nodes_visited.append(data["nodes_visited"])
                     total_opt += data["opt_value"]
                     total_makespan += max(data["makespan"], data["opt_value"])
-                    if data["makespan"] > data["opt_value"]:
-                        print(filepath)
+                    # if data["makespan"] > data["opt_value"]:
+                    #     print(filepath)
                 else:
                     files_not_solved.append(filename)
                     false_count += 1
@@ -128,17 +137,22 @@ def summarize_results_to_csv(TT_files, TP_file):
         filepath = os.path.join(
             TT_files, opt_value["param"] + "_" + opt_value["instance"]
         )
-        with open(filepath, "r") as file:
-            data = json.load(file)
-            if "solved" in data:
-                if data["solved"]:
-                    opt_value["timed_transition_solved"] = data["solved"]
-                    opt_value["timed_transition_makespan"] = max(
-                        data["makespan"], data["opt_value"]
-                    )
-                    opt_value["timed_transition_nodes_visited"] = data["nodes_visited"]
-                else:
-                    opt_value["timed_transition_solved"] = data["solved"]
+        try:
+            with open(filepath, "r") as file:
+                data = json.load(file)
+                if "solved" in data:
+                    if data["solved"]:
+                        opt_value["timed_transition_solved"] = data["solved"]
+                        opt_value["timed_transition_makespan"] = max(
+                            data["makespan"], data["opt_value"]
+                        )
+                        opt_value["timed_transition_nodes_visited"] = data[
+                            "nodes_visited"
+                        ]
+                    else:
+                        opt_value["timed_transition_solved"] = data["solved"]
+        except:
+            pass
 
         filepath_tp = os.path.join(
             TP_file, opt_value["param"] + "_" + opt_value["instance"]
@@ -276,13 +290,15 @@ def timeout_handler(signum, frame):
 def run_with_timeout(timeout, func, *args, **kwargs):
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(timeout)
-
+    start_time = time.time()
     try:
         result = func(*args, **kwargs)
+        elapsed_time = time.time() - start_time
     except TimeoutException:
-        result = {"solved": False}
+        result = {"solved": False, "run_time": elapsed_time}
     finally:
         signal.alarm(0)
+    result["run_time"] = elapsed_time
     return result
 
 
@@ -293,13 +309,16 @@ def solve_problem_with_time_limit(
     instance = problem_file.split("_")[-1].split(".")[0]
     result = run_with_timeout(
         timeout=timeout,
-        func=solve_file_problem,
+        func=solve_rcpsp_optimizer,
         path=problem_file,
-        beam_search_size=beam_search_size,
-        timed_transition=timed_transition,
+        # beam_search_size=beam_search_size,
+        # timed_transition=timed_transition,
     )
     result["opt_value"] = opt_values[(param, instance)]
-    with open(f"results/j30_time_transition_new/{param}_{instance}", "w") as file:
+    with open(
+        f"results/j30_time_cbc_solver/{param}_{instance}",
+        "w",
+    ) as file:
         json.dump(result, file)
 
 
@@ -309,9 +328,9 @@ def run_over_files(files_not_solved=None):
     for file in os.listdir("extract_problems/data/j30.sm.tgz"):
         if (
             not os.path.exists(
-                f'results/j30_time_transition_new/{file.replace("j30", "").replace(".sm", "")}'
+                f'results/j30_time_cbc_solver/{file.replace("j30", "").replace(".sm", "")}'
             )
-            # and file.replace("j30", "").replace(".sm", "") in files_not_solved
+            and file.replace("j30", "").replace(".sm", "") in files_not_solved
         ):
             files_to_check.append(file)
     print(f"{len(files_to_check)} files to check")
@@ -322,7 +341,7 @@ def run_over_files(files_not_solved=None):
             timeout=600,
             problem_file=f"extract_problems/data/j30.sm.tgz/{file}",
             opt_values=opt_values,
-            beam_search_size=20,
+            beam_search_size=None,
             timed_transition=True,
         )
         progress_bar.update(1)
@@ -330,21 +349,31 @@ def run_over_files(files_not_solved=None):
 
 def main():
     # res_df = summarize_results_to_csv(
-    #     "results/j30_no_beam_time_transition_new", "results/j30_no_beam"
+    #     "results/j30_time_transition_depends_heuristic", "results/j30_no_beam"
     # )
-    # res_df.to_csv("results/summary.csv", index=False)
+    # res_df.to_csv("results/summary_2.csv", index=False)
 
-    # analyze_results(
-    # run_over_files()
-    # print(solve_small_problem(timed_transition=True))
-    print(
-        solve_file_problem(
-            path="/Users/iyarzaks/PycharmProjects/scheduling_with_petri_nets/extract_problems/data/j30.sm.tgz/j3044_8.sm",
-            timed_transition=True,
-            beam_search_size=None,
-            logging=True,
-        )
+    # analyze_results("results/j30_time_transition_depends_heuristic")
+    # analyze_results("results/j30")
+    easy_problems = pd.read_csv("results/summary_2.csv")
+    easy_problems = easy_problems[easy_problems["timed_transition_solved"]]
+    easy_problems["param"] = easy_problems["param"].apply(str)
+    easy_problems["param"] = easy_problems["param"] + "_"
+    easy_problems["instance"] = easy_problems["instance"].apply(str)
+    easy_problems["problem_instance"] = (
+        easy_problems["param"] + easy_problems["instance"]
     )
+    easy_problems = easy_problems["problem_instance"]
+    run_over_files(list(easy_problems))
+    # print(solve_small_problem(timed_transition=True))
+    # print(
+    #     solve_file_problem(
+    #         path="/Users/iyarzaks/PycharmProjects/scheduling_with_petri_nets/extract_problems/data/j30.sm.tgz/j3048_5.sm",
+    #         timed_transition=True,
+    #         beam_search_size=None,
+    #         logging=True,
+    #     )
+    # )
 
 
 if __name__ == "__main__":
