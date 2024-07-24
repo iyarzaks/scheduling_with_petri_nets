@@ -6,6 +6,7 @@ from types import MappingProxyType
 import orjson
 from tqdm import tqdm
 
+from RCPSP_modeling.rcpsp_base import profile
 from RCPSP_modeling.rcpsp_petri_net import (
     PetriNetTransition,
     TIME,
@@ -13,6 +14,7 @@ from RCPSP_modeling.rcpsp_petri_net import (
     FINISH,
     START,
     get_in_place_if_existed,
+    RcpspTimedPetriNet,
 )
 from RCPSP_modeling.rcpsp_petri_net import RcpspTimedPlacePetriNet
 
@@ -149,11 +151,13 @@ class RgNodeTimedTransition:
         previous_rg_node_finished_activities=None,
         previous_rg_node_started_activities=None,
         transition=None,
+        job_finish_activity=None,
     ):
         self.available_transitions = None
         self.previous_marking = previous_marking
         self.marking = {}
         self.petri_net_to_solve = petri_net_to_solve
+        self.rcpsp_base = rcpsp_base
         self.transition = transition
         if previous_rg_node_finished_activities is None:
             self.finished_activities = {}
@@ -187,6 +191,8 @@ class RgNodeTimedTransition:
             self.finished_activities,
             self.started_activities,
             current_time=self.g_score,
+            job_finish_activity=job_finish_activity,
+            alternatives=self.petri_net_to_solve.alternatives,
         )
         self.f_score = self.g_score + self.h_score
 
@@ -407,12 +413,10 @@ class RgNodeTimedTransition:
         optional_transitions = set()
         for transition in self.petri_net_to_solve.transitions:
             if transition.name not in started_activities:
-                dependent_acts = {
-                    a.split("pre")[0].replace("post", "").replace("_", "")
-                    for a in transitions_dict[transition.name].arcs_in
-                    if "R" not in a
-                }
-                if dependent_acts <= started_activities_keys:
+                dependent_acts = set(
+                    self.rcpsp_base.backward_dependencies[transition.name]
+                )
+                if len(dependent_acts.intersection(started_activities_keys)) > 0:
                     optional_transitions.add(transition)
 
         return optional_transitions
@@ -421,20 +425,27 @@ class RgNodeTimedTransition:
 class AStarSolver:
     def __init__(
         self,
-        petri_net_to_solve: RcpspTimedPlacePetriNet,
+        petri_net_to_solve: RcpspTimedPetriNet,
         rcpsp_base,
         heuristic_function,
         timed_transition=False,
+        job_finish_activity=None,
     ):
         self.petri_net_to_solve = petri_net_to_solve
         self.rcpsp_base = rcpsp_base
         self.heuristic_function = heuristic_function
         if timed_transition:
             self.start_node = RgNodeTimedTransition(
-                petri_net_to_solve, heuristic_function, rcpsp_base
+                petri_net_to_solve,
+                heuristic_function,
+                rcpsp_base,
+                job_finish_activity=job_finish_activity,
             )
         else:
             self.start_node = RgNode(petri_net_to_solve, heuristic_function, rcpsp_base)
+        if job_finish_activity is not None:
+            self.job_finish_activity = job_finish_activity
+
         self.timed_transition = timed_transition
 
     def is_final_node(self, node: RgNode) -> bool:
@@ -456,6 +467,7 @@ class AStarSolver:
                 return True
         return False
 
+    @profile
     def solve(self, beam_search_size=None, logging=False):
         if logging:
             progress_bar = tqdm(total=1000000, desc="Processing")
@@ -481,6 +493,7 @@ class AStarSolver:
                             current.started_activities
                         ),
                         transition=transition,
+                        job_finish_activity=self.job_finish_activity,
                     )
                 else:
                     new_node = RgNode(
@@ -518,7 +531,8 @@ class AStarSolver:
         # print(f"makespan: {current.g_score}")
         return {
             "scheduling": current.started_activities,
-            "makespan": current.g_score,
+            "total_jobs_scheduled": len(current.started_activities),
+            "makespan": current.started_activities[self.job_finish_activity],
             "nodes_expand": len(closed),
             "nodes_generated": generated,
             "solved": True,

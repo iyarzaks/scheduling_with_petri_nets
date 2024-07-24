@@ -46,14 +46,14 @@ class RcpspBase:
             for a in activities_list
         ]
         self.activities_names_durations = {a.name: a.duration for a in self.activities}
+        self.activities_names_set = set(self.activities_names_durations.keys())
         self.dependencies = dependencies
         self.resources = resources
         self.backward_dependencies = self.update_backward()
-        self.dependencies_deep = RcpspBase.generate_dependency_matrix(self.dependencies)
         self.dependencies_deep_set = RcpspBase.generate_dependency_matrix(
             self.dependencies
         )
-
+        self.excuted_memo = {}
         self.memo = {}
 
     # def depends_on(self, activity, target):
@@ -68,47 +68,78 @@ class RcpspBase:
         ]
 
     # Example usage
-    def get_all_critical_subset_dict(self):
-        all_activity_subsets = RcpspBase.get_all_subsets(
-            [act.name for act in self.activities]
-        )
+    # def get_all_critical_subset_dict(self):
+    #     all_activity_subsets = RcpspBase.get_all_subsets(
+    #         [act.name for act in self.activities]
+    #     )
+    #
+    #     # Calculate critical path durations for all subsets
+    #     critical_path_durations = {}
+    #     for subset in all_activity_subsets:
+    #         cp_duration = RcpspBase.find_critical_path_with_executed(
+    #             [{act.name: act.duration} for act in self.activities],
+    #             self.dependencies,
+    #             subset,
+    #         )
+    #         critical_path_durations[tuple(subset)] = cp_duration
+    #         print(f"Executed: {subset} -> Critical Path Duration: {cp_duration}")
 
-        # Calculate critical path durations for all subsets
-        critical_path_durations = {}
-        for subset in all_activity_subsets:
-            cp_duration = RcpspBase.find_critical_path_with_executed(
-                [{act.name: act.duration} for act in self.activities],
-                self.dependencies,
-                subset,
-            )
-            critical_path_durations[tuple(subset)] = cp_duration
-            print(f"Executed: {subset} -> Critical Path Duration: {cp_duration}")
-
-    def get_all_critical_path_of_sub(self, executed):
+    def get_all_critical_path_of_sub(self, executed, job_finish_activity):
         return self.find_critical_path_with_executed(
             self.activities_names_durations,
             self.dependencies,
             executed,
+            job_finish_activity,
         )
 
-    def find_critical_path_with_executed(self, activities, dependencies, executed):
-        executed_key = frozenset(executed)
+    @staticmethod
+    def remove_special_conditions(dependencies, special_or):
+        for key, conditions in special_or.items():
+            for condition in conditions:
+                if condition in dependencies:
+                    if key in dependencies[condition]:
+                        dependencies[condition].remove(key)
+        return dependencies
 
-        # If the result for the current set of executed tasks is already computed, return it
+    def get_all_critical_path_of_sub_as(
+        self, executed, job_finish_activity, or_dependencies
+    ):
+        if tuple(executed) in self.excuted_memo:
+            return self.excuted_memo[tuple(executed)]
+        self.dependencies = RcpspBase.remove_special_conditions(
+            self.dependencies, or_dependencies
+        )
+        res = self.find_critical_path_with_executed_as(
+            self.activities_names_durations,
+            self.dependencies,
+            executed,
+            job_finish_activity,
+            or_dependencies,
+        )
+        self.excuted_memo[tuple(executed)] = res
+        return res
+
+    def find_critical_path_with_executed(
+        self, activities, dependencies, executed, job_finish_activity
+    ):
+        executed_key = frozenset(executed)
+        if job_finish_activity in executed:
+            return 0
+
         if executed_key in self.memo:
             return self.memo[executed_key]
 
-        # Step 1: Create a graph and calculate in-degrees of nodes
+        # Copy the graph and dependencies to avoid modifying the original
         graph = defaultdict(list)
         in_degree = {activity: 0 for activity in activities}
-        duration = {activity: activities[activity] for activity in activities}
+        duration = activities.copy()  # Copy activity durations
 
         for u in dependencies:
             for v in dependencies[u]:
                 graph[u].append(v)
                 in_degree[v] += 1
 
-        # Remove executed activities and update graph
+        # Remove executed activities
         for act in executed:
             if act in graph:
                 for neighbor in graph[act]:
@@ -118,8 +149,11 @@ class RcpspBase:
                 del in_degree[act]
             if act in duration:
                 del duration[act]
+            for source in list(graph):
+                if act in graph[source]:
+                    graph[source].remove(act)
 
-        # Step 2: Topological sorting using Kahn's Algorithm
+        # Topological sorting using Kahn's Algorithm
         topo_sort = []
         queue = deque([node for node in in_degree if in_degree[node] == 0])
 
@@ -131,17 +165,16 @@ class RcpspBase:
                 if in_degree[neighbor] == 0:
                     queue.append(neighbor)
 
-        # Step 3: Initialize earliest start times
+        # Compute the earliest start and finish times
         earliest_start = {node: 0 for node in duration}
 
-        # Step 4: Compute the earliest start and finish times
         for node in topo_sort:
             for neighbor in graph[node]:
                 earliest_start[neighbor] = max(
                     earliest_start[neighbor], earliest_start[node] + duration[node]
                 )
 
-        # Step 5: Find the maximum finish time which is the critical path duration
+        # Find the maximum finish time which is the critical path duration
         critical_path_duration = (
             max(earliest_start[node] + duration[node] for node in duration)
             if duration
@@ -152,6 +185,94 @@ class RcpspBase:
         self.memo[executed_key] = critical_path_duration
 
         return critical_path_duration
+
+    @staticmethod
+    def remove_executed_activities(
+        durations, dependencies, special_dependencies, executed_activities
+    ):
+        # Remove executed activities from durations
+        durations = {k: v for k, v in durations.items() if k not in executed_activities}
+
+        # Remove executed activities from dependencies
+        dependencies = {
+            k: [dep for dep in v if dep not in executed_activities]
+            for k, v in dependencies.items()
+            if k not in executed_activities
+        }
+
+        # Remove executed activities from special dependencies
+        special_dependencies = {
+            k: v
+            for k, v in special_dependencies.items()
+            if k not in executed_activities
+            and len(set(v).intersection(set(executed_activities))) == 0
+        }
+
+        return durations, dependencies, special_dependencies
+
+    @staticmethod
+    def calculate_critical_path_duration(
+        durations, and_dependencies, or_conditions, job_finish_activity
+    ):
+        def calculate_earliest_start(activity, memo):
+            if activity in memo:
+                return memo[activity]
+            # if activity == "122":
+            #     print("now")
+
+            # Calculate the earliest start based on 'and' dependencies
+            dependent_activities = [
+                act for act, deps in and_dependencies.items() if activity in deps
+            ]
+            and_start_times = [
+                calculate_earliest_start(dep, memo) + durations[dep]
+                for dep in dependent_activities
+            ]
+            and_start_time = max(and_start_times) if and_start_times else 0
+
+            # Calculate the earliest start based on 'or' conditions
+            if activity in or_conditions:
+                or_start_times = [
+                    calculate_earliest_start(dep, memo) + durations[dep]
+                    for dep in or_conditions[activity]
+                ]
+                or_start_time = min(or_start_times)
+            else:
+                or_start_time = 0
+
+            # The earliest start time is the maximum of and_start_time and or_start_time
+            earliest_start = max(and_start_time, or_start_time)
+            memo[activity] = earliest_start
+            return earliest_start
+
+        memo = {}
+        critical_path_duration = calculate_earliest_start(job_finish_activity, memo)
+        return critical_path_duration
+
+    def find_critical_path_with_executed_as(
+        self, activities, dependencies, executed, job_finish_activity, or_dependencies
+    ):
+
+        executed_key = frozenset(executed)
+        if job_finish_activity in executed:
+            return 0
+
+        # If the result for the current set of executed tasks is already computed, return it
+        if executed_key in self.memo:
+            return self.memo[executed_key]
+
+        activities, dependencies, or_dependencies = (
+            RcpspBase.remove_executed_activities(
+                activities, dependencies, or_dependencies, executed
+            )
+        )
+        if len(activities) < 2:
+            return 0
+
+        # Step 1: Create a graph and calculate in-degrees of nodes
+        return RcpspBase.calculate_critical_path_duration(
+            activities, dependencies, or_dependencies, job_finish_activity
+        )
 
     def update_backward(self):
         backward_dependencies = {}

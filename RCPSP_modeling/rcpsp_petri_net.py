@@ -1,4 +1,7 @@
-# import pygraphviz as pgv
+from collections import defaultdict
+from itertools import product
+
+import pygraphviz as pgv
 
 from RCPSP_modeling.rcpsp_base import RcpspBase
 
@@ -88,27 +91,28 @@ class RcpspTimedPetriNet:
     def __init__(self):
         self.transitions_dict = {}
         self.places_dict = {}
-        # self.net = pgv.AGraph(directed=True)
+        self.net = pgv.AGraph(directed=True)
         self.transitions = []
+        self.alternatives = None
         self.places = []
 
     def update_net(self):
         for place in self.places:
-            # self.net.add_node(
-            #     place.name,
-            #     shape="circle",
-            #     color="lightblue",
-            #     label=f"{place.name}\n{place.state}",
-            # )
+            self.net.add_node(
+                place.name,
+                shape="circle",
+                color="lightblue",
+                label=f"{place.name}\n",
+            )
             self.places_dict[place.name] = place
-            # for successor in place.arcs_in:
-            # self.net.add_edge(successor, place.name, label=place.arcs_in[successor])
+            for successor in place.arcs_in:
+                self.net.add_edge(successor, place.name, label=place.arcs_in[successor])
         for transition in self.transitions:
-            # self.net.add_node(transition.name, shape="box", color="lightgreen")
-            # for successor in transition.arcs_in:
-            #     self.net.add_edge(
-            #         successor, transition.name, label=transition.arcs_in[successor]
-            #     )
+            self.net.add_node(transition.name, shape="box", color="lightgreen")
+            for successor in transition.arcs_in:
+                self.net.add_edge(
+                    successor, transition.name, label=transition.arcs_in[successor]
+                )
             self.transitions_dict[transition.name] = transition
 
     def plot(self, filename):
@@ -117,11 +121,16 @@ class RcpspTimedPetriNet:
 
 
 class RcpspTimedTransitionPetriNet(RcpspTimedPetriNet):
+    def update_places(self):
+        pass
+
     def __init__(self, rcpsp_basic: RcpspBase):
 
         # for nuw we assume that the activities sorted in a way that if for every i,
         # j if i<j j nod depend on i in any case
+
         super().__init__()
+        self.update_places()
         for resource in rcpsp_basic.resources:
             self.places.append(
                 PetriNetPlace(
@@ -213,6 +222,253 @@ class RcpspTimedTransitionPetriNet(RcpspTimedPetriNet):
                     arcs_out=dict(),
                 )
             )
+
+
+class RcpspTimedTransitionPetriNet_As(RcpspTimedTransitionPetriNet):
+
+    def update_places(self):
+        self.places = (
+            self.places
+            + list(self.special_places_xor_join.values())
+            + list(self.special_places_xor_split.values())
+        )
+        # to_remove = []
+        # for place in self.places:
+        #     if len(place.arcs_out.keys()) == 1:
+        #         arc_out_node = list(place.arcs_out.keys())[0]
+        #         if (
+        #             arc_out_node
+        #             in self.gather_activities_with_same_successors_diff_branches
+        #         ):
+        #             to_remove.append(place)
+        # for place in to_remove:
+        #     self.places.remove(place)
+
+    @staticmethod
+    def get_job_combinations(group_lists, job_dict):
+        first_list, second_list = group_lists
+        combinations = list(product(first_list, second_list))
+
+        result = {}
+
+        for combo in combinations:
+            jobs_in_combo = [
+                job
+                for job, groups in job_dict.items()
+                if any(group in combo for group in groups["branch_ids"])
+            ]
+            result[combo] = jobs_in_combo
+
+        return result
+
+    def __init__(self, rcpsp_basic: RcpspBase, activities_branches_list, subgraphs):
+        self.activities_branches_list = activities_branches_list
+        self.subgraphs = subgraphs
+        self.gather_activities_with_same_successors_diff_branches = defaultdict(list)
+        self.gather_activities_with_same_predecessor_diff_branches = defaultdict(list)
+        self.special_places_xor_join, self.special_places_xor_split = (
+            self.add_special_places_and_transitions(rcpsp_basic)
+        )
+
+        super().__init__(rcpsp_basic)
+        self.alternatives = RcpspTimedTransitionPetriNet_As.get_job_combinations(
+            [sg["branch_ids"] for sg in subgraphs], self.activities_branches_list
+        )
+        main_branch_jobs = [
+            job
+            for job, groups in self.activities_branches_list.items()
+            if groups["branch_ids"] == [1]
+        ]
+        for alt in self.alternatives:
+            self.alternatives[alt] += main_branch_jobs
+        for alt in self.alternatives:
+            not_relevant = list(
+                set(rcpsp_basic.activities_names_durations)
+                - set(self.alternatives[alt])
+            )
+            self.alternatives[alt] = not_relevant
+
+    def add_special_places_and_transitions(self, rcpsp_basic):
+        special_places_xor_join = {}
+        special_places_xor_split = {}
+        for dependency in rcpsp_basic.backward_dependencies.items():
+            if (
+                len(dependency[1]) > 1
+                and 1 in self.activities_branches_list[dependency[0]]["branch_ids"]
+            ):
+                for activity in dependency[1]:
+                    if 1 not in self.activities_branches_list[activity]["branch_ids"]:
+                        self.gather_activities_with_same_successors_diff_branches[
+                            dependency[0]
+                        ].append(activity)
+
+        for dependency in rcpsp_basic.dependencies.items():
+            if (
+                len(dependency[1]) > 1
+                and 1 in self.activities_branches_list[dependency[0]]["branch_ids"]
+            ):
+                for activity in dependency[1]:
+                    if 1 not in self.activities_branches_list[activity]["branch_ids"]:
+                        self.gather_activities_with_same_predecessor_diff_branches[
+                            dependency[0]
+                        ].append(activity)
+
+        for (
+            special_case
+        ) in self.gather_activities_with_same_successors_diff_branches.items():
+            post_str = ""
+            for activity_name in special_case[1]:
+                post_str += POST + activity_name
+            post_str += PRE + special_case[0]
+
+            special_places_xor_join[special_case[0]] = PetriNetPlace(
+                name=post_str,
+                arcs_in={a: 1 for a in special_case[1]},
+                arcs_out={special_case[0]: 1},
+                duration=0,
+            )
+
+        for (
+            special_case
+        ) in self.gather_activities_with_same_predecessor_diff_branches.items():
+            pre_str = ""
+            for activity_name in special_case[1]:
+                pre_str += PRE + activity_name
+            pre_str = POST + special_case[0] + pre_str
+
+            special_places_xor_split[special_case[0]] = PetriNetPlace(
+                name=pre_str,
+                arcs_in={special_case[0]: 1},
+                arcs_out={a: 1 for a in special_case[1]},
+                duration=0,
+            )
+
+        return special_places_xor_join, special_places_xor_split
+
+    def add_activity(self, activity, rcpsp_basic):
+        if activity.name not in rcpsp_basic.backward_dependencies:
+            # no dependent activity add start place
+            self.places.append(
+                PetriNetPlace(
+                    name=PRE + activity.name,
+                    arcs_in=dict(),
+                    arcs_out={activity.name: 1},
+                    duration=0,
+                    state=[[1, 0]],
+                )
+            )
+        post_no_dependencies_dict = (
+            {POST + activity.name: 1}
+            if activity.name not in rcpsp_basic.dependencies
+            or len(rcpsp_basic.dependencies[activity.name]) == 0
+            else {}
+        )
+        arcs_out = self.extract_arcs_out(
+            activity, post_no_dependencies_dict, rcpsp_basic
+        )
+        self.transitions.append(
+            # add activity transition
+            PetriNetTransition(
+                name=activity.name,
+                arcs_in=self.extract_arcs_in(activity, rcpsp_basic),
+                duration=activity.duration,
+                arcs_out=arcs_out,
+            )
+        )
+
+        for successor_activity in rcpsp_basic.dependencies.get(activity.name, []):
+            if (
+                successor_activity
+                in self.gather_activities_with_same_successors_diff_branches
+                or (
+                    activity.name
+                    in self.gather_activities_with_same_predecessor_diff_branches
+                    and successor_activity
+                    in self.gather_activities_with_same_predecessor_diff_branches[
+                        activity.name
+                    ]
+                )
+            ):
+                continue
+            else:
+                self.places.append(
+                    PetriNetPlace(
+                        name=POST + activity.name + PRE + successor_activity,
+                        arcs_in={activity.name: 1},
+                        arcs_out={successor_activity: 1},
+                    )
+                )
+        if (
+            activity.name not in rcpsp_basic.dependencies
+            or len(rcpsp_basic.dependencies[activity.name]) == 0
+        ):
+            self.places.append(
+                PetriNetPlace(
+                    name=POST + activity.name,
+                    arcs_in={activity.name: 1},
+                    arcs_out=dict(),
+                )
+            )
+
+    def extract_arcs_out(self, activity, post_no_dependencies_dict, rcpsp_basic):
+        dependents_dict = {}
+        for activity_successor in rcpsp_basic.dependencies.get(activity.name, []):
+            if (
+                activity_successor
+                in self.gather_activities_with_same_successors_diff_branches
+            ):
+                dependents_dict[
+                    self.special_places_xor_join[activity_successor].name
+                ] = 1
+            elif (
+                activity.name
+                in self.gather_activities_with_same_predecessor_diff_branches
+            ):
+                dependents_dict[self.special_places_xor_split[activity.name].name] = 1
+            else:
+                dependents_dict[POST + activity.name + PRE + activity_successor] = 1
+        return merge_dicts(
+            dependents_dict,
+            post_no_dependencies_dict,
+            {
+                resource: activity.resource_demands[resource]
+                for resource in activity.resource_demands.keys()
+            },
+        )
+
+    def extract_arcs_in(self, activity, rcpsp_basic):
+        dependents_dict = {}
+        for activity_successor in rcpsp_basic.dependencies.get(activity.name, []):
+            if (
+                activity_successor
+                in self.gather_activities_with_same_successors_diff_branches
+            ):
+                dependents_dict[
+                    self.special_places_xor_join[activity_successor].name
+                ] = 1
+            elif (
+                activity.name
+                in self.gather_activities_with_same_predecessor_diff_branches
+                and activity_successor
+                in self.gather_activities_with_same_predecessor_diff_branches[
+                    activity.name
+                ]
+            ):
+                dependents_dict[self.special_places_xor_split[activity.name].name] = 1
+            else:
+                dependents_dict[POST + activity.name + PRE + activity_successor] = 1
+        return merge_dicts(
+            {
+                place.name: 1
+                for place in self.places
+                if activity.name in place.arcs_out
+                and place.name not in rcpsp_basic.resources
+            },
+            {
+                resource: activity.resource_demands[resource]
+                for resource in activity.resource_demands.keys()
+            },
+        )
 
 
 class RcpspTimedPlacePetriNet(RcpspTimedPetriNet):

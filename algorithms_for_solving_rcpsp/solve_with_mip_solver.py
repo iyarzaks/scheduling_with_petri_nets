@@ -79,16 +79,23 @@ def solve_rcpsp(p, u, e, c):
             <= c[r]
         )
     # opt_glpk = pyo.SolverFactory("scip", executable="/usr/local/opt/scip/bin/scip")
+    opt_glpk = pyo.SolverFactory("gurobi")
     # opt_glpk = pyo.SolverFactory(
     #     "cplex", executable="/Users/iyarzaks/Downloads/ampl.macos64/cplex"
     # )
-    # opt_glpk = pyo.SolverFactory("gurobi")
-    opt_glpk = pyo.SolverFactory("cbc")
+    # opt_glpk = pyo.SolverFactory("cbc")
+    # opt_glpk = pyo.SolverFactory(
+    #     "scip",
+    # )
     # optimizer = pyo.SolverFactory["cbc"]
     # opt_glpk.options["threads"] = 8
     # opt_glpk.options["tmlim"] = 50000
     # opt_glpk.options["mipgap"] = 0
-    results = opt_glpk.solve(model, tee=False)  # ask the solver to solve the model
+    results = opt_glpk.solve(model)
+    # results_display = model.display()
+    # print(results_display)
+    # print(results)
+    # ask the solver to solve the model
     # results.write()
     return {"solved": True, "makespan": results["Problem"][0]["Lower bound"]}
 
