@@ -695,7 +695,7 @@ def main():
     # # print(solve_small_problem_math())
     print(
         solve_file_problem(
-            path="extract_problems/data/j60.sm.tgz/j6040_2.sm",
+            path="extract_problems/data/j30.sm.tgz/j3040_5.sm",
             # timed_transition=True,
             logging=True,
         )
