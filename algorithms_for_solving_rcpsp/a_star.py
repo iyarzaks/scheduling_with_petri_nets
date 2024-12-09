@@ -6,7 +6,6 @@ from types import MappingProxyType
 import orjson
 from tqdm import tqdm
 
-from RCPSP_modeling.rcpsp_base import profile
 from RCPSP_modeling.rcpsp_petri_net import (
     PetriNetTransition,
     TIME,
@@ -152,6 +151,7 @@ class RgNodeTimedTransition:
         previous_rg_node_started_activities=None,
         transition=None,
         job_finish_activity=None,
+        heuristic_params=None,
     ):
         self.available_transitions = None
         self.previous_marking = previous_marking
@@ -193,6 +193,7 @@ class RgNodeTimedTransition:
             current_time=self.g_score,
             job_finish_activity=job_finish_activity,
             alternatives=self.petri_net_to_solve.alternatives,
+            # heuristic_params=heuristic_params,
         )
         self.f_score = self.g_score + self.h_score
 
@@ -430,6 +431,7 @@ class AStarSolver:
         heuristic_function,
         timed_transition=False,
         job_finish_activity=None,
+        heuristic_params=None,
     ):
         self.petri_net_to_solve = petri_net_to_solve
         self.rcpsp_base = rcpsp_base
@@ -440,6 +442,7 @@ class AStarSolver:
                 heuristic_function,
                 rcpsp_base,
                 job_finish_activity=job_finish_activity,
+                heuristic_params=heuristic_params,
             )
         else:
             self.start_node = RgNode(petri_net_to_solve, heuristic_function, rcpsp_base)
@@ -447,6 +450,7 @@ class AStarSolver:
             self.job_finish_activity = job_finish_activity
 
         self.timed_transition = timed_transition
+        self.heuristic_params = heuristic_params
 
     def is_final_node(self, node: RgNode) -> bool:
         final_places = [
@@ -467,7 +471,6 @@ class AStarSolver:
                 return True
         return False
 
-    @profile
     def solve(self, beam_search_size=None, logging=False):
         if logging:
             progress_bar = tqdm(total=1000000, desc="Processing")
@@ -478,6 +481,8 @@ class AStarSolver:
         closed = set()
         while not self.is_final_node(current):
             available_transitions = current.available_transitions
+            # if len(closed) % 1000 == 0:
+            #     print("stop")
             for transition in available_transitions:
                 if self.timed_transition:
                     generated += 1
@@ -494,6 +499,7 @@ class AStarSolver:
                         ),
                         transition=transition,
                         job_finish_activity=self.job_finish_activity,
+                        heuristic_params=self.heuristic_params,
                     )
                 else:
                     new_node = RgNode(
@@ -507,15 +513,13 @@ class AStarSolver:
                     heapq.heappush(available, new_node)
             try:
                 current = heapq.heappop(available)
+                # print(current.h_score, current.g_score)
                 if beam_search_size is not None:
                     heapq.heapify(available)
                     available = heapq.nsmallest(beam_search_size, available)
                 closed.add(current)
                 current.update_marking_and_neighbors()
                 if logging:
-                    if len(closed) % 10000 == 0:
-                        print(f"activities started: {current.started_activities}")
-                        print(f"g score: {current.g_score}, h score: {current.h_score}")
                     progress_bar.update(1)
             except IndexError:
                 print(current.started_activities)

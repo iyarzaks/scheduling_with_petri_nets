@@ -1,9 +1,9 @@
 from collections import defaultdict
 from itertools import product
 
-import pygraphviz as pgv
-
 from RCPSP_modeling.rcpsp_base import RcpspBase
+
+# import pygraphviz as pgv
 
 START = "_start"
 FINISH = "_finish"
@@ -91,33 +91,33 @@ class RcpspTimedPetriNet:
     def __init__(self):
         self.transitions_dict = {}
         self.places_dict = {}
-        self.net = pgv.AGraph(directed=True)
+        # self.net = pgv.AGraph(directed=True)
         self.transitions = []
         self.alternatives = None
         self.places = []
 
     def update_net(self):
         for place in self.places:
-            self.net.add_node(
-                place.name,
-                shape="circle",
-                color="lightblue",
-                label=f"{place.name}\n",
-            )
+            # self.net.add_node(
+            #     place.name,
+            #     shape="circle",
+            #     color="lightblue",
+            #     label=f"{place.name}\n",
+            # )
             self.places_dict[place.name] = place
-            for successor in place.arcs_in:
-                self.net.add_edge(successor, place.name, label=place.arcs_in[successor])
+            # for successor in place.arcs_in:
+            #     self.net.add_edge(successor, place.name, label=place.arcs_in[successor])
         for transition in self.transitions:
-            self.net.add_node(transition.name, shape="box", color="lightgreen")
-            for successor in transition.arcs_in:
-                self.net.add_edge(
-                    successor, transition.name, label=transition.arcs_in[successor]
-                )
+            # self.net.add_node(transition.name, shape="box", color="lightgreen")
+            # for successor in transition.arcs_in:
+            #     self.net.add_edge(
+            #         successor, transition.name, label=transition.arcs_in[successor]
+            #     )
             self.transitions_dict[transition.name] = transition
 
-    def plot(self, filename):
-        self.net.layout(prog="dot")
-        self.net.draw(filename)
+    # def plot(self, filename):
+    #     self.net.layout(prog="dot")
+    #     self.net.draw(filename)
 
 
 class RcpspTimedTransitionPetriNet(RcpspTimedPetriNet):
@@ -264,11 +264,15 @@ class RcpspTimedTransitionPetriNet_As(RcpspTimedTransitionPetriNet):
     def __init__(self, rcpsp_basic: RcpspBase, activities_branches_list, subgraphs):
         self.activities_branches_list = activities_branches_list
         self.subgraphs = subgraphs
+
+        self.splitted_branch = {}
         self.gather_activities_with_same_successors_diff_branches = defaultdict(list)
         self.gather_activities_with_same_predecessor_diff_branches = defaultdict(list)
-        self.special_places_xor_join, self.special_places_xor_split = (
-            self.add_special_places_and_transitions(rcpsp_basic)
-        )
+        (
+            self.special_places_xor_join,
+            self.special_places_xor_split,
+            self.splitted_branch,
+        ) = self.add_special_places_and_transitions(rcpsp_basic)
 
         super().__init__(rcpsp_basic)
         self.alternatives = RcpspTimedTransitionPetriNet_As.get_job_combinations(
@@ -291,10 +295,11 @@ class RcpspTimedTransitionPetriNet_As(RcpspTimedTransitionPetriNet):
     def add_special_places_and_transitions(self, rcpsp_basic):
         special_places_xor_join = {}
         special_places_xor_split = {}
+        branch_splits = {}
         for dependency in rcpsp_basic.backward_dependencies.items():
-            if (
-                len(dependency[1]) > 1
-                and 1 in self.activities_branches_list[dependency[0]]["branch_ids"]
+            if len(dependency[1]) > 1 and (
+                1 in self.activities_branches_list[dependency[0]]["branch_ids"]
+                or len(self.activities_branches_list[dependency[0]]["branch_ids"]) > 1
             ):
                 for activity in dependency[1]:
                     if 1 not in self.activities_branches_list[activity]["branch_ids"]:
@@ -312,6 +317,33 @@ class RcpspTimedTransitionPetriNet_As(RcpspTimedTransitionPetriNet):
                         self.gather_activities_with_same_predecessor_diff_branches[
                             dependency[0]
                         ].append(activity)
+            if (
+                len(dependency[1]) > 1
+                and 1 not in self.activities_branches_list[dependency[0]]["branch_ids"]
+                and len(
+                    set(
+                        [
+                            tuple(self.activities_branches_list[act]["branch_ids"])
+                            for act in dependency[1]
+                        ]
+                    )
+                )
+                > 1
+            ):
+                all_succesors_branches = [
+                    self.activities_branches_list[depend]["branch_ids"]
+                    for depend in dependency[1]
+                ]
+                unique_union = {
+                    item for sublist in all_succesors_branches for item in sublist
+                }
+                unique_union = list(
+                    unique_union
+                    - {self.activities_branches_list[dependency[0]]["branch_ids"][0]}
+                )
+                branch_splits[
+                    self.activities_branches_list[dependency[0]]["branch_ids"][0]
+                ] = unique_union
 
         for (
             special_case
@@ -343,7 +375,23 @@ class RcpspTimedTransitionPetriNet_As(RcpspTimedTransitionPetriNet):
                 duration=0,
             )
 
-        return special_places_xor_join, special_places_xor_split
+        for branch_split in branch_splits:
+            # last_in_splitted =
+            # last_in_split_to = []
+            # add place which gather all lasts
+            # remove arc_out from last splitted
+            # add transitions form place to relevant "before main graph" place
+            # in_activities = [last_act_in()]
+            # last_act_in_splitted =
+
+            special_places_xor_split[special_case[0]] = PetriNetPlace(
+                name=pre_str,
+                arcs_in={special_case[0]: 1},
+                arcs_out={a: 1 for a in special_case[1]},
+                duration=0,
+            )
+
+        return special_places_xor_join, special_places_xor_split, branch_split
 
     def add_activity(self, activity, rcpsp_basic):
         if activity.name not in rcpsp_basic.backward_dependencies:

@@ -5,6 +5,133 @@ from collections import deque, defaultdict
 from functools import wraps
 from itertools import combinations
 
+import numpy as np
+
+
+def calc_cumulative_resources(resource_over_time):
+    # Get all the times in sorted order
+    times = sorted(resource_over_time.keys())
+    cumulative_resource_usage = {}
+
+    # Initialize cumulative sums to zero for all resources
+    total_resources = {}
+
+    # Traverse backwards to accumulate the resource needs
+    for time in reversed(times):
+        if time not in cumulative_resource_usage:
+            cumulative_resource_usage[time] = {}
+
+        for resource, amount in resource_over_time.get(time, {}).items():
+            # Add the current resource amount to the cumulative sum
+            total_resources[resource] = total_resources.get(resource, 0) + amount
+
+        # Store the cumulative resources at this time point
+        cumulative_resource_usage[time] = total_resources.copy()
+
+    return cumulative_resource_usage
+
+
+def calc_cumulative_with_max(resource_over_time, resource_amounts):
+    # Step 1: Calculate cumulative resources over time
+    cumulative_resource_usage = calc_cumulative_resources(resource_over_time)
+
+    result_with_max = {}
+
+    # Step 2: For each time, calculate the required sum
+    for time, resources in cumulative_resource_usage.items():
+        # Step 3: Find max(values.values()) / resource_amount
+        max_value = 0
+        for resource, amount in resources.items():
+            if resource in resource_amounts:
+                resource_ratio = amount / resource_amounts[resource]
+                max_value = max(max_value, resource_ratio)
+
+        # Step 4: Add the time and max_value to get the final result
+        result_with_max[time] = time + np.ceil(max_value)
+
+    return result_with_max
+
+
+def divide_dicts(d1, d2):
+    result = {}
+    for key in d1:
+        if (
+            key in d2 and d2[key] != 0
+        ):  # Check if key exists in d2 and avoid division by zero
+            result[key] = d1[key] / d2[key]
+        else:
+            result[key] = (
+                None  # Assign None or any other value to indicate division is not possible
+            )
+    return result
+
+
+def compute_resource_overages(resource_requirements, total_resources):
+    # Initialize a dictionary to hold the overages for each resource
+    overages = {resource_name: 0 for resource_name in total_resources}
+    time_units_overage = 0
+
+    # Iterate through each time unit and compare resource requirements with available resources
+    for t, resources in resource_requirements.items():
+        for resource_name, required_amount in resources.items():
+            if required_amount > total_resources.get(resource_name, 0):
+                overage = required_amount - total_resources.get(resource_name, 0)
+                overages[resource_name] += overage
+                time_units_overage += 1
+
+    return time_units_overage, overages
+
+
+def compute_resource_requirements_at_start(schedule, activities):
+    # Initialize a dictionary to hold the resource requirements at each start time
+    resource_requirements_at_start = {}
+
+    # Iterate through each activity and its start time
+    for activity, start_time in schedule.items():
+        resources = activities[int(activity) - 1].resource_demands
+
+        # Check if there are any resource demands for this activity
+        if resources:
+            # If there are no jobs already recorded for this start time, initialize an empty dict
+            if start_time not in resource_requirements_at_start:
+                resource_requirements_at_start[start_time] = {}
+
+            # Add the resource requirements for this job at its start time
+            for resource_name, amount_needed in resources.items():
+                if resource_name not in resource_requirements_at_start[start_time]:
+                    resource_requirements_at_start[start_time][resource_name] = 0
+                resource_requirements_at_start[start_time][resource_name] += (
+                    amount_needed * activities[int(activity) - 1].duration
+                )
+
+    # Filter out any times where the resource requirements dictionary is empty
+    return {time: reqs for time, reqs in resource_requirements_at_start.items() if reqs}
+
+
+def compute_resource_requirements(schedule, activities):
+    # Determine the end time of the project
+    end_time = max(
+        start_time + activities[int(activity) - 1].duration
+        for activity, start_time in schedule.items()
+    )
+
+    # Initialize a dictionary to hold the resource requirements for each time unit
+    resource_requirements = {t: {} for t in range(end_time + 1)}
+
+    # Iterate through each activity and its start time
+    for activity, start_time in schedule.items():
+        duration = activities[int(activity) - 1].duration
+        resources = activities[int(activity) - 1].resource_demands
+
+        # Add the resource requirement for each time unit the activity is active
+        for t in range(start_time, start_time + duration):
+            for resource_name, amount_needed in resources.items():
+                if resource_name not in resource_requirements[t]:
+                    resource_requirements[t][resource_name] = 0
+                resource_requirements[t][resource_name] += amount_needed
+
+    return resource_requirements
+
 
 class Activity:
     def __init__(self, name: str, duration: int, resource_demands: dict):
@@ -84,12 +211,13 @@ class RcpspBase:
     #         critical_path_durations[tuple(subset)] = cp_duration
     #         print(f"Executed: {subset} -> Critical Path Duration: {cp_duration}")
 
-    def get_all_critical_path_of_sub(self, executed, job_finish_activity):
+    def get_all_critical_path_of_sub(self, executed, job_finish_activity, ongoing):
         return self.find_critical_path_with_executed(
             self.activities_names_durations,
             self.dependencies,
             executed,
             job_finish_activity,
+            ongoing,
         )
 
     @staticmethod
@@ -119,54 +247,90 @@ class RcpspBase:
         self.excuted_memo[tuple(executed)] = res
         return res
 
-    def find_critical_path_with_executed(
-        self, activities, dependencies, executed, job_finish_activity
-    ):
-        executed_key = frozenset(executed)
-        if job_finish_activity in executed:
-            return 0
+    def calc_cumulative_resources(resource_over_time):
+        # Get all the times in sorted order
+        times = sorted(resource_over_time.keys())
+        cumulative_resource_usage = {}
 
+        # Initialize cumulative sums to zero for all resources
+        total_resources = {}
+
+        # Traverse backwards to accumulate the resource needs
+        for time in reversed(times):
+            if time not in cumulative_resource_usage:
+                cumulative_resource_usage[time] = {}
+
+            for resource, amount in resource_over_time.get(time, {}).items():
+                # Add the current resource amount to the cumulative sum
+                total_resources[resource] = total_resources.get(resource, 0) + amount
+
+            # Store the cumulative resources at this time point
+            cumulative_resource_usage[time] = total_resources.copy()
+
+        return cumulative_resource_usage
+
+    def find_critical_path_with_executed(
+        self, activities, dependencies, executed, job_finish_activity, ongoing
+    ):
+        executed_key = (frozenset(executed), frozenset(ongoing.items()))
+
+        if job_finish_activity in executed:
+            return (0, [])  # Job is already finished
         if executed_key in self.memo:
             return self.memo[executed_key]
 
-        # Copy the graph and dependencies to avoid modifying the original
         graph = defaultdict(list)
-        in_degree = {activity: 0 for activity in activities}
-        duration = activities.copy()  # Copy activity durations
+        in_degree = defaultdict(int)
+        duration = activities.copy()
 
-        for u in dependencies:
-            for v in dependencies[u]:
+        # Improved handling of ongoing activities
+        for job, remaining in ongoing.items():
+            duration[job] = remaining
+            if job not in activities:
+                activities[job] = remaining
+
+        # Build the graph and in-degree dictionary
+        for u, neighbors in dependencies.items():
+            for v in neighbors:
                 graph[u].append(v)
                 in_degree[v] += 1
+            if u not in in_degree:
+                in_degree[u] = 0  # Ensure all nodes are in in_degree
 
-        # Remove executed activities
+        # Remove executed activities from the graph
         for act in executed:
             if act in graph:
                 for neighbor in graph[act]:
                     in_degree[neighbor] -= 1
                 del graph[act]
-            if act in in_degree:
-                del in_degree[act]
-            if act in duration:
-                del duration[act]
+            in_degree.pop(act, None)
+            duration.pop(act, None)
             for source in list(graph):
                 if act in graph[source]:
                     graph[source].remove(act)
 
-        # Topological sorting using Kahn's Algorithm
+        # Topological sort with cycle detection
         topo_sort = []
         queue = deque([node for node in in_degree if in_degree[node] == 0])
+        visited = set()
 
         while queue:
+            if len(topo_sort) > len(activities) - len(executed):
+                raise ValueError("Cycle detected in the dependency graph")
             node = queue.popleft()
             topo_sort.append(node)
+            visited.add(node)
             for neighbor in graph[node]:
                 in_degree[neighbor] -= 1
                 if in_degree[neighbor] == 0:
                     queue.append(neighbor)
 
-        # Compute the earliest start and finish times
+        if len(topo_sort) != len(set(activities) - set(executed)):
+            raise ValueError("Graph is not a DAG or some nodes are unreachable")
+
+        # Calculate earliest start and latest finish times
         earliest_start = {node: 0 for node in duration}
+        latest_finish = {}
 
         for node in topo_sort:
             for neighbor in graph[node]:
@@ -174,17 +338,43 @@ class RcpspBase:
                     earliest_start[neighbor], earliest_start[node] + duration[node]
                 )
 
-        # Find the maximum finish time which is the critical path duration
-        critical_path_duration = (
-            max(earliest_start[node] + duration[node] for node in duration)
-            if duration
-            else 0
+        critical_path_duration = max(
+            earliest_start[node] + duration[node]
+            for node in topo_sort
+            if node in duration
         )
 
-        # Cache the result
-        self.memo[executed_key] = critical_path_duration
+        # Calculate latest finish times
+        for node in reversed(topo_sort):
+            if (
+                not graph[node] or node not in duration
+            ):  # If it's a sink node or not in duration
+                latest_finish[node] = critical_path_duration
+            else:
+                latest_finish[node] = min(
+                    latest_finish[neighbor] - duration[node]
+                    for neighbor in graph[node]
+                    if neighbor in latest_finish
+                )
 
-        return critical_path_duration
+        # Identify critical path activities
+        critical_path_activities = set()
+        for node in topo_sort:
+            if (
+                node in duration
+                and earliest_start[node] + duration[node] == latest_finish[node]
+            ):
+                critical_path_activities.add(node)
+
+        # Refined handling of ongoing activities in critical path
+        for job in ongoing:
+            if job in critical_path_activities:
+                for neighbor in graph[job]:
+                    if earliest_start[neighbor] == earliest_start[job] + duration[job]:
+                        critical_path_activities.add(neighbor)
+
+        self.memo[executed_key] = (critical_path_duration, critical_path_activities)
+        return self.memo[executed_key]
 
     @staticmethod
     def remove_executed_activities(
