@@ -1,6 +1,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <unordered_map>
 class Activity {
 public:
     int duration;
@@ -10,7 +11,7 @@ public:
     int late_start;
     std::string name;
     std::map<std::string, int> resource_demands; // For resources like 'R1': 3
-
+    Activity(){};
     // Constructor
     Activity(int dur, const std::string& n, const std::map<std::string, int>& resources)
         : duration(dur), name(n), resource_demands(resources), early_finish(0), early_start(0), late_finish(0), late_start(0) {}
@@ -27,32 +28,22 @@ class RCPSP_example{
         activities.push_back(activity);
     }
    //skip on activity name duration as it can be acssesd with acvivity[num].duration
-    std::vector<std::vector<int>> dependencies;
-    std::vector<std::vector<int>> backword_dependencies;
-    void addDependencies(std::vector<std::vector<int>>& dependencieslist,std::vector<std::vector<int>> dependencies) {
-      for (int i = 0; i < activity_len; i++) {
-        dependencies.push_back(dependencies[i]);
-      }
-    }
-    void addBackword_dependencies(std::vector<std::vector<int>>& backword_dependencies,std::vector<std::vector<int>> dependencies) {
-        for (int i = 0; i < activity_len; i++) {
-            backword_dependencies.push_back(dependencies[i]);
-        }
-    }
-    std::vector<int> recsores;
-    std::vector<std::map<std::string, int>> resources;
+    std::vector<std::vector<std::string>> dependencies;
+    std::vector<std::vector<std::string>> backword_dependencies;
 
-    // Create the first map and add it to the vector
-    std::map<std::string, int> resource1;
-    void addResources(const std::map<std::string, int>& resources) {
-      for (int i = 0; i < resources.size(); i++) {
+    std::vector<std::pair<std::string, int>> resources;
 
-      }
+    // Function to add a single resource to the vector
+    void addResource(const std::string& name, int value) {
+        resources.push_back({name, value});  // Push as a pair
     }
     ~RCPSP_example() {}
     RCPSP_example(){};
     //didnt put activity_names_duration activity_names_set depenedncy_deep_set
 };
+
+
+
 class Place {
 public:
     std::map<std::string, int> arcs_in;  // Arcs coming into the place

@@ -1,33 +1,108 @@
 #include <iostream>
 #include <fstream>
-#include "json.hpp"  // כולל את קובץ json.hpp
-
-using json = nlohmann::json;  // alias ל-nlohmann::json
+#include "json.hpp"  // Includes the json.hpp file
+#include "petriclasses.h"
+using json = nlohmann::json;  // alias for nlohmann::json
 
 int main() {
-    // פותחים את הקובץ לקריאה
+    // Open the file for reading
+    RCPSP_example rcpsp_example;
     std::ifstream input_file("rcpspExample.json");
-    
-    // אם לא הצלחנו לפתוח את הקובץ
+
+    // If the file could not be opened
     if (!input_file.is_open()) {
-        std::cerr << "לא הצלחנו לפתוח את הקובץ rcpspExample.json" << std::endl;
+        std::cerr << "Failed to open rcpspExample.json" << std::endl;
         return 1;
     }
 
-    // יצירת אובייקט JSON
+    // Create JSON object
     json j;
-    
-    // קריאה לתוך האובייקט JSON
+
+    // Read into the JSON object
     input_file >> j;
 
-    // הצגת תוכן ה-JSON
-    std::cout << "תוכן הקובץ JSON:" << std::endl;
-    std::cout << j.dump(4) << std::endl;  // dump(4) מדפיס עם אינדנטציה של 4 רווחים
+    // Check if the JSON is an array and contains at least one part
+    if (j.is_array() && j.size() > 0) {
+        // Print the names of the activities in Part 1 (first 32 activities)
+        std::cout << "Part 1 (Activities):" << std::endl;
 
-    
+        // Loop over the first 32 elements (0-31)
+        for (int i = 0; i < 32 && i < j.size(); ++i) {
+            const auto& activity1 = j[i];
+            Activity activity(activity1["duration"], activity1["name"], activity1["resource_demands"]);
+            rcpsp_example.addActivity(activity);
+            // Check if the "name" and "duration" fields exist in the current activity
+            if (activity1.contains("name") && activity1.contains("duration")) {
+                std::cout << "Name: " << activity1["name"] << std::endl;
+                std::cout << "Duration: " << activity1["duration"] << std::endl;
 
-    // סגירת הקובץ אחרי סיום הקריאה
-    input_file.close();
+                // Print resource demands, if they exist
+                if (activity1.contains("resource_demands") && !activity1["resource_demands"].empty()) {
+                    std::cout << "Resource Demands:" << std::endl;
+                    for (auto& demand : activity1["resource_demands"].items()) {
+                        std::cout << "  " << demand.key() << ": " << demand.value() << std::endl;
+                    }
+                } else {
+                    std::cout << "No resource demands." << std::endl;
+                }
+            }
+            std::cout << std::endl;  // Space between activities
+        }
 
+    } else {
+        std::cerr << "The JSON structure is invalid or does not have enough parts." << std::endl;
+    }
+    rcpsp_example.dependencies.resize(32);
+    rcpsp_example.backword_dependencies.resize(32);
+    std::vector<std::pair<int, json>> sorted32;
+    for (const auto& item : j[32].items()) {
+        sorted32.push_back({std::stoi(item.key()), item.value()});
+    }
+
+    // Sort by the integer value of the keys
+    std::sort(sorted32.begin(), sorted32.end(), [](const auto& a, const auto& b) {
+        return a.first < b.first;
+    });
+
+    // Print the sorted keys and their associated values
+    for (const auto& [key, value] : sorted32) {
+        std::cout << "Key: " << key << " -> Values: ";
+        for (const auto& val : value) {
+            std::cout << val << " ";
+            rcpsp_example.backword_dependencies[key-1].push_back(val);
+        }
+        std::cout << std::endl;
+    }
+    std::vector<std::pair<int, json>> sorted33;
+    for (const auto& item : j[33].items()) {
+        sorted33.push_back({std::stoi(item.key()), item.value()});
+    }
+
+    // Sort by the integer value of the keys
+    std::sort(sorted33.begin(), sorted33.end(), [](const auto& a, const auto& b) {
+        return a.first < b.first;
+    });
+
+    // Print the sorted keys and their associated values
+    for (const auto& [key, value] : sorted33) {
+        std::cout << "Key: " << key << " -> Values: ";
+        for (const auto& val : value) {
+            std::cout << val << " ";
+
+            rcpsp_example.dependencies[key-1].push_back(val);
+
+        }
+        std::cout << std::endl;
+    }
+    // Close the file after reading
+    //std::cout << "Current size of dependencies: " << rcpsp_example.dependencies.size() << std::endl;
+
+    const auto& resources_json = j[34];  // Get the resources part
+
+    // Loop through and add resources individually to the class
+    for (auto& [key, value] : resources_json.items()) {
+        // Assuming the value is always an integer (resources are integers)
+        rcpsp_example.addResource(key, value.get<int>());
+    }
     return 0;
 }
