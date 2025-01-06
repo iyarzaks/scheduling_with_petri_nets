@@ -27,7 +27,7 @@ int main() {
         std::cout << "Part 1 (Activities):" << std::endl;
 
         // Loop over the first 32 elements (0-31)
-        for (int i = 0; i < 32 && i < j.size(); ++i) {
+        for (int i = 0; i < j.size()-3 && i < j.size(); ++i) {
             const auto& activity1 = j[i];
             Activity activity(activity1["duration"], activity1["name"], activity1["resource_demands"]);
             rcpsp_example.addActivity(activity);
@@ -52,10 +52,10 @@ int main() {
     } else {
         std::cerr << "The JSON structure is invalid or does not have enough parts." << std::endl;
     }
-    rcpsp_example.dependencies.resize(32);
-    rcpsp_example.backword_dependencies.resize(32);
+    rcpsp_example.dependencies.resize(j.size()-3);
+    rcpsp_example.backword_dependencies.resize(j.size()-3);
     std::vector<std::pair<int, json>> sorted32;
-    for (const auto& item : j[32].items()) {
+    for (const auto& item : j[j.size()-3].items()) {
         sorted32.push_back({std::stoi(item.key()), item.value()});
     }
 
@@ -74,7 +74,7 @@ int main() {
         std::cout << std::endl;
     }
     std::vector<std::pair<int, json>> sorted33;
-    for (const auto& item : j[33].items()) {
+    for (const auto& item : j[j.size()-2].items()) {
         sorted33.push_back({std::stoi(item.key()), item.value()});
     }
 

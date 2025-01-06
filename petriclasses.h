@@ -46,18 +46,18 @@ class RCPSP_example{
 
 class Place {
 public:
-    std::map<std::string, int> arcs_in;  // Arcs coming into the place
-    std::map<std::string, int> arcs_out; // Arcs going out from the place
-    int duration;                       // Duration of the place
-    std::string name;                   // Name of the place
-    std::vector<int> state;             // State values
+    std::string name;
+    std::map<std::string, int> arcs_in;
+    std::map<std::string, int> arcs_out;
+    std::vector<std::vector<int>> state;
+    int duration;             // State values
 
     ~Place() {};
     // Constructor
     Place(const std::string& placeName,
           const std::map<std::string, int>& inputArcs = {},
           const std::map<std::string, int>& outputArcs = {},
-          const std::vector<int>& initialState = {},
+          const std::vector<std::vector<int>>& initialState = {},
           int initialDuration = 0)
         : name(placeName), arcs_in(inputArcs), arcs_out(outputArcs), state(initialState), duration(initialDuration) {}
 
@@ -68,14 +68,14 @@ public:
     std::map<std::string, int> arcs_out; // Arcs going out from the place
     int duration;                       // Duration of the place
     std::string name;                   // Name of the place
-    std::vector<int> state;             // State values
+    std::vector<std::vector<int>> state;            // State values
 
     // Constructor
     ~Place_dict() {};
     Place_dict(const std::string& placeName,
           const std::map<std::string, int>& inputArcs = {},
           const std::map<std::string, int>& outputArcs = {},
-          const std::vector<int>& initialState = {},
+          const std::vector<std::vector<int>>& initialState = {},
           int initialDuration = 0)
         : name(placeName), arcs_in(inputArcs), arcs_out(outputArcs), state(initialState), duration(initialDuration) {}
 };
@@ -91,7 +91,7 @@ public:
     Transition(const std::string& TransitionName,
           const std::map<std::string, int>& inputArcs = {},
           const std::map<std::string, int>& outputArcs = {},
-          const std::vector<int>& initialState = {},
+
           int initialDuration = 0)
         : name(TransitionName), arcs_in(inputArcs), arcs_out(outputArcs), duration(initialDuration) {}
 };
@@ -107,7 +107,6 @@ public:
     Transition_dict(const std::string& Transition_dictName,
           const std::map<std::string, int>& inputArcs = {},
           const std::map<std::string, int>& outputArcs = {},
-          const std::vector<int>& initialState = {},
           int initialDuration = 0)
         : name(Transition_dictName), arcs_in(inputArcs), arcs_out(outputArcs), duration(initialDuration) {}
 };
