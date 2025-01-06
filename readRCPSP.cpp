@@ -1,18 +1,17 @@
 #include <iostream>
 #include <fstream>
 #include "json.hpp"  // Includes the json.hpp file
-#include "petriclasses.h"
 using json = nlohmann::json;  // alias for nlohmann::json
 
-int main() {
+void getRCPSP(RCPSP_example& rcpsp_example) {
     // Open the file for reading
-    RCPSP_example rcpsp_example;
+
     std::ifstream input_file("rcpspExample.json");
 
     // If the file could not be opened
     if (!input_file.is_open()) {
         std::cerr << "Failed to open rcpspExample.json" << std::endl;
-        return 1;
+        return;
     }
 
     // Create JSON object
@@ -104,5 +103,5 @@ int main() {
         // Assuming the value is always an integer (resources are integers)
         rcpsp_example.addResource(key, value.get<int>());
     }
-    return 0;
+    return;
 }

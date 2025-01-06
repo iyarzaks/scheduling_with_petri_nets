@@ -11,11 +11,12 @@ public:
     int late_start;
     std::string name;
     std::map<std::string, int> resource_demands; // For resources like 'R1': 3
-    Activity(){};
+    Activity(): duration(0), early_finish(0), early_start(0), late_finish(0), late_start(0) {
+    };
     // Constructor
     Activity(int dur, const std::string& n, const std::map<std::string, int>& resources)
         : duration(dur), name(n), resource_demands(resources), early_finish(0), early_start(0), late_finish(0), late_start(0) {}
-    ~Activity() {};
+    ~Activity() = default;
 };
 
 class RCPSP_example{
@@ -37,8 +38,9 @@ class RCPSP_example{
     void addResource(const std::string& name, int value) {
         resources.push_back({name, value});  // Push as a pair
     }
-    ~RCPSP_example() {}
-    RCPSP_example(){};
+    ~RCPSP_example() = default;
+    RCPSP_example(): activity_len(0) {
+    };
     //didnt put activity_names_duration activity_names_set depenedncy_deep_set
 };
 
@@ -112,8 +114,9 @@ public:
 };
 class PetriExample {
 public:
-  ~PetriExample() {};
-  PetriExample(){};
+  ~PetriExample() = default;
+  PetriExample(): place_len(0) {
+  };
     std::vector<Place> places;  // Vector of Place objects
 
     // Add a place to the Petri example
