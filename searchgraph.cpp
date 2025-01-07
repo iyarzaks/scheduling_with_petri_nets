@@ -12,6 +12,7 @@ int main() {
   getPetri(petri);
   RCPSP_example RCPSP;
   getRCPSP(RCPSP);
+
   std::string finalstatename;
   std::string initialstatename;
   for (int i=0;i<petri.places.size();i++) {
@@ -23,7 +24,6 @@ int main() {
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].name==initialstatename) {
       marking[petri.places[i].name]= 1;
-
     }
     else {
       marking[petri.places[i].name]= petri.places[i].state[0][0];
@@ -47,12 +47,13 @@ int main() {
 
   avilableTransitions=getAvilableTransitions(petri,marking);
   std::cout<<"activating transition 1"<<std::endl;
+
   while (1) {
     std::cout<<std::endl;
     std::cout<<"round number:"<<counter<<std::endl;
 
 
-
+std::cout<<"action:";
     if (avilableTransitions.size()==0) {
       int t=0;
       for (int i=1;i<activeTransitions.size();i++) {
@@ -92,21 +93,25 @@ int main() {
 
     std::cout<<"avilable transitions"<<std::endl;
 if (avilableTransitions.size()==0) {std::cout<<"None";}
+
     for (int i=0;i<avilableTransitions.size();i++) {
       std::cout<<petri.Transitions[avilableTransitions[i]].name<<" ";
     }
     std::cout<<std::endl;
-    if (activeTransitions.size()==0) {std::cout<<"None";}
+
     std::cout<<"active transitions"<<std::endl;
+    if (activeTransitions.size()==0) {std::cout<<"None";}
     for (int i=0;i<activeTransitions.size();i++) {
       std::cout<<activeTransitions[i].name<<":"<<activeTransitions[i].duration<<" ";
     }
     std::cout<<std::endl;
+
     std::cout<<"current marking"<<std::endl;
     for (const auto& mark : marking) {
       if (mark.second>=1){std::cout<<mark.first<<":"<<mark.second<<" ";}
     }
     std::cout<<std::endl;
+
     std::cout<<"current duration:"<<totalDuration<<std::endl;
 
 counter++;
