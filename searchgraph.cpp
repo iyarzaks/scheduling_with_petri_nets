@@ -39,32 +39,67 @@ int main() {
 
   std::cout<<"initial avilable transitions"<<std::endl;
   std::vector<int> avilableTransitions=getAvilableTransitions(petri,marking);
+  std::vector<Transition> activeTransitions;
   for (int i=0;i<avilableTransitions.size();i++) {
     std::cout<<petri.Transitions[avilableTransitions[i]].name<<" ";
   }
   std::cout<<std::endl;
 
+  avilableTransitions=getAvilableTransitions(petri,marking);
   std::cout<<"activating transition 1"<<std::endl;
   while (1) {
+    std::cout<<std::endl;
     std::cout<<"round number:"<<counter<<std::endl;
-    std::cout<<"activating transition number:"<<petri.Transitions[avilableTransitions[0]].name<<std::endl;
 
 
-    //activate tarnsiotion only avelabe is 1
-    Transition active = petri.Transitions[avilableTransitions[0]];
-    totalDuration+=active.duration;
-    for (const auto& arc : active.arcs_out) {
-      marking[arc.first]+=arc.second;
+
+    if (avilableTransitions.size()==0) {
+      int t=0;
+      for (int i=1;i<activeTransitions.size();i++) {
+        if (activeTransitions[i].duration<activeTransitions[t].duration) {
+          t=i;
+        }
+      }
+      Transition active = activeTransitions[t];
+      activeTransitions.erase(activeTransitions.begin()+t);
+      std::cout<<"ending transition number:"<<active.name<<std::endl;
+      for (const auto& arc : active.arcs_out) {
+        marking[arc.first]+=arc.second;
+      }
+      totalDuration+=active.duration;
+      for (int i=0;i<activeTransitions.size();i++) {
+        activeTransitions[i].duration-=active.duration;
+      }
+      if (marking[finalstatename]>=1) {
+        std::cout<<"win"<<std::endl;
+        std::cout<<"totalduration:"<<totalDuration<<std::endl;
+        return 0;
+
+      }
+
     }
-    for (const auto& arc : active.arcs_in) {
-      marking[arc.first]-=arc.second;
+    else {
+      Transition active = petri.Transitions[avilableTransitions[avilableTransitions.size()-1]];
+      std::cout<<"start transition number:"<<active.name<<std::endl;
+      activeTransitions.push_back(active);
+      for (const auto& arc : active.arcs_in) {
+        marking[arc.first]-=arc.second;
+      }
     }
-
-    std::cout<<"avilable transitions"<<std::endl;
     avilableTransitions=getAvilableTransitions(petri,marking);
 
+
+
+    std::cout<<"avilable transitions"<<std::endl;
+if (avilableTransitions.size()==0) {std::cout<<"None";}
     for (int i=0;i<avilableTransitions.size();i++) {
       std::cout<<petri.Transitions[avilableTransitions[i]].name<<" ";
+    }
+    std::cout<<std::endl;
+    if (activeTransitions.size()==0) {std::cout<<"None";}
+    std::cout<<"active transitions"<<std::endl;
+    for (int i=0;i<activeTransitions.size();i++) {
+      std::cout<<activeTransitions[i].name<<":"<<activeTransitions[i].duration<<" ";
     }
     std::cout<<std::endl;
     std::cout<<"current marking"<<std::endl;
@@ -72,11 +107,8 @@ int main() {
       if (mark.second>=1){std::cout<<mark.first<<":"<<mark.second<<" ";}
     }
     std::cout<<std::endl;
-    if (marking[finalstatename]>=1) {
-      std::cout<<"win"<<std::endl;
-      std::cout<<"totalduration:"<<totalDuration<<std::endl;
-      return 0;
-    }
+    std::cout<<"current duration:"<<totalDuration<<std::endl;
+
 counter++;
   }
 
@@ -99,6 +131,8 @@ std::vector<int> getAvilableTransitions(PetriExample& petri,std::map<std::string
   }
   return avilableTransitions;
 }
+
+
 
 SearchGraph::SearchGraph() {
 
