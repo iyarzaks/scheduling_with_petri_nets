@@ -52,7 +52,7 @@ public:
     std::map<std::string, int> arcs_in;
     std::map<std::string, int> arcs_out;
     std::vector<std::vector<int>> state;
-    int duration;             // State values
+    int duration;             // TODO delete
 
     ~Place() {};
     // Constructor

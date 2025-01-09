@@ -4,23 +4,115 @@
 #include <vector>
 #include "searchgraph.h"
 
-std::vector<int> getAvilableTransitions(PetriExample& petri,std::map<std::string, int> marking);
-int main() {
-  int totalDuration=0;
-  int counter=1;
-  PetriExample petri;
-  getPetri(petri);
-  RCPSP_example RCPSP;
-  getRCPSP(RCPSP);
+std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
+void GetNabor(std::vector<searchNode> &NodeList,int chosenNode,int &count);
 
-  std::string finalstatename;
-  std::string initialstatename;
+PetriExample petri;
+RCPSP_example RCPSP;
+int main() {
+  getPetri(petri);
+  getRCPSP(RCPSP);
+  searchNode first;
+  std::vector<searchNode> network;
+  network.push_back(first);
+  //int i;
+  int count=0;
+  // for (int j=0;j<network.size();j++) {
+  //   std::cout<<"Node:"<<network[j].name<<std::endl;
+  //   std::cout<<"Avilable Transitions:";
+  //   for (int k=0;k<network[j].avilableTransition.size();k++) {std::cout<<network[j].avilableTransition[k].name<<" ";}
+  // }
+  int i=0;
+  while (true) {
+
+
+
+    if (network[i].expanded==0) {
+      network[i].expanded=1;
+      GetNabor(network,i,count);
+    }
+      for (int j=0;j<network.size();j++) {
+        if (network[j].expanded==0) {
+          std::cout<<"Node:"<<network[j].name<<std::endl;
+          std::cout<<"activeTransitions:"<<std::endl;
+          for (int k=0;k<network[j].activeTransitions.size();k++) {
+            std::cout<<network[j].activeTransitions[k].name<<" ";
+          }
+          std::cout<<std::endl;
+          std::cout<<"Avilable Transitions:"<<std::endl;
+          for (int k=0;k<network[j].avilableTransition.size();k++) {
+            std::cout<<network[j].avilableTransition[k].name<<" ";
+          }
+          std::cout<<std::endl;
+        }
+      }
+for (int j=0;j<network.size();j++) {
+  if (network[j].marking[network[0].finalstatename]==1) {
+std::cout<<"finish with total time of:"<<network[j].g<<std::endl;
+
+    return 1;
+  }
+}
+    int g=-1;
+for (int j=0;j<network.size();j++) {
+  if (network[j].expanded==0) {
+    if (network[j].g>g) {
+      g=network[j].g;
+      i=j;
+    }
+  }
+}
+std::cout<<"expanding:"<<g<<std::endl;
+
+  }
+}
+
+//SearchGraph search_graph;
+std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking) {
+  std::vector<Transition> avilableTransitions;
+  for (int i=0;i<petri.Transitions.size();i++) {
+    int avilable=0;
+    int requirment=0;
+    int count=0;
+    for (const auto& arc : petri.Transitions[i].arcs_in) {
+      if (marking[arc.first]>=1){avilable+=std::min(marking[arc.first],arc.second);}
+      requirment+=arc.second;
+    }
+    if (avilable>=requirment) {
+      avilableTransitions.push_back(petri.Transitions[i]);
+    }
+
+  }
+  return avilableTransitions;
+}
+
+void GetNabor(std::vector<searchNode> &NodeList,int chosenNode,int &count) {
+  if (NodeList[chosenNode].activeTransitions.size()>0) {
+    count++;
+    int t=0;
+    for (int i=0;i<NodeList[chosenNode].activeTransitions.size();i++) {
+      if (NodeList[chosenNode].activeTransitions[i].duration<NodeList[chosenNode].activeTransitions[t].duration) {
+        t=i;
+      }
+    }
+    Transition active = NodeList[chosenNode].activeTransitions[t];
+    NodeList.push_back(searchNode(NodeList[chosenNode],active,0,t,count));
+  }
+
+  for (int i=0;i<NodeList[chosenNode].avilableTransition.size();i++) {
+    count++;
+    NodeList.push_back(searchNode(NodeList[chosenNode],NodeList[chosenNode].avilableTransition[i],1,i,count));
+    NodeList[-1].name=count;
+
+ }
+}
+
+searchNode::searchNode() {
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].arcs_out.size()==0){finalstatename=petri.places[i].name;}
     if (petri.places[i].arcs_in.size()==0){initialstatename=petri.places[i].name;}
   }
 
-  std::map<std::string, int> marking;
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].name==initialstatename) {
       marking[petri.places[i].name]= 1;
@@ -30,117 +122,54 @@ int main() {
     }
   }
 
-  std::cout<<"initial state"<<std::endl;
-  std::cout<<"current marking"<<std::endl;
-  for (const auto& mark : marking) {
-    if (mark.second>=1){std::cout<<mark.first<<":"<<mark.second<<" ";}
+  avilableTransition=getAvilableTransitions(marking);
+  g=0;
+  name=0;
+}
+
+
+searchNode::searchNode(searchNode predecesor, Transition active,bool status,int location,int &count) {
+  name=count;
+  marking=predecesor.marking;
+  activeTransitions=predecesor.activeTransitions;
+  avilableTransition=predecesor.avilableTransition;
+  finalstatename=predecesor.finalstatename;
+
+  //avilableTransition.erase(avilableTransition.begin()+location);
+  g=predecesor.g;
+  if (status) {
+     for (const auto& arc : active.arcs_in) {
+       marking[arc.first]-=arc.second;
+     }
+    //std::cout<<"activate:"<<active.name<<std::endl;
+    activeTransitions.push_back(active);
   }
-  std::cout<<std::endl;
-
-  std::cout<<"initial avilable transitions"<<std::endl;
-  std::vector<int> avilableTransitions=getAvilableTransitions(petri,marking);
-  std::vector<Transition> activeTransitions;
-  for (int i=0;i<avilableTransitions.size();i++) {
-    std::cout<<petri.Transitions[avilableTransitions[i]].name<<" ";
-  }
-  std::cout<<std::endl;
-
-  avilableTransitions=getAvilableTransitions(petri,marking);
-  std::cout<<"activating transition 1"<<std::endl;
-
-  while (1) {
-    std::cout<<std::endl;
-    std::cout<<"round number:"<<counter<<std::endl;
-
-
-std::cout<<"action:";
-    if (avilableTransitions.size()==0) {
-      int t=0;
-      for (int i=1;i<activeTransitions.size();i++) {
-        if (activeTransitions[i].duration<activeTransitions[t].duration) {
-          t=i;
-        }
-      }
-      Transition active = activeTransitions[t];
-      activeTransitions.erase(activeTransitions.begin()+t);
-      std::cout<<"ending transition number:"<<active.name<<std::endl;
-      for (const auto& arc : active.arcs_out) {
-        marking[arc.first]+=arc.second;
-      }
-      totalDuration+=active.duration;
-      for (int i=0;i<activeTransitions.size();i++) {
-        activeTransitions[i].duration-=active.duration;
-      }
-      if (marking[finalstatename]>=1) {
-        std::cout<<"win"<<std::endl;
-        std::cout<<"totalduration:"<<totalDuration<<std::endl;
-        return 0;
-
-      }
-
+  else {
+    //std::cout<<"ending transition number:"<<active.name<<std::endl;
+    for (const auto& arc : active.arcs_out) {
+      marking[arc.first]+=arc.second;
     }
-    else {
-      Transition active = petri.Transitions[avilableTransitions[avilableTransitions.size()-1]];
-      std::cout<<"start transition number:"<<active.name<<std::endl;
-      activeTransitions.push_back(active);
-      for (const auto& arc : active.arcs_in) {
-        marking[arc.first]-=arc.second;
-      }
-    }
-    avilableTransitions=getAvilableTransitions(petri,marking);
-
-
-
-    std::cout<<"avilable transitions"<<std::endl;
-if (avilableTransitions.size()==0) {std::cout<<"None";}
-
-    for (int i=0;i<avilableTransitions.size();i++) {
-      std::cout<<petri.Transitions[avilableTransitions[i]].name<<" ";
-    }
-    std::cout<<std::endl;
-
-    std::cout<<"active transitions"<<std::endl;
-    if (activeTransitions.size()==0) {std::cout<<"None";}
+    g+=active.duration;
+    int temp;
     for (int i=0;i<activeTransitions.size();i++) {
-      std::cout<<activeTransitions[i].name<<":"<<activeTransitions[i].duration<<" ";
+      activeTransitions[i].duration-=active.duration;
+      if (activeTransitions[i].name==active.name) {temp=i;}
     }
-    std::cout<<std::endl;
-
-    std::cout<<"current marking"<<std::endl;
-    for (const auto& mark : marking) {
-      if (mark.second>=1){std::cout<<mark.first<<":"<<mark.second<<" ";}
-    }
-    std::cout<<std::endl;
-
-    std::cout<<"current duration:"<<totalDuration<<std::endl;
-
-counter++;
+    activeTransitions.erase(activeTransitions.begin()+temp);
   }
-
+  avilableTransition=getAvilableTransitions(marking);
+//h=get(h)
 }
 
-//SearchGraph search_graph;
-std::vector<int> getAvilableTransitions(PetriExample& petri,std::map<std::string, int> marking) {
-  std::vector<int> avilableTransitions;
-  for (int i=0;i<petri.Transitions.size();i++) {
-    int avilable=0;
-    int requirment=0;
+int searchNode::GetG() {
+  return g;
+}
 
-    for (const auto& arc : petri.Transitions[i].arcs_in) {
-      if (marking[arc.first]>=1){avilable+=arc.second;}
-      requirment+=arc.second;
-    }
-    if (avilable>=requirment) {
-      avilableTransitions.insert(avilableTransitions.end(), i);
-    }
+int searchNode::checkEnd() {
+  if (marking[finalstatename]==1) {std::cout<<"end"<<std::endl;
+  return 1;
   }
-  return avilableTransitions;
+  else
+    return 0;
 }
 
-
-
-SearchGraph::SearchGraph() {
-
-  //std::cout<<petri.places[-1].arcs_out.size();
-
-}

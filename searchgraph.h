@@ -8,12 +8,21 @@
 
 #endif //SEARCHGRAPH_H
 class searchNode {
-  std::vector<int> marking;
-  std::vector<int> avilableTransition;
+  public:
+  searchNode();
+  searchNode(searchNode predecesor,Transition newTransition,bool status,int location,int &count);
+
+  std::map<std::string, int> marking;
+  std::vector<Transition> avilableTransition;
+  std::vector<Transition> activeTransitions;
+  bool expanded=0;
+  int name;
+  std::string finalstatename;
+  std::string initialstatename;
   int g;
   int h;
-
-
+int GetG();
+  int checkEnd();
 };
 class SearchGraph{
   public:
