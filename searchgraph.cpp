@@ -6,7 +6,7 @@
 
 std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
 void GetNabor(std::vector<searchNode> &NodeList,int chosenNode,int &count);
-
+int ChooseExpansion(std::vector<searchNode> network);
 PetriExample petri;
 RCPSP_example RCPSP;
 int main() {
@@ -53,18 +53,22 @@ std::cout<<"finish with total time of:"<<network[j].g<<std::endl;
     return 1;
   }
 }
-    int g=-1;
+int f=-1;
 for (int j=0;j<network.size();j++) {
   if (network[j].expanded==0) {
-    if (network[j].g>g) {
-      g=network[j].g;
+    if (network[j].g+network[j].h>f) {
+      f=network[j].g+network[j].h;
       i=j;
     }
   }
 }
-std::cout<<"expanding:"<<g<<std::endl;
+std::cout<<"-----------------"<<std::endl;
+std::cout<<"expanding:"<<f<<std::endl;
 
   }
+}
+int ChooseExpansion(std::vector<searchNode> network) {
+
 }
 
 //SearchGraph search_graph;
@@ -121,7 +125,9 @@ searchNode::searchNode() {
       marking[petri.places[i].name]= petri.places[i].state[0][0];
     }
   }
-
+  for (int i=0;i<petri.Transitions.size();i++) {
+    unstartedTransitions[petri.places[i].name]= 1;
+  }
   avilableTransition=getAvilableTransitions(marking);
   g=0;
   name=0;
@@ -138,11 +144,12 @@ searchNode::searchNode(searchNode predecesor, Transition active,bool status,int 
   //avilableTransition.erase(avilableTransition.begin()+location);
   g=predecesor.g;
   if (status) {
-     for (const auto& arc : active.arcs_in) {
+    for (const auto& arc : active.arcs_in) {
        marking[arc.first]-=arc.second;
      }
     //std::cout<<"activate:"<<active.name<<std::endl;
     activeTransitions.push_back(active);
+    unstartedTransitions[active.name]=0;
   }
   else {
     //std::cout<<"ending transition number:"<<active.name<<std::endl;
@@ -158,6 +165,12 @@ searchNode::searchNode(searchNode predecesor, Transition active,bool status,int 
     activeTransitions.erase(activeTransitions.begin()+temp);
   }
   avilableTransition=getAvilableTransitions(marking);
+  // for (int i=0;i<petri.Transitions.size();i++) {
+  //   if (unstartedTransitions[petri.Transitions[i].name]==1) {
+  //
+  //   }
+  // }
+
 //h=get(h)
 }
 
@@ -167,9 +180,10 @@ int searchNode::GetG() {
 
 int searchNode::checkEnd() {
   if (marking[finalstatename]==1) {std::cout<<"end"<<std::endl;
-  return 1;
+    return 1;
   }
   else
+
     return 0;
 }
 
