@@ -5,15 +5,15 @@
 #include "searchgraph.h"
 
 std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
-void GetNabor(std::vector<searchNode> &NodeList,int chosenNode,int &count);
-int ChooseExpansion(std::vector<searchNode> network);
+void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
+int ChooseExpansion(std::vector<RCPSPState> network);
 PetriExample petri;
 RCPSP_example RCPSP;
 int main() {
   getPetri(petri);
   getRCPSP(RCPSP);
-  searchNode first;
-  std::vector<searchNode> network;
+  RCPSPState first(petri);
+  std::vector<RCPSPState> network;
   network.push_back(first);
   //int i;
   int count=0;
@@ -69,7 +69,7 @@ std::cout<<"expanding:"<<i<<std::endl;
 
   }
 }
-int ChooseExpansion(std::vector<searchNode> network) {
+int ChooseExpansion(std::vector<RCPSPState> network) {
 
 }
 
@@ -92,7 +92,7 @@ std::vector<Transition> getAvilableTransitions(std::map<std::string, int> markin
   return avilableTransitions;
 }
 
-void GetNabor(std::vector<searchNode> &NodeList,int chosenNode,int &count) {
+void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count) {
   if (NodeList[chosenNode].activeTransitions.size()>0) {
     count++;
     int t=0;
@@ -102,18 +102,18 @@ void GetNabor(std::vector<searchNode> &NodeList,int chosenNode,int &count) {
       }
     }
     Transition active = NodeList[chosenNode].activeTransitions[t];
-    NodeList.push_back(searchNode(NodeList[chosenNode],active,0,t,count));
+    NodeList.push_back(RCPSPState(NodeList[chosenNode],active,0,t,count));
   }
 
   for (int i=0;i<NodeList[chosenNode].avilableTransition.size();i++) {
     count++;
-    NodeList.push_back(searchNode(NodeList[chosenNode],NodeList[chosenNode].avilableTransition[i],1,i,count));
+    NodeList.push_back(RCPSPState(NodeList[chosenNode],NodeList[chosenNode].avilableTransition[i],1,i,count));
     NodeList.back().name = count;
 
  }
 }
 
-searchNode::searchNode() {
+RCPSPState::RCPSPState(PetriExample petri) {
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].arcs_out.size()==0){finalstatename=petri.places[i].name;}
     if (petri.places[i].arcs_in.size()==0){initialstatename=petri.places[i].name;}
@@ -136,7 +136,7 @@ searchNode::searchNode() {
 }
 
 
-searchNode::searchNode(searchNode predecesor, Transition active,bool status,int location,int &count) {
+RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int location,int &count) {
   name=count;
   marking=predecesor.marking;
   activeTransitions=predecesor.activeTransitions;
@@ -176,11 +176,11 @@ searchNode::searchNode(searchNode predecesor, Transition active,bool status,int 
 //h=get(h)
 }
 
-int searchNode::GetG() {
+int RCPSPState::GetG() {
   return g;
 }
 
-int searchNode::checkEnd() {
+int RCPSPState::checkEnd() {
   if (marking[finalstatename]==1) {std::cout<<"end"<<std::endl;
     return 1;
   }
