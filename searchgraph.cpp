@@ -34,6 +34,7 @@ int main() {
       for (int j=0;j<network.size();j++) {
         if (network[j].expanded==0) {
           std::cout<<"Node:"<<network[j].name<<std::endl;
+          std::cout<<"with g of:"<<network[j].g<<std::endl;
           std::cout<<"activeTransitions:"<<std::endl;
           for (int k=0;k<network[j].activeTransitions.size();k++) {
             std::cout<<network[j].activeTransitions[k].name<<" ";
@@ -48,22 +49,23 @@ int main() {
       }
 for (int j=0;j<network.size();j++) {
   if (network[j].marking[network[0].finalstatename]==1) {
-std::cout<<"finish with total time of:"<<network[j].g<<std::endl;
+std::cout<<"finish with total time of:"<<network[j].g;
 
     return 1;
   }
 }
-int f=-1;
+int f=1000;
 for (int j=0;j<network.size();j++) {
   if (network[j].expanded==0) {
-    if (network[j].g+network[j].h>f) {
+    if (network[j].g+network[j].h<=f) {
       f=network[j].g+network[j].h;
       i=j;
     }
   }
 }
 std::cout<<"-----------------"<<std::endl;
-std::cout<<"expanding:"<<f<<std::endl;
+std::cout<<"with f of:"<<f<<std::endl;
+std::cout<<"expanding:"<<i<<std::endl;
 
   }
 }
@@ -106,7 +108,7 @@ void GetNabor(std::vector<searchNode> &NodeList,int chosenNode,int &count) {
   for (int i=0;i<NodeList[chosenNode].avilableTransition.size();i++) {
     count++;
     NodeList.push_back(searchNode(NodeList[chosenNode],NodeList[chosenNode].avilableTransition[i],1,i,count));
-    NodeList[-1].name=count;
+    NodeList.back().name = count;
 
  }
 }
