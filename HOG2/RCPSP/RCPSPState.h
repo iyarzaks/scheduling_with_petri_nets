@@ -7,30 +7,26 @@
 #include "readPetri.cpp"
 #ifndef RCPSPSTATE_H
 #define RCPSPSTATE_H
-
+std::string finalstatename;
+std::string initialstatename;
 class RCPSPState {
   public:
-    RCPSPState();
-  RCPSPState(RCPSPState predecessor,Transition newTransition,bool status,int location,int &count);
+  RCPSPState();
+  RCPSPState(RCPSPState predecessor,Transition newTransition,bool status,int location,uint64_t &count);
   std::map<std::string, int> marking;
   std::map<std::string, int> unstartedTransitions;
   std::vector<Transition> avilableTransition;
   std::vector<Transition> activeTransitions;
-  std::vector<RCPSPState> sons;
+  //std::vector<RCPSPState> sons;
   //std::vector<int> unstartedTransitions;
   bool expanded=0;
 
   int name;
-  std::string finalstatename;
-  std::string initialstatename;
-
   int g=0;
   int h=0;
 
-  int GetG();
-
-
-  int checkEnd();
+  //int GetG();
+  //int checkEnd();
   bool operator==(const RCPSPState& other) const;
 };
 

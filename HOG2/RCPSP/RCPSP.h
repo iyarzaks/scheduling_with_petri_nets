@@ -10,8 +10,8 @@
 // class RCPSPState{
 // searchNode node;
 //   };
-int count=0;
-int Nsize=0;
+std::uint64_t count=0;
+//int Nsize=0;
 class action {
 public:
 int a=0;
@@ -33,33 +33,6 @@ class RCPSP : public SearchEnvironment<RCPSPState,int>{
   std::vector<RCPSPState> GetSuccessors(const RCPSPState &nodeID) const;
   double GCost(const RCPSPState &node, const int &act) const override;
   };
-
-
-inline uint64_t RCPSP::GetActionHash(int act) const {
-  // Example hash for an action
-  return std::hash<int>()(act);
-}
-inline void RCPSP::GetActions(const RCPSPState &nodeID, std::vector<int> &actions) const {
-  for (int i = 0; i < nodeID.sons.size(); ++i) {
-    actions.push_back(i); // Add the index of each available transition as an action.
-  }
-}
-
-inline bool RCPSP::InvertAction(int &a) const {
-  // Example logic to invert an action
-  a = -a; // Negate the action (depends on your domain).
-  return true;
-}
-
-inline std::vector<RCPSPState> RCPSP::GetSuccessors(const RCPSPState &nodeID) const {
-
-    std::vector<RCPSPState> neighbors;
-    for (int i = 0; i < nodeID.sons.size(); ++i) {
-      neighbors.push_back(nodeID.sons[i]);
-    }
-    return neighbors;
-}
-
 inline double RCPSP::GCost(const RCPSPState &node, const int &act) const {
   return node.g;
 }
@@ -87,7 +60,7 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
     RCPSPState temp(RCPSPState(nodeID,active,0,t,count));
     temp.name = count;
     neighbors.emplace_back(temp);
-    Nsize++;
+    //Nsize++;
   }
 
   for (int i=0;i<nodeID.avilableTransition.size();i++) {
@@ -95,7 +68,7 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
     RCPSPState temp(nodeID,nodeID.avilableTransition[i],1,i,count);
     temp.name = count;
     neighbors.emplace_back(temp);
-    Nsize++;
+    //Nsize++;
   }
 //   for (int i=0; i<nodeID.sons.size(); i++) {
 //   neighbors.emplace_back(nodeID.sons[i]);
@@ -104,7 +77,7 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
 }
 
 inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) const {
-  if (node.marking.at(node.finalstatename) == goal.marking.at(node.finalstatename)) {
+  if (node.marking.at(finalstatename) == goal.marking.at(finalstatename)) {
   return true;
 }
   return false;
@@ -117,6 +90,33 @@ return 0;
 inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) const {
   return state1.g;
 }
+
+inline uint64_t RCPSP::GetActionHash(int act) const {
+  // Example hash for an action
+  return std::hash<int>()(act);
+}
+inline void RCPSP::GetActions(const RCPSPState &nodeID, std::vector<int> &actions) const {
+  // for (int i = 0; i < nodeID.sons.size(); ++i) {
+  //   actions.push_back(i); // Add the index of each available transition as an action.
+  // }
+}
+
+inline bool RCPSP::InvertAction(int &a) const {
+  // Example logic to invert an action
+  a = -a; // Negate the action (depends on your domain).
+  return true;
+}
+
+inline std::vector<RCPSPState> RCPSP::GetSuccessors(const RCPSPState &nodeID) const {
+
+     std::vector<RCPSPState> neighbors;
+    // for (int i = 0; i < nodeID.sons.size(); ++i) {
+    //   neighbors.push_back(nodeID.sons[i]);
+    // }
+    return neighbors;
+}
+
+
 inline int RCPSP::GetAction(const RCPSPState &nodeID, const RCPSPState &nodeID2) const {
   return 0; // Placeholder. Adjust this logic to your needs.
 }
@@ -134,24 +134,24 @@ inline int RCPSP::GetNumSuccessors(const RCPSPState &stateID) const {
 
 inline void RCPSP::ApplyAction(RCPSPState &s, int a) const {
 
-  if (s.activeTransitions.size()>0) {
-    count++;
-    int t=0;
-    for (int i=0;i<s.activeTransitions.size();i++) {
-      if (s.activeTransitions[i].duration<s.activeTransitions[t].duration) {
-        t=i;
-      }
-    }
-    Transition active = s.activeTransitions[t];
-    s.sons.push_back(RCPSPState(s,active,0,t,count));
-  }
-
-  for (int i=0;i<s.avilableTransition.size();i++) {
-    count++;
-    s.sons.push_back(RCPSPState(s,s.avilableTransition[i],1,i,count));
-    s.sons.back().name = count;
-
-  }
+  // if (s.activeTransitions.size()>0) {
+  //   count++;
+  //   int t=0;
+  //   for (int i=0;i<s.activeTransitions.size();i++) {
+  //     if (s.activeTransitions[i].duration<s.activeTransitions[t].duration) {
+  //       t=i;
+  //     }
+  //   }
+  //   Transition active = s.activeTransitions[t];
+  //   s.sons.push_back(RCPSPState(s,active,0,t,count));
+  // }
+  //
+  // for (int i=0;i<s.avilableTransition.size();i++) {
+  //   count++;
+  //   s.sons.push_back(RCPSPState(s,s.avilableTransition[i],1,i,count));
+  //   s.sons.back().name = count;
+  //
+  // }
 }
 
 

@@ -8,89 +8,89 @@
 #include <chrono>
 #include <atomic>
 
-std::atomic<bool> stop_printing(false); // Flag to stop the printing thread
-
-void printNetworkSize(const std::vector<RCPSPState>& network) {
-  while (!stop_printing) {
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // Wait for a second
-    std::cout << "Current network size: " << network.size() << std::endl;
-  }
-}
+// std::atomic<bool> stop_printing(false); // Flag to stop the printing thread
+//
+// void printNetworkSize(const std::vector<RCPSPState>& network) {
+//   while (!stop_printing) {
+//     std::this_thread::sleep_for(std::chrono::seconds(1)); // Wait for a second
+//     std::cout << "Current network size: " << network.size() << std::endl;
+//   }
+// }
 std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
 void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
 //int ChooseExpansion(std::vector<RCPSPState> network);
-PetriExample petri;
-RCPSP_example RCPSPex;
+ PetriExample petri;
+ RCPSP_example RCPSPex;
  int main2() {
-   getPetri(petri);
-   getRCPSP(RCPSPex);
-   RCPSPState first;
-   // std::cout<<petri.Transitions[0].name<<std::endl;
-   std::vector<RCPSPState> network;
-   network.emplace_back(first);
-   auto start_time = std::chrono::high_resolution_clock::now(); // Start the timer
-
-  //int i;
-  int count=0;
-   // for (int j=0;j<network.size();j++) {
-   //   std::cout<<"Node:"<<network[j].name<<std::endl;
-   //   std::cout<<"Avilable Transitions:";
-   //   for (int k=0;k<network[j].avilableTransition.size();k++) {std::cout<<network[j].avilableTransition[k].name<<" ";}
-   // }
-   // std::atomic<int> counter = 0;
-   int i = 0;
-
-   // Launch the size printing thread
-   //std::thread printer(printNetworkSize, std::cref(network));
-
-  while (true) {
-
-
-
-    if (network[i].expanded==0) {
-      network[i].expanded=1;
-      GetNabor(network,i,count);
-    }
-      // for (int j=0;j<network.size();j++) {
-      //   if (network[j].expanded==0) {
-      //     std::cout<<"Node:"<<network[j].name<<std::endl;
-      //     std::cout<<"with g of:"<<network[j].g<<std::endl;
-      //     std::cout<<"activeTransitions:"<<std::endl;
-      //     for (int k=0;k<network[j].activeTransitions.size();k++) {
-      //       std::cout<<network[j].activeTransitions[k].name<<" ";
-      //     }
-      //     std::cout<<std::endl;
-      //     std::cout<<"Avilable Transitions:"<<std::endl;
-      //     for (int k=0;k<network[j].avilableTransition.size();k++) {
-      //       std::cout<<network[j].avilableTransition[k].name<<" ";
-      //     }
-      //     //std::cout<<std::endl;
-      //   }
-      // }
-for (int j=0;j<network.size();j++) {
-  if (network[j].marking[network[0].finalstatename]==1) {
-//std::cout<<"finish with total time of:"<<network[j].g;
-    auto end_time = std::chrono::high_resolution_clock::now(); // End the timer
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-    std::cout << "Execution time: " << duration << " ms" << std::endl;
-    std::cout << "Current network size: " << network.size() << std::endl;
-    return 1;
-  }
-}
-int f=1000;
-for (int j=0;j<network.size();j++) {
-  if (network[j].expanded==0) {
-    if (network[j].g+network[j].h<=f) {
-      f=network[j].g+network[j].h;
-      i=j;
-    }
-  }
-}
-     //std::cout<<"-----------------"<<std::endl;
- //std::cout<<"with f of:"<<f<<std::endl;
- //std::cout<<"expanding:"<<std::endl;
-
-  }
+//    getPetri(petri);
+//    getRCPSP(RCPSPex);
+//    RCPSPState first;
+//    // std::cout<<petri.Transitions[0].name<<std::endl;
+//    std::vector<RCPSPState> network;
+//    network.emplace_back(first);
+//    // auto start_time = std::chrono::high_resolution_clock::now(); // Start the timer
+//
+//   //int i;
+//   int count=0;
+//    // for (int j=0;j<network.size();j++) {
+//    //   std::cout<<"Node:"<<network[j].name<<std::endl;
+//    //   std::cout<<"Avilable Transitions:";
+//    //   for (int k=0;k<network[j].avilableTransition.size();k++) {std::cout<<network[j].avilableTransition[k].name<<" ";}
+//    // }
+//    // std::atomic<int> counter = 0;
+//    int i = 0;
+//
+//    // Launch the size printing thread
+//    //std::thread printer(printNetworkSize, std::cref(network));
+//
+//   while (true) {
+//
+//
+//
+//     if (network[i].expanded==0) {
+//       network[i].expanded=1;
+//       GetNabor(network,i,count);
+//     }
+//       // for (int j=0;j<network.size();j++) {
+//       //   if (network[j].expanded==0) {
+//       //     std::cout<<"Node:"<<network[j].name<<std::endl;
+//       //     std::cout<<"with g of:"<<network[j].g<<std::endl;
+//       //     std::cout<<"activeTransitions:"<<std::endl;
+//       //     for (int k=0;k<network[j].activeTransitions.size();k++) {
+//       //       std::cout<<network[j].activeTransitions[k].name<<" ";
+//       //     }
+//       //     std::cout<<std::endl;
+//       //     std::cout<<"Avilable Transitions:"<<std::endl;
+//       //     for (int k=0;k<network[j].avilableTransition.size();k++) {
+//       //       std::cout<<network[j].avilableTransition[k].name<<" ";
+//       //     }
+//       //     //std::cout<<std::endl;
+//       //   }
+//       // }
+// for (int j=0;j<network.size();j++) {
+//   if (network[j].marking[finalstatename]==1) {
+// //std::cout<<"finish with total time of:"<<network[j].g;
+//     auto end_time = std::chrono::high_resolution_clock::now(); // End the timer
+//     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+//     std::cout << "Execution time: " << duration << " ms" << std::endl;
+//     std::cout << "Current network size: " << network.size() << std::endl;
+//     return 1;
+//   }
+// }
+// int f=1000;
+// for (int j=0;j<network.size();j++) {
+//   if (network[j].expanded==0) {
+//     if (network[j].g+network[j].h<=f) {
+//       f=network[j].g+network[j].h;
+//       i=j;
+//     }
+//   }
+// }
+//      //std::cout<<"-----------------"<<std::endl;
+//  //std::cout<<"with f of:"<<f<<std::endl;
+//  //std::cout<<"expanding:"<<std::endl;
+//
+//   }
 }
 
 // int ChooseExpansion(std::vector<RCPSPState> network) {
@@ -116,7 +116,7 @@ std::vector<Transition> getAvilableTransitions(std::map<std::string, int> markin
   return avilableTransitions;
 }
 
-void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count) {
+void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,uint64_t &count) {
   if (NodeList[chosenNode].activeTransitions.size()>0) {
     count++;
     int t=0;
@@ -132,7 +132,7 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count) {
   for (int i=0;i<NodeList[chosenNode].avilableTransition.size();i++) {
     count++;
     NodeList.push_back(RCPSPState(NodeList[chosenNode],NodeList[chosenNode].avilableTransition[i],1,i,count));
-    NodeList.back().name = count;
+    //NodeList.back().name = count;
 
  }
 }
@@ -161,12 +161,12 @@ RCPSPState::RCPSPState() {
 }
 
 
-RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int location,int &count) {
+RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int location,uint64_t &count) {
   name=count;
   marking=predecesor.marking;
   activeTransitions=predecesor.activeTransitions;
   avilableTransition=predecesor.avilableTransition;
-  finalstatename=predecesor.finalstatename;
+  //finalstatename=predecesor.finalstatename;
 
   //avilableTransition.erase(avilableTransition.begin()+location);
   g=predecesor.g;
@@ -201,18 +201,19 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
 //h=get(h)
 }
 
-int RCPSPState::GetG() {
-  return g;
-}
+// int RCPSPState::GetG() {
+//   return g;
+// }
 
-int RCPSPState::checkEnd() {
-  if (marking[finalstatename]==1) {std::cout<<"end"<<std::endl;
-    return 1;
-  }
-  else
+// int RCPSPState::checkEnd() {
+//   if (marking[finalstatename]==1) {std::cout<<"end"<<std::endl;
+//     return 1;
+//   }
+//   else
+//
+//     return 0;
+// }
 
-    return 0;
-}
 // bool operator==(const RCPSPState &l1, const RCPSPState &l2) {
 //    if (l1.expanded != l2.expanded) {
 //      return false;
