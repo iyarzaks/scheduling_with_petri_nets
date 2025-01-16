@@ -28,8 +28,10 @@
 #define GENERICSEARCHALGORITHM_H
 
 #include <vector>
-#include "SearchEnvironment.h"
-#include "StatCollection.h"
+#include "../search/SearchEnvironment.h"
+//#include "SearchEnvironment.h"
+#include "../utils/StatCollection.h"
+//#include "StatCollection.h"
 
 template <class state, class action, class environment>
 class GenericSearchAlgorithm

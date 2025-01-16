@@ -96,6 +96,12 @@ public:
 
           int initialDuration = 0)
         : name(TransitionName), arcs_in(inputArcs), arcs_out(outputArcs), duration(initialDuration) {}
+    bool operator==(const Transition& other) const {
+        return name == other.name &&
+               arcs_in == other.arcs_in &&
+               arcs_out == other.arcs_out &&
+               duration == other.duration;
+    }
 };
 class Transition_dict {
 public:

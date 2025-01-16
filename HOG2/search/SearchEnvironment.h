@@ -15,9 +15,12 @@
 //#include "ReservationProvider.h"
 #include <assert.h>
 #include "Heuristic.h"
-#include "OccupancyInterface.h"
-#include "GLUtil.h"
-#include "Graphics.h"
+//#include "OccupancyInterface.h"
+//#include "GLUtil.h"
+#include "../utils/GLUtil.h"
+//#include "Graphics.h"
+#include "../utils/Graphics.h"
+#include "../simulation/OccupancyInterface.h"
 
 
 struct Hash64 {

@@ -10,8 +10,10 @@
 #ifndef OLDSEARCHENVIRONMENT_H
 #define OLDSEARCHENVIRONMENT_H
 
-#include "Graph.h"
-#include "Map.h"
+//#include "Graph.h"
+#include "../graph/Graph.h"
+#include "../utils/Map.h"
+//#include "Map.h"
 
 namespace OldSearchCode {
 

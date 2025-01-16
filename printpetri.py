@@ -12,7 +12,7 @@ def to_json():
     rcpsp_total_data.append(rcpsp_example.resources)
 
     #write all the rcpsp_example data into the json file:
-    with open("HOG2/RCPSP/rcpspExample.json", "w") as json_file:
+    with open("rcpspExample.json", "w") as json_file:
         json.dump(rcpsp_total_data, json_file, indent=4)
 
     #add all data from petri to a list:
@@ -39,7 +39,7 @@ def to_json():
 
 
     #write all the petri_example data into the json file:
-    with open("HOG2/RCPSP/petriExample.json", "w") as json_file:
+    with open("petriExample.json", "w") as json_file:
         json.dump(petri_total_data, json_file, indent=4)
 
 

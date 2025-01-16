@@ -22,7 +22,8 @@
 #define UINT32_MAX        4294967295U
 #endif
 
-#include "FPUtil.h"
+//#include "FPUtil.h"
+#include "../utils/FPUtil.h"
 #include "OpenClosedList.h"
 #include "OldSearchEnvironment.h" // for the SearchEnvironment class
 

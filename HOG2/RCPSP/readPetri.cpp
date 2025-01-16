@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "../../json.hpp"
+#include "json.hpp"
 
 using json = nlohmann::json;  // alias for nlohmann::json
 

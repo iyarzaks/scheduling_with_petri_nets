@@ -22,14 +22,19 @@
 
 
 #include <iostream>
-#include "Constraint.h"
-#include "FPUtil.h"
+//#include "Constraint.h"
+#include "../search/Constraint.h"
+//#include "FPUtil.h"
+#include "../utils/FPUtil.h"
 #include <unordered_map>
-#include "Graphics.h"
-#include "AStarOpenClosed.h"
-#include "BucketOpenClosed.h"
+//#include "Graphics.h"
+#include "../utils/Graphics.h"
+//#include "AStarOpenClosed.h"
+#include "../algorithms/AStarOpenClosed.h"
+//#include "BucketOpenClosed.h"
+//#include "BucketOpenClosed.h"
 //#include "SearchEnvironment.h" // for the SearchEnvironment class
-#include "float.h"
+//#include "float.h"
 
 #include <algorithm> // for vector reverse
 

@@ -115,8 +115,11 @@ public:
 	}
 };
 
-
-bool operator==(const recVec &l1, const recVec &l2);
+/////**********ido lublin 16.1.25******************////
+/////**********I hope i dont ruin somthing******************////
+bool operator==(const recVec &l1, const recVec &l2){
+	return (fequal(l1.x, l2.x) && fequal(l1.y, l2.y));
+};
 
 std::ostream& operator<<(std::ostream &out, const recVec &loc);
 
