@@ -191,6 +191,35 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
       }
     }
     //unstartedTransitions[active.name]=0;
+    //std::cout<<state1.name<<std::endl;
+    std::map<int, double> earlyfinishMap; // Map to store activity names and their early start
+
+    // For each activity in the unstartedtransitions vector from the state1 argument
+    for (int i = 0; i < unstartedTransitions.size(); ++i) {
+      int activityId = unstartedTransitions[i];
+
+      // For each backward dependency of the activity from the global RCPSPex object
+      double maxFinishTime = 0.0;
+      for (const auto& dep : RCPSPex.backword_dependencies[activityId-1]) {
+        int depId = std::stoi(dep) - 1; // Convert from string to index (1-based calculation)
+        maxFinishTime = std::max(maxFinishTime, earlyfinishMap[std::stoi(dep)] + RCPSPex.activities[depId].duration);
+      }
+
+      // Set the early start of the activity in the map
+      earlyfinishMap[activityId] = maxFinishTime;
+    }
+    if (earlyfinishMap.size()==0) {
+      h= 0;
+    }
+    else {
+      h= earlyfinishMap.rbegin()->second;
+    }
+    // Return the early start of the last activity in the map (the one with the highest key)
+    //std::cout<< earlyfinishMap.rbegin()->second<<std::endl;
+      // rbegin() gives the last element in the map
+    //return 2;  // rbegin() gives the last element in the map
+
+
   }
   else {
     //std::cout<<"ending transition number:"<<active.name<<std::endl;
