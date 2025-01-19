@@ -87,7 +87,6 @@ public:
     std::map<std::string, int> arcs_out; // Arcs going out from the place
     int duration;                       // Duration of the place
     std::string name;                   // Name of the place
-
     // Constructor
     ~Transition() {};
     Transition(const std::string& TransitionName,

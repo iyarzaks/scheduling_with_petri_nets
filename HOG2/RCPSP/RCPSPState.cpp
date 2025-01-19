@@ -98,12 +98,14 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
 // }
 
 //SearchGraph search_graph;
+
+//probebly Very inefficent
 std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking) {
   std::vector<Transition> avilableTransitions;
   for (int i=0;i<petri.Transitions.size();i++) {
     int avilable=0;
     int requirment=0;
-    int count=0;
+
     for (const auto& arc : petri.Transitions[i].arcs_in) {
       if (marking[arc.first]>=1){avilable+=std::min(marking[arc.first],arc.second);}
       requirment+=arc.second;
@@ -151,9 +153,9 @@ RCPSPState::RCPSPState() {
       marking[petri.places[i].name]= petri.places[i].state[0][0];
     }
   }
-  for (int i=0;i<petri.Transitions.size();i++) {
-    unstartedTransitions[petri.places[i].name]= 1;
-  }
+  // for (int i=0;i<petri.Transitions.size();i++) {
+  //   unstartedTransitions[petri.places[i].name]= 1;
+  // }
   avilableTransition=getAvilableTransitions(marking);
   g=0;
   name=0;
@@ -176,7 +178,7 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
      }
     //std::cout<<"activate:"<<active.name<<std::endl;
     activeTransitions.push_back(active);
-    unstartedTransitions[active.name]=0;
+    //unstartedTransitions[active.name]=0;
   }
   else {
     //std::cout<<"ending transition number:"<<active.name<<std::endl;
@@ -185,10 +187,13 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     }
     g+=active.duration;
     int temp;
+
+    //probebly can improve
     for (int i=0;i<activeTransitions.size();i++) {
       activeTransitions[i].duration-=active.duration;
-      if (activeTransitions[i].name==active.name) {temp=i;}
+      if (activeTransitions[i].name==active.name) {temp=i;break;}
     }
+
     activeTransitions.erase(activeTransitions.begin()+temp);
   }
   avilableTransition=getAvilableTransitions(marking);
@@ -265,6 +270,8 @@ bool RCPSPState::operator==(const RCPSPState& other) const {
    if (this->avilableTransition != other.avilableTransition) {
      return false;
    }
-   //NOT GOOD add active
+   if (this->activeTransitions != other.activeTransitions) {
+     return false;
+   }
    return true;
  }

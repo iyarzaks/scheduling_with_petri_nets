@@ -23,6 +23,7 @@ class RCPSP : public SearchEnvironment<RCPSPState,int>{
   bool GoalTest(const RCPSPState &node, const RCPSPState &goal) const override;
 	double HCost(const RCPSPState &state1, const RCPSPState &state2) const override;
 	double GCost(const RCPSPState &state1, const RCPSPState &state2) const override;
+
   int GetAction(const RCPSPState &nodeID, const RCPSPState &nodeID2) const override;
   int GetNumSuccessors(const RCPSPState &stateID) const;
   void GetActions(const RCPSPState &nodeID, std::vector<int> &actions) const override;
@@ -56,24 +57,25 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
         t=i;
       }
     }
-    Transition active = nodeID.activeTransitions[t];
-    RCPSPState temp(RCPSPState(nodeID,active,0,t,count));
-    temp.name = count;
-    neighbors.emplace_back(temp);
+    // Transition active = nodeID.activeTransitions[t];
+    // RCPSPState temp(RCPSPState(nodeID,active,0,t,count));
+    // temp.name = count;
+    // neighbors.emplace_back(temp);
     //Nsize++;
+
+    neighbors.emplace_back(RCPSPState(nodeID,nodeID.activeTransitions[t],0,t,count));
   }
 
   for (int i=0;i<nodeID.avilableTransition.size();i++) {
     count++;
-    RCPSPState temp(nodeID,nodeID.avilableTransition[i],1,i,count);
-    temp.name = count;
-    neighbors.emplace_back(temp);
+    //RCPSPState temp(nodeID,nodeID.avilableTransition[i],1,i,count);
+    //temp.name = count;
+    neighbors.emplace_back(RCPSPState(nodeID,nodeID.avilableTransition[i],1,i,count));
     //Nsize++;
   }
 //   for (int i=0; i<nodeID.sons.size(); i++) {
 //   neighbors.emplace_back(nodeID.sons[i]);
 // }
-  return;
 }
 
 inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) const {
@@ -91,6 +93,7 @@ inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) c
   return state1.g;
 }
 
+//NOT IN USE OF A*
 inline uint64_t RCPSP::GetActionHash(int act) const {
   // Example hash for an action
   return std::hash<int>()(act);

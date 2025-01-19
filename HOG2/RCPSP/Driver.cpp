@@ -16,14 +16,14 @@
 #include <chrono>
 #include <atomic>
 
-// std::atomic<bool> stop_printing1(false); // Flag to stop the printing thread
-//
-// void printNetworkSize1() {
-//     while (!stop_printing) {
-//         std::this_thread::sleep_for(std::chrono::seconds(1)); // Wait for a second
-//         std::cout << "Current network size: " << count << std::endl;
-//     }
-// }
+std::atomic<bool> stop_printing1(false); // Flag to stop the printing thread
+
+void printNetworkSize1() {
+    while (!stop_printing1) {
+        std::this_thread::sleep_for(std::chrono::seconds(1)); // Wait for a second
+        std::cout << "Current network size: " << count << std::endl;
+    }
+}
 
  int main() {
      getPetri(petri);
@@ -50,14 +50,14 @@
      //     first.sons.back().name = count;
      //
      // }
-    //std::thread printer(printNetworkSize1);
+    std::thread printer(printNetworkSize1);
 
      astar.GetPath(&as1, first, last, path);
 
     // הדפסת הנתיב שנמצא
     std::cout << "Path found!" << std::endl;
     for (const auto& state : path) {
-        std::cout <<"time:"<<state.g<< "\n";
+        std::cout<< "\n" <<"time:"<<state.g<< "\n";
         // std::cout << "\nsons: ";
         // for (int i=0;i<state.sons.size();i++) {
         //     std::cout<<state.sons[i].name<<" ";
@@ -67,13 +67,18 @@
         for (int i=0;i<state.activeTransitions.size();i++) {
             std::cout<<state.activeTransitions[i].name<<" ";
         }
-        std::cout << "\nActions Not Started: ";
-        for (const auto& action: state.unstartedTransitions) {
-            std::cout << action.first << ":"<<action.second<<" ";
+        std::cout << "\navilableTransition: ";
+         for (int i=0;i<state.avilableTransition.size();i++) {
+             std::cout << state.avilableTransition[i].name<<" ";
+         }
+        //std::cout <<state.name<< "\n";
+        std::cout << "\navilableTransition: ";
+        for (int i=0;i<state.avilableTransition.size();i++) {
+            std::cout << state.avilableTransition[i].name<<" ";
         }
         //std::cout <<state.name<< "\n";
     }
-
+    std::cout << "\n"<<"end"<< "\n";
 
     return 0;
 }
