@@ -28,14 +28,13 @@ void printNetworkSize1() {
  int main() {
      getPetri(petri);
      getRCPSP(RCPSPex);
-
     RCPSPState first;
     RCPSPState last=first;
+
     for ( auto& pair : last.marking) {
         if (pair.second==1){pair.second=0;}
         if (pair.first==finalstatename){pair.second=1;}
     }
-
     int a;
     RCPSP as1;
     TemplateAStar<RCPSPState, int, RCPSP> astar;
@@ -76,9 +75,10 @@ void printNetworkSize1() {
         for (int i=0;i<state.avilableTransition.size();i++) {
             std::cout << state.avilableTransition[i].name<<" ";
         }
-        //std::cout <<state.name<< "\n";
+        std::cout << "\n";
+        std::cout <<state.name<< "\n";
     }
-    std::cout << "\n"<<"end"<< "\n";
+    std::cout <<"end"<< "\n";
 
     return 0;
 }

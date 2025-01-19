@@ -14,7 +14,7 @@ class RCPSPState {
   RCPSPState();
   RCPSPState(RCPSPState predecessor,Transition newTransition,bool status,int location,uint64_t &count);
   std::map<std::string, int> marking;
-  std::map<std::string, int> unstartedTransitions;
+   std::vector<Transition> unstartedTransitions;
   std::vector<Transition> avilableTransition;
   std::vector<Transition> activeTransitions;
   //std::vector<RCPSPState> sons;

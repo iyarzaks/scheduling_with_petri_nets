@@ -144,7 +144,9 @@ RCPSPState::RCPSPState() {
     if (petri.places[i].arcs_out.size()==0){finalstatename=petri.places[i].name;}
     if (petri.places[i].arcs_in.size()==0){initialstatename=petri.places[i].name;}
   }
-
+   for (int i=0;i<petri.Transitions.size();i++) {
+     unstartedTransitions.push_back(petri.Transitions[i]);
+   }
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].name==initialstatename) {
       marking[petri.places[i].name]= 1;
@@ -191,7 +193,7 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     //probebly can improve
     for (int i=0;i<activeTransitions.size();i++) {
       activeTransitions[i].duration-=active.duration;
-      if (activeTransitions[i].name==active.name) {temp=i;break;}
+      //if (activeTransitions[i].name==active.name) {temp=i;break;}
     }
 
     activeTransitions.erase(activeTransitions.begin()+temp);

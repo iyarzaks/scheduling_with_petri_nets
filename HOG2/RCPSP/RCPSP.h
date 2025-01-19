@@ -48,6 +48,10 @@ inline RCPSP::RCPSP() {
 }
 
 inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const {
+  if (nodeID.name==16) {
+    int g=3;
+    g++;
+  }
   if (nodeID.activeTransitions.size()>0) {
 
     count++;
