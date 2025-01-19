@@ -49,36 +49,29 @@ void printNetworkSize1() {
      //     first.sons.back().name = count;
      //
      // }
-    std::thread printer(printNetworkSize1);
+    //std::thread printer(printNetworkSize1);
 
      astar.GetPath(&as1, first, last, path);
 
     // הדפסת הנתיב שנמצא
     std::cout << "Path found!" << std::endl;
     for (const auto& state : path) {
-        std::cout<< "\n" <<"time:"<<state.g<< "\n";
-        // std::cout << "\nsons: ";
-        // for (int i=0;i<state.sons.size();i++) {
-        //     std::cout<<state.sons[i].name<<" ";
-        // }
-        std::cout << "\nActions in Progress: ";
+        std::cout << std::endl << "time:" << state.g << std::endl;
 
-        for (int i=0;i<state.activeTransitions.size();i++) {
-            std::cout<<state.activeTransitions[i].name<<" ";
+        std::cout << "Actions in Progress: ";
+        for (int i = 0; i < state.activeTransitions.size(); i++) {
+            std::cout << state.activeTransitions[i].name << " ";
         }
-        std::cout << "\navilableTransition: ";
-         for (int i=0;i<state.avilableTransition.size();i++) {
-             std::cout << state.avilableTransition[i].name<<" ";
-         }
-        //std::cout <<state.name<< "\n";
-        std::cout << "\navilableTransition: ";
-        for (int i=0;i<state.avilableTransition.size();i++) {
-            std::cout << state.avilableTransition[i].name<<" ";
+        std::cout << std::endl;
+
+        std::cout << "Available Transitions: ";
+        for (int i = 0; i < state.avilableTransition.size(); i++) {
+            std::cout << state.avilableTransition[i].name << " ";
         }
-        std::cout << "\n";
-        std::cout <<state.name<< "\n";
+        std::cout << std::endl;
+
+        std::cout << state.name << std::endl;
     }
     std::cout <<"end"<< "\n";
 
-    return 0;
 }

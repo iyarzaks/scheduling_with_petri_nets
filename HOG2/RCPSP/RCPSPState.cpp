@@ -144,8 +144,8 @@ RCPSPState::RCPSPState() {
     if (petri.places[i].arcs_out.size()==0){finalstatename=petri.places[i].name;}
     if (petri.places[i].arcs_in.size()==0){initialstatename=petri.places[i].name;}
   }
-   for (int i=0;i<petri.Transitions.size();i++) {
-     unstartedTransitions.push_back(petri.Transitions[i]);
+   for (int i=1;i<petri.Transitions.size();i++) {
+     unstartedTransitions.push_back(i+1);
    }
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].name==initialstatename) {
@@ -170,6 +170,7 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
   marking=predecesor.marking;
   activeTransitions=predecesor.activeTransitions;
   avilableTransition=predecesor.avilableTransition;
+  unstartedTransitions=predecesor.unstartedTransitions;
   //finalstatename=predecesor.finalstatename;
 
   //avilableTransition.erase(avilableTransition.begin()+location);
@@ -180,6 +181,15 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
      }
     //std::cout<<"activate:"<<active.name<<std::endl;
     activeTransitions.push_back(active);
+    if (name==34) {
+      int asd=0;
+      asd++;
+    }
+    for (int i = unstartedTransitions.size() - 1; i >= 0; --i) {
+      if (unstartedTransitions[i] == std::stoi(active.name)) {
+        unstartedTransitions.erase(unstartedTransitions.begin() + i);
+      }
+    }
     //unstartedTransitions[active.name]=0;
   }
   else {

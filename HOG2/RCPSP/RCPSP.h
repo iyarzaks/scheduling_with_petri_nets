@@ -48,10 +48,7 @@ inline RCPSP::RCPSP() {
 }
 
 inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const {
-  if (nodeID.name==16) {
-    int g=3;
-    g++;
-  }
+
   if (nodeID.activeTransitions.size()>0) {
 
     count++;
@@ -90,11 +87,36 @@ inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) cons
 }
 
 inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) const {
-return 0;
+  //std::cout<<state1.name<<std::endl;
+  std::map<int, double> earlyfinishMap; // Map to store activity names and their early start
+
+  // For each activity in the unstartedtransitions vector from the state1 argument
+  for (int i = 0; i < state2.unstartedTransitions.size(); ++i) {
+    int activityId = state2.unstartedTransitions[i];
+
+    // For each backward dependency of the activity from the global RCPSPex object
+    double maxFinishTime = 0.0;
+    for (const auto& dep : RCPSPex.backword_dependencies[activityId-1]) {
+      int depId = std::stoi(dep) - 1; // Convert from string to index (1-based calculation)
+      maxFinishTime = std::max(maxFinishTime, earlyfinishMap[std::stoi(dep)] + RCPSPex.activities[depId].duration);
+    }
+
+    // Set the early start of the activity in the map
+    earlyfinishMap[activityId] = maxFinishTime;
+  }
+if (earlyfinishMap.size()==0) {
+  state2.h=0;
+  return 0;
+}
+  // Return the early start of the last activity in the map (the one with the highest key)
+  std::cout<< earlyfinishMap.rbegin()->second<<std::endl;
+  return earlyfinishMap.rbegin()->second;  // rbegin() gives the last element in the map
+  //return 2;  // rbegin() gives the last element in the map
 }
 
 inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) const {
-  return state1.g;
+  //return state2.g-state1.g;
+  return state2.g;
 }
 
 //NOT IN USE OF A*

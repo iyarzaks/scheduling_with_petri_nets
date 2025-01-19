@@ -1,0 +1,306 @@
+[
+  9,
+  {
+    "name": "R1",
+    "arcs_in": {
+      "2": 2,
+      "3": 3
+    },
+    "arcs_out": {
+      "2": 2,
+      "3": 3
+    },
+    "state": [
+      [
+        5,
+        0
+      ]
+    ],
+    "duration": 0
+  },
+  {
+    "name": "R2",
+    "arcs_in": {},
+    "arcs_out": {},
+    "state": [
+      [
+        0,
+        0
+      ]
+    ],
+    "duration": 0
+  },
+  {
+    "name": "_pre_1",
+    "arcs_in": {},
+    "arcs_out": {
+      "1": 1
+    },
+    "state": [
+      [
+        1,
+        0
+      ]
+    ],
+    "duration": 0
+  },
+  {
+    "name": "post_1_pre_2",
+    "arcs_in": {
+      "1": 1
+    },
+    "arcs_out": {
+      "2": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_1_pre_3",
+    "arcs_in": {
+      "1": 1
+    },
+    "arcs_out": {
+      "3": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_2_pre_3",
+    "arcs_in": {
+      "2": 1
+    },
+    "arcs_out": {
+      "3": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_2_pre_4",
+    "arcs_in": {
+      "2": 1
+    },
+    "arcs_out": {
+      "4": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_3_pre_4",
+    "arcs_in": {
+      "3": 1
+    },
+    "arcs_out": {
+      "4": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_4",
+    "arcs_in": {
+      "4": 1
+    },
+    "arcs_out": {},
+    "duration": 0
+  },
+  9,
+  {
+    "name": "R1",
+    "arcs_in": {
+      "2": 2,
+      "3": 3
+    },
+    "arcs_out": {
+      "2": 2,
+      "3": 3
+    },
+    "state": [
+      [
+        5,
+        0
+      ]
+    ],
+    "duration": 0
+  },
+  {
+    "name": "R2",
+    "arcs_in": {},
+    "arcs_out": {},
+    "state": [
+      [
+        0,
+        0
+      ]
+    ],
+    "duration": 0
+  },
+  {
+    "name": "_pre_1",
+    "arcs_in": {},
+    "arcs_out": {
+      "1": 1
+    },
+    "state": [
+      [
+        1,
+        0
+      ]
+    ],
+    "duration": 0
+  },
+  {
+    "name": "post_1_pre_2",
+    "arcs_in": {
+      "1": 1
+    },
+    "arcs_out": {
+      "2": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_1_pre_3",
+    "arcs_in": {
+      "1": 1
+    },
+    "arcs_out": {
+      "3": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_2_pre_3",
+    "arcs_in": {
+      "2": 1
+    },
+    "arcs_out": {
+      "3": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_2_pre_4",
+    "arcs_in": {
+      "2": 1
+    },
+    "arcs_out": {
+      "4": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_3_pre_4",
+    "arcs_in": {
+      "3": 1
+    },
+    "arcs_out": {
+      "4": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "post_4",
+    "arcs_in": {
+      "4": 1
+    },
+    "arcs_out": {},
+    "duration": 0
+  },
+  4,
+  {
+    "name": "1",
+    "arcs_in": {
+      "_pre_1": 1
+    },
+    "arcs_out": {
+      "post_1_pre_2": 1,
+      "post_1_pre_3": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "2",
+    "arcs_in": {
+      "R1": 2,
+      "post_1_pre_2": 1
+    },
+    "arcs_out": {
+      "R1": 2,
+      "post_2_pre_3": 1,
+      "post_2_pre_4": 1
+    },
+    "duration": 2
+  },
+  {
+    "name": "3",
+    "arcs_in": {
+      "R1": 3,
+      "post_1_pre_3": 1,
+      "post_2_pre_3": 1
+    },
+    "arcs_out": {
+      "R1": 3,
+      "post_3_pre_4": 1
+    },
+    "duration": 3
+  },
+  {
+    "name": "4",
+    "arcs_in": {
+      "post_2_pre_4": 1,
+      "post_3_pre_4": 1
+    },
+    "arcs_out": {
+      "post_4": 1
+    },
+    "duration": 0
+  },
+  4,
+  {
+    "name": "1",
+    "arcs_in": {
+      "_pre_1": 1
+    },
+    "arcs_out": {
+      "post_1_pre_2": 1,
+      "post_1_pre_3": 1
+    },
+    "duration": 0
+  },
+  {
+    "name": "2",
+    "arcs_in": {
+      "R1": 2,
+      "post_1_pre_2": 1
+    },
+    "arcs_out": {
+      "R1": 2,
+      "post_2_pre_3": 1,
+      "post_2_pre_4": 1
+    },
+    "duration": 2
+  },
+  {
+    "name": "3",
+    "arcs_in": {
+      "R1": 3,
+      "post_1_pre_3": 1,
+      "post_2_pre_3": 1
+    },
+    "arcs_out": {
+      "R1": 3,
+      "post_3_pre_4": 1
+    },
+    "duration": 3
+  },
+  {
+    "name": "4",
+    "arcs_in": {
+      "post_2_pre_4": 1,
+      "post_3_pre_4": 1
+    },
+    "arcs_out": {
+      "post_4": 1
+    },
+    "duration": 0
+  }
+]

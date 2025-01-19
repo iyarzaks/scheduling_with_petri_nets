@@ -6,6 +6,7 @@ using json = nlohmann::json;  // alias for nlohmann::json
 
 void getPetri(PetriExample& petriExample) {
     // Open the file for reading
+    //std::ifstream input_file("petriExample.json");
     std::ifstream input_file("petriExample.json");
 
     // If the file could not be opened
@@ -67,6 +68,7 @@ void getPetri(PetriExample& petriExample) {
 void getRCPSP(RCPSP_example& rcpsp_example) {
     // Open the file for reading
 
+    //std::ifstream input_file("rcpspExample.json");
     std::ifstream input_file("rcpspExample.json");
 
     // If the file could not be opened
