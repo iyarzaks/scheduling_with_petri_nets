@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
+import pyomo.environ as pyo
 
+solver = pyo.SolverFactory("gurobi")
 from RCPSP_modeling.rcpsp_base import RcpspBase, divide_dicts
 from RCPSP_modeling.rcpsp_petri_net import (
     RcpspTimedPlacePetriNet,
@@ -195,17 +197,19 @@ def cp_heuristic_as(
                 list(started_activities) + independent_activities + alternative
             ),
             job_finish_activity=job_finish_activity,
+            ongoing={},
         )
-        if first_res < res:
+        if first_res[0] < res:
             # print("not calc 2 ")
             # continue
 
             res_of_alternative = max(
-                first_res,
+                first_res[0],
                 rcpsp_example.get_all_critical_path_of_sub(
                     set(list(started_activities) + alternative),
                     job_finish_activity,
-                )
+                    ongoing={},
+                )[0]
                 - unk_time,
             )
             if res_of_alternative < res:
@@ -277,39 +281,43 @@ def analyze_results(dir_path):
 
 def summarize_results_to_csv(results_dir):
     opt_values = extract_opt_values_with_time(
-        "/Users/iyarzaks/PycharmProjects/scheduling_with_petri_nets/extract_problems/data/j30opt.txt"
+        "/Users/iyarzaks/PycharmProjects/scheduling_with_petri_nets/extract_problems/data/j60hrs.txt"
     )
     for dir in results_dir:
-        for opt_value in opt_values:
-
-            filepath = os.path.join(
-                dir, opt_value["param"] + "_" + opt_value["instance"]
-            )
+        for file_name in os.listdir(dir):
+            opt_value = {}
+            #
+            # for opt_value in opt_values:
+            #
+            filepath = os.path.join(dir, file_name)
             try:
                 with open(filepath, "r") as file:
                     data = json.load(file)
+                    opt_value["param"] = file_name.split("_")[0]
+                    opt_value["instance"] = file_name.split("_")[1]
                     if "solved" in data:
                         if data["solved"]:
                             opt_value[f"{dir}_solved"] = data["solved"]
                             opt_value[f"{dir}_makespan"] = data["makespan"]
                             opt_value[f"{dir}_run_time"] = data["run_time"]
                             if "nodes_expanded" in data:
-                                opt_value[f"{dir}_nodes_expanded"] = data[
-                                    "nodes_expanded"
-                                ]
+                                opt_value[f"{dir}_nodes_expanded"] = data.get(
+                                    "nodes_expanded", None
+                                )
                             else:
-                                opt_value[f"{dir}_nodes_expanded"] = data[
-                                    "nodes_expand"
-                                ]
+                                opt_value[f"{dir}_nodes_expanded"] = data.get(
+                                    "nodes_expand", None
+                                )
 
-                            opt_value[f"{dir}_nodes_generated"] = data[
-                                "nodes_generated"
-                            ]
+                            opt_value[f"{dir}_nodes_generated"] = data.get(
+                                "nodes_generated", None
+                            )
                             # opt_value["timed_transition_nodes_visited"] = data[
                             #     "nodes_visited"
                             # ]
                         else:
                             opt_value[f"{dir}_solved"] = False
+                opt_values.append(opt_value)
             except:
                 pass
 
@@ -426,7 +434,7 @@ def solve_file_problem(
             heuristic_function=cp_heuristic_for_timed_place,
             timed_transition=timed_transition,
         )
-    result = a_star_solver.solve(beam_search_size=beam_search_size, logging=logging)
+    result = a_star_solver.solve(logging=logging)
     return result
 
 
@@ -509,21 +517,23 @@ def run_with_timeout(timeout, func, *args, **kwargs):
     return result
 
 
-def run_over_files(results_dir, timeout, max_retries=3, retry_delay=5):
+def run_over_files(
+    results_dir, timeout, max_retries=3, retry_delay=5, problem_type="j30"
+):
     """
     Process files with automatic retries and robust error handling.
     """
     os.makedirs(results_dir, exist_ok=True)
-    opt_values = extract_opt_values("extract_problems/data/j30opt.txt")
+    opt_values = extract_opt_values(f"extract_problems/data/{problem_type}opt.txt")
 
     # Track failed files for retry
     failed_files = []
 
     files_to_check = [
         file
-        for file in os.listdir("extract_problems/data/j30.sm.tgz")
+        for file in os.listdir(f"extract_problems/data/{problem_type}.sm.tgz")
         if not os.path.exists(
-            f'{results_dir}/{file.replace("j30", "").replace(".sm", "")}'
+            f'{results_dir}/{file.replace(problem_type, "").replace(".sm", "")}'
         )
     ]
 
@@ -537,13 +547,14 @@ def run_over_files(results_dir, timeout, max_retries=3, retry_delay=5):
         current_failed = []
 
         # Use fewer workers to avoid memory issues
-        max_workers = min(os.cpu_count() or 1, 6)
+        max_workers = min(os.cpu_count() or 1, 15)
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             solve_func = partial(
                 solve_wrapper,
                 results_dir=results_dir,
                 timeout=timeout,
                 opt_values=opt_values,
+                problem_type=problem_type,
             )
 
             # Submit all tasks at once - the ProcessPoolExecutor will handle the queuing
@@ -593,7 +604,7 @@ def run_over_files(results_dir, timeout, max_retries=3, retry_delay=5):
         print("\nAll files processed successfully!")
 
 
-def solve_wrapper(file, results_dir, timeout, opt_values):
+def solve_wrapper(file, results_dir, timeout, opt_values, problem_type):
     """Wrapper to catch and handle exceptions, including timeouts."""
     max_attempts = 2  # Individual file retry attempts
     attempt = 0
@@ -603,10 +614,11 @@ def solve_wrapper(file, results_dir, timeout, opt_values):
             solve_problem_with_time_limit(
                 results_dir=results_dir,
                 timeout=timeout,
-                problem_file=f"extract_problems/data/j30.sm.tgz/{file}",
+                problem_file=f"extract_problems/data/{problem_type}.sm.tgz/{file}",
                 opt_values=opt_values,
                 beam_search_size=None,
                 timed_transition=True,
+                problem_type=problem_type,
             )
             return True
         except Exception as e:
@@ -617,9 +629,15 @@ def solve_wrapper(file, results_dir, timeout, opt_values):
 
 
 def solve_problem_with_time_limit(
-    results_dir, timeout, problem_file, opt_values, beam_search_size, timed_transition
+    results_dir,
+    timeout,
+    problem_file,
+    opt_values,
+    beam_search_size,
+    timed_transition,
+    problem_type,
 ):
-    param = re.search(r"j30(\d+)_", problem_file).group(1)
+    param = re.search(rf"{problem_type}(\d+)_", problem_file).group(1)
     instance = problem_file.split("_")[-1].split(".")[0]
 
     try:
@@ -674,11 +692,11 @@ def solve_problem_with_time_limit(
 def main():
     # res_df = summarize_results_to_csv(
     #     [
-    #         "results/paper_version_scip",
-    #         "results/paper_version_TTPN_10_min",
+    #         "results/paper_version_TTPN_5_min_j_90",
+    #         "results/paper_version_gurobi_5_min_j_90_optimal",
     #     ]
     # )
-    # res_df.to_csv("results/paper_new_scip.csv", index=False)
+    # res_df.to_csv("results/gur_a_star_j_90.csv", index=False)
 
     # analyze_results("results/j30_time_transition_depends_heuristic")
     # analyze_results("results/j30")
@@ -691,23 +709,29 @@ def main():
     #     easy_problems["param"] + easy_problems["instance"]
     # )
     # easy_problems = easy_problems["problem_instance"]
-    # run_over_files(results_dir="results/paper_version_TTPN_10_min", timeout=18000)
+    # solve_rcpsp_optimizer("extract_problems/data/j30.sm.tgz/j301_5.sm")
+    # run_over_files(
+    #     results_dir="results/paper_version_5_min_j_60_optimal",
+    #     timeout=300,
+    #     problem_type="j60",
+    # )
     # # print(solve_small_problem_math())
-    print(
-        solve_file_problem(
-            path="extract_problems/data/j30.sm.tgz/j3040_5.sm",
-            # timed_transition=True,
-            logging=True,
-        )
-    )
-
     # print(
     #     solve_file_problem(
-    #         path="extract_problems/data/j30.sm.tgz/j3014_5.sm",
-    #         timed_transition=True,
+    #         path="extract_problems/data/j30.sm.tgz/j3040_5.sm",
+    #         # timed_transition=True,
     #         logging=True,
     #     )
     # )
+
+    print(
+        solve_file_problem(
+            path="extract_problems/data/j30.sm.tgz/j305_5.sm",
+            timed_transition=True,
+            beam_search_size=10,
+            logging=True,
+        )
+    )
     # solve_rcpsp_optimizer(path="extract_problems/data/j30.sm.tgz/j3014_5.sm")
 
 

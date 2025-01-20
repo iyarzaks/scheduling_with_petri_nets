@@ -391,7 +391,7 @@ class RcpspTimedTransitionPetriNet_As(RcpspTimedTransitionPetriNet):
                 duration=0,
             )
 
-        return special_places_xor_join, special_places_xor_split, branch_split
+        return special_places_xor_join, special_places_xor_split, branch_splits
 
     def add_activity(self, activity, rcpsp_basic):
         if activity.name not in rcpsp_basic.backward_dependencies:

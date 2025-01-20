@@ -34,7 +34,7 @@ def smaller_data(file_to_handle):
     # small_data = full_data[(full_data["case:concept:name"] != 2)]
     # small_data = full_data
     small_data = full_data[
-        (full_data["concept:name"].apply(len) < 2) & (full_data["concept:name"] < "v")
+        (full_data["concept:name"].apply(len) < 2) & (full_data["concept:name"] < "s")
     ]
     output_path = f"small_{file_to_handle}"
     small_data.to_csv(output_path, index=False)

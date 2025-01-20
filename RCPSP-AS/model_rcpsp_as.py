@@ -118,7 +118,7 @@ def solve_file_problem_as(a_path, b_path, beam_search_size=None, logging=False):
         timed_transition=True,
         job_finish_activity=job_finish_activity,
     )
-    petri_example.plot("small_linked_example.png")
+    # petri_example.plot("small_linked_example.png")
     result = a_star_solver.solve(beam_search_size=beam_search_size, logging=logging)
     return result
 
@@ -175,8 +175,8 @@ def main():
     #     b_path="RCPSPAS_data_Servranckx_and_Vanhoucke_EJOR_2019 2/Instances/file0b.RCP",
     # )
     result = solve_file_problem_as(
-        a_path="RCPSPAS_data_Servranckx_and_Vanhoucke_EJOR_2019 2/dummy_instance/linked_non_nested_example_a.RCP",
-        b_path="RCPSPAS_data_Servranckx_and_Vanhoucke_EJOR_2019 2/dummy_instance/linked_non_nested_example_b.RCP",
+        a_path="/Users/iyarzaks/PycharmProjects/scheduling_with_petri_nets/RCPSP-AS/RCPSPAS_data_Servranckx_and_Vanhoucke_EJOR_2019 2/Instances/file28a.RCP",
+        b_path="/Users/iyarzaks/PycharmProjects/scheduling_with_petri_nets/RCPSP-AS/RCPSPAS_data_Servranckx_and_Vanhoucke_EJOR_2019 2/Instances/file28b.RCP",
         logging=True,
     )
     print(result)

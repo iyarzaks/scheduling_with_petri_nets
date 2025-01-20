@@ -1010,12 +1010,157 @@ def analyze_final_marking(net: PetriNet, fm: Marking):
     return required_places
 
 
+def plot_resource_usage(
+    path: List[Tuple[PetriNet.Transition, int]],
+    aug_net: AugmentedPetriNet,
+    output_prefix: str = "resource_usage",
+):
+    """Analyze and plot resource usage over time."""
+    import matplotlib.pyplot as plt
+    from collections import defaultdict
+
+    # Collect all resource types and their usage over time
+    resource_types = set()
+    time_points = set()
+    activities_by_resource = defaultdict(list)
+
+    # First pass: collect all resource types and time points
+    for transition, start_time in path:
+        metadata = aug_net.get_metadata(transition)
+        if metadata and transition.label:
+            end_time = start_time + metadata.duration
+            time_points.add(start_time)
+            time_points.add(end_time)
+
+            for resource, amount in metadata.resources.items():
+                resource_types.add(resource)
+                activities_by_resource[resource].append(
+                    {
+                        "label": transition.label,
+                        "start": start_time,
+                        "end": end_time,
+                        "amount": amount,
+                    }
+                )
+
+    # Create separate plot for each resource type
+    for resource in resource_types:
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        # Set white background
+        fig.patch.set_facecolor("white")
+        ax.set_facecolor("white")
+
+        # Create timeline points
+        time_sorted = sorted(time_points)
+
+        # For each time segment, calculate total resource usage
+        current_activities = []
+        resource_usage = []
+
+        for t in time_sorted:
+            # Remove finished activities
+            current_activities = [a for a in current_activities if a["end"] > t]
+
+            # Add new activities starting at this time
+            new_activities = [
+                a for a in activities_by_resource[resource] if a["start"] == t
+            ]
+            current_activities.extend(new_activities)
+
+            # Calculate total resource usage at this point
+            total_usage = sum(a["amount"] for a in current_activities)
+            resource_usage.append((t, total_usage, current_activities.copy()))
+
+        # Plot resource usage
+        for i in range(len(resource_usage) - 1):
+            t, usage, activities = resource_usage[i]
+            next_t = resource_usage[i + 1][0]
+
+            if usage > 0:
+                # Plot stacked rectangles for each activity contributing to usage
+                bottom = 0
+                for activity in activities:
+                    height = activity["amount"]
+                    ax.add_patch(
+                        plt.Rectangle(
+                            (t, bottom),
+                            next_t - t,
+                            height,
+                            facecolor="lightgray",
+                            edgecolor="black",
+                            alpha=0.7,
+                        )
+                    )
+                    # Add activity label in the middle of rectangle
+                    if height >= 0.5:  # Only add label if rectangle is tall enough
+                        ax.text(
+                            t + (next_t - t) / 2,
+                            bottom + height / 2,
+                            f"{activity['label']}\n({height})",
+                            ha="center",
+                            va="center",
+                            fontsize=8,
+                        )
+                    bottom += height
+
+        # Customize the plot
+        max_usage = max(usage for _, usage, _ in resource_usage)
+        ax.set_ylim(0, max_usage + 0.5)
+        ax.set_xlim(min(time_sorted), max(time_sorted))
+
+        # Add grid
+        ax.grid(True, linestyle="--", alpha=0.3)
+        ax.set_axisbelow(True)
+
+        # Customize axes
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Resource Usage")
+        ax.set_title(f"{resource} Usage Over Time")
+
+        # Add integer ticks on y-axis
+        ax.yaxis.set_major_locator(plt.MultipleLocator(1))
+
+        # Remove top and right spines
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+
+        # Save plot
+        plt.tight_layout()
+        plt.savefig(f"{output_prefix}_{resource}.png", dpi=300, bbox_inches="tight")
+        plt.close()
+
+    return True
+
+
+# Modified main analysis function to include resource usage plots
 def analyze_path(
     path: List[Tuple[PetriNet.Transition, int]],
     aug_net: AugmentedPetriNet,
     total_transitions: Set[PetriNet.Transition],
+    output_prefix: str = "analysis",
 ):
-    """Enhanced path analysis showing parallel activities."""
+    # Original Gantt chart code here (previous implementation)
+    duration = previous_analyze_path_implementation(
+        path, aug_net, total_transitions, f"{output_prefix}_gantt.png"
+    )
+
+    # Add resource usage plots
+    plot_resource_usage(path, aug_net, output_prefix)
+
+    return duration
+
+
+def previous_analyze_path_implementation(
+    path: List[Tuple[PetriNet.Transition, int]],
+    aug_net: AugmentedPetriNet,
+    total_transitions: Set[PetriNet.Transition],
+    output_file: str = "path_analysis.png",
+):
+    """Enhanced path analysis showing parallel activities and generating a timeline visualization."""
+    import matplotlib.pyplot as plt
+    import numpy as np
+
     if not path:
         print("No valid path found.")
         return
@@ -1032,6 +1177,20 @@ def analyze_path(
 
     activity_times = {}  # Store start and end times for each activity
     label_to_transition = {}  # Map labels to transitions
+    activities_data = []  # Store data for plotting
+
+    # Custom color palette matching the image
+    colors = [
+        "#ADD8E6",  # Light blue
+        "#FFA500",  # Orange
+        "#DEB887",  # Burlywood
+        "#90EE90",  # Light green
+        "#FFB6C1",  # Light pink
+        "#DDA0DD",  # Plum
+        "#A0522D",  # Brown
+        "#FF69B4",  # Hot pink
+        "#20B2AA",  # Light sea green
+    ]
 
     # First pass: collect all timing information
     for transition, start_time in sorted_path:
@@ -1041,36 +1200,34 @@ def analyze_path(
             activity_times[transition] = (start_time, end_time)
             if transition.label:
                 label_to_transition[transition.label] = transition
+                activities_data.append(
+                    {
+                        "label": transition.label,
+                        "start": start_time,
+                        "end": end_time,
+                        "duration": metadata.duration,
+                    }
+                )
 
-    # Second pass: print with parallel activity information
+    # Second pass: print analysis and collect data
     total_duration = 0
     resource_usage = {}
 
     for transition, start_time in sorted_path:
         metadata = aug_net.get_metadata(transition)
-        if (
-            transition.label and metadata
-        ):  # Skip unlabeled transitions and those without metadata
+        if transition.label and metadata:
             end_time = start_time + metadata.duration
             total_duration = max(total_duration, end_time)
 
-            # Find parallel activities
+            # Find parallel activities and handle resources
             parallel_activities = []
             for other_trans, (other_start, other_end) in activity_times.items():
-                if (
-                    other_trans != transition and other_trans.label
-                ):  # Ensure other transition has label
+                if other_trans != transition and other_trans.label:
                     if other_start < end_time and start_time < other_end:
-                        if other_trans.label:  # Double check label exists
+                        if other_trans.label:
                             parallel_activities.append(other_trans.label)
 
-            # Handle resources string
             resources_str = ", ".join(f"{r}:{a}" for r, a in metadata.resources.items())
-
-            # Filter out None values and create parallel string
-            parallel_activities = [
-                act for act in parallel_activities if act is not None
-            ]
             parallel_str = (
                 ", ".join(parallel_activities) if parallel_activities else "None"
             )
@@ -1083,12 +1240,69 @@ def analyze_path(
             for resource, amount in metadata.resources.items():
                 resource_usage[resource] = resource_usage.get(resource, 0) + amount
 
-    print("-" * 90)
-    print(f"Total duration: {total_duration}")
-    print("\nResource usage:")
-    for resource, amount in resource_usage.items():
-        print(f"- {resource}: {amount}")
+    # Create visualization
+    fig, ax = plt.subplots(figsize=(15, 8))
 
+    # Set white background
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor("white")
+
+    # Plot activities as horizontal bars
+    y_positions = np.arange(len(activities_data))
+    labels = [activity["label"] for activity in activities_data]
+
+    # Create bars with duration labels - increased height to 0.6 (was 0.3)
+    for idx, activity in enumerate(activities_data):
+        duration = activity["end"] - activity["start"]
+        color_idx = idx % len(
+            colors
+        )  # Cycle through colors if more activities than colors
+
+        # Create the bar with increased height
+        bar = ax.barh(
+            idx,
+            duration,
+            left=activity["start"],
+            color=colors[color_idx],
+            alpha=0.9,
+            height=0.6,
+        )
+
+        # Add duration text in white with slightly larger font
+        ax.text(
+            activity["start"] + duration / 2,
+            idx,
+            str(activity["duration"]),
+            va="center",
+            ha="center",
+            color="white",
+            fontweight="bold",
+            fontsize=9,
+        )  # Slightly increased font size
+
+    # Customize the plot
+    ax.set_yticks(y_positions)
+    ax.set_yticklabels(labels)
+    ax.set_xlabel("Time", fontsize=10)
+    ax.set_title("Gantt Chart", fontsize=12, pad=20)
+
+    # Add grid with specific style matching the image
+    ax.grid(True, axis="x", linestyle="-", alpha=0.2, color="gray")
+    ax.set_axisbelow(True)  # Put grid behind bars
+
+    # Add timeline markers
+    ax.set_xticks(np.arange(0, total_duration + 1, max(1, total_duration // 10)))
+
+    # Remove top and right spines
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+    # Adjust layout with slightly more vertical spacing
+    plt.tight_layout()
+    plt.savefig(output_file, dpi=300, bbox_inches="tight", facecolor="white")
+    plt.close()
+
+    print(f"\nGantt chart has been saved to {output_file}")
     return total_duration
 
 

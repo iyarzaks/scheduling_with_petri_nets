@@ -1,11 +1,15 @@
-# pyomo.environ provides the framework for build the model
 from itertools import product
 
 import gurobipy as gp
 import pyomo.environ as pyo
+
+solver = pyo.SolverFactory("gurobi")
+print(solver.available())
 from gurobipy import GRB
 
 from extract_problems.extract_problem import extract_rcpsp_for_solver
+
+# Now you can import and use pyomo with gurobi
 
 # SolverFactory allows to call the solver to solve
 
@@ -83,11 +87,11 @@ def solve_rcpsp(p, u, e, c):
     # opt = pyo.SolverFactory(
     #     "scip", executable="/home/dsi/zaksiya/SCIPOptSuite-9.1.1-Linux/bin/scip"
     # )
-    # opt = pyo.SolverFactory("gurobi")
+    solver = pyo.SolverFactory("gurobi")
     # opt_glpk = pyo.SolverFactory(
     #     "cplex", executable="/Users/iyarzaks/Downloads/ampl.macos64/cplex"
     # )
-    opt = pyo.SolverFactory("cbc")
+    # opt = pyo.SolverFactory("cbc")
     # opt = pyo.SolverFactory(
     #     "scip",
     # )
@@ -95,13 +99,9 @@ def solve_rcpsp(p, u, e, c):
     # opt_glpk.options["threads"] = 8
     # opt_glpk.options["tmlim"] = 50000
     # opt_glpk.options["mipgap"] = 0
-    results = opt.solve(
+    results = solver.solve(
         model,
         tee=False,
-        # options={
-        #     "LogFile": "gurobi_log.txt",  # Save log to a file
-        #     "OutputFlag": 1,  # Enable output (1) or disable it (0)
-        # },
     )
     # results_display = model.display()
     # print(results_display)
@@ -215,8 +215,8 @@ def solve_rcpsp_lp_relaxation(p, u, e, c, finished_activities):
     return results["Problem"][0]["Lower bound"]
 
 
-def main():
-    solve_rcpsp_optimizer("../extract_problems/data/j30.sm.tgz/j304_2.sm")
+# def main():
+#     solve_rcpsp_optimizer("../extract_problems/data/j30.sm.tgz/j304_2.sm")
 
 
 def solve_rcpsp_optimizer(path):

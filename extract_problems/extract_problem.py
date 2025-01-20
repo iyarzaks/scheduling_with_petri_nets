@@ -17,19 +17,22 @@ def extract_table_data(data, start_pattern, end_pattern):
 
 
 def extract_opt_values(text_file):
-    with open(text_file, "r") as file:
-        data = file.readlines()
+    try:
+        with open(text_file, "r") as file:
+            data = file.readlines()
 
-    # Initialize a dictionary to store makespan values
-    makespan_values = {}
+        # Initialize a dictionary to store makespan values
+        makespan_values = {}
 
-    # Iterate through the lines in the file
-    for line in data:
-        # Check if the line contains parameter, instance, and makespan
-        if line.strip().replace(" ", "").replace(".", "").isdigit():
-            param, instance, makespan, time = line.split()
-            makespan_values[(param, instance)] = int(makespan)
-    return makespan_values
+        # Iterate through the lines in the file
+        for line in data:
+            # Check if the line contains parameter, instance, and makespan
+            if line.strip().replace(" ", "").replace(".", "").isdigit():
+                param, instance, makespan, time = line.split()
+                makespan_values[(param, instance)] = int(makespan)
+        return makespan_values
+    except:
+        return {}
 
 
 def extract_opt_values_with_time(text_file):

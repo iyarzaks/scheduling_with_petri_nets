@@ -592,7 +592,7 @@ def solve_file_problem_math(
         rcpsp=rcpsp_example,
         heuristic_function=build_cp_heuristic(rcpsp_example),
     )
-    result = a_star_opt_solver.solve_branch_and_bound(search_strategy="depth")
+    result = a_star_opt_solver.solve_a_star()
     # p, u, e, c = extract_rcpsp_for_solver(path)
     # petri_example.plot("petri_example_hard.png")
 

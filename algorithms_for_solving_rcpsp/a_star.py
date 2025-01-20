@@ -1,6 +1,7 @@
 import copy
 import hashlib
 import heapq
+from collections import defaultdict
 from types import MappingProxyType
 
 import orjson
@@ -245,7 +246,10 @@ class RgNodeTimedTransition:
         return int(hash_obj.hexdigest(), 16)
 
     def __hash__(self):
-        return self.hash
+        try:
+            return self.hash
+        except:
+            return RgNodeTimedTransition.hash_dict(self.started_activities)
 
     def calc_g_score(self):
         return max(self.finished_activities.values())
@@ -471,6 +475,111 @@ class AStarSolver:
                 return True
         return False
 
+    def solve_with_beam(self, beam_search_size=None, logging=False):
+        if logging:
+            progress_bar = tqdm(total=1000000, desc="Processing")
+
+        current = self.start_node
+        current.update_marking_and_neighbors()
+        generated = 0
+        closed = set()
+
+        # Dictionary to store nodes at each depth level
+        depth_nodes = defaultdict(
+            list
+        )  # key: depth (len of finished activities), value: list of nodes
+
+        # Initialize with start node
+        start_depth = len(current.finished_activities)
+        depth_nodes[start_depth].append(current)
+
+        while not self.is_final_node(current):
+            current_depth = len(current.finished_activities)
+            available_transitions = current.available_transitions
+
+            # Generate all possible next nodes
+            for transition in available_transitions:
+                if self.timed_transition:
+                    generated += 1
+                    new_node = RgNodeTimedTransition(
+                        previous_marking=current.marking,
+                        petri_net_to_solve=self.petri_net_to_solve,
+                        heuristic_function=self.heuristic_function,
+                        rcpsp_base=self.rcpsp_base,
+                        previous_rg_node_finished_activities=MappingProxyType(
+                            current.finished_activities
+                        ),
+                        previous_rg_node_started_activities=MappingProxyType(
+                            current.started_activities
+                        ),
+                        transition=transition,
+                        job_finish_activity=self.job_finish_activity,
+                        heuristic_params=self.heuristic_params,
+                    )
+                else:
+                    new_node = RgNode(
+                        self.petri_net_to_solve,
+                        self.heuristic_function,
+                        copy.copy(self.rcpsp_base),
+                        current,
+                        transition[0],
+                    )
+
+                if new_node not in closed:
+                    next_depth = len(new_node.finished_activities)
+                    depth_nodes[next_depth].append(new_node)
+
+            # Apply beam search to the next depth level if needed
+            next_depth = current_depth + 1
+            if beam_search_size is not None and depth_nodes[next_depth]:
+                # Sort nodes by their total score (h_score + g_score)
+                depth_nodes[next_depth].sort(key=lambda x: (x.h_score + x.g_score))
+                # Keep only the k-best nodes
+                depth_nodes[next_depth] = depth_nodes[next_depth][:beam_search_size]
+
+            # Remove current node from current depth and add to closed set
+            depth_nodes[current_depth].remove(current)
+            closed.add(current)
+
+            # Find the best node across all available depths
+            next_node = None
+            best_score = float("inf")
+
+            # Look through all depths for the best node
+            for depth, nodes in depth_nodes.items():
+                if nodes:  # if there are nodes at this depth
+                    # Find best node at this depth
+                    best_node = min(nodes, key=lambda x: (x.h_score + x.g_score))
+                    if (best_node.h_score + best_node.g_score) < best_score:
+                        best_score = best_node.h_score + best_node.g_score
+                        next_node = best_node
+
+            if next_node is None:
+                print("No solution found")
+                return {
+                    "scheduling": None,
+                    "makespan": None,
+                    "nodes_visited": len(closed),
+                    "solved": False,
+                    "beam_search_size": beam_search_size,
+                }
+
+            current = next_node
+            current.update_marking_and_neighbors()
+
+            if logging:
+                progress_bar.update(1)
+
+        return {
+            "scheduling": current.started_activities,
+            "total_jobs_scheduled": len(current.started_activities),
+            "makespan": current.started_activities[self.job_finish_activity],
+            "nodes_expand": len(closed),
+            "nodes_generated": generated,
+            "solved": True,
+            "beam_search_size": beam_search_size,
+        }
+
     def solve(self, beam_search_size=None, logging=False):
         if logging:
             progress_bar = tqdm(total=1000000, desc="Processing")
@@ -531,8 +640,7 @@ class AStarSolver:
                     "solved": False,
                     "beam_search_size": beam_search_size,
                 }
-        # print(f"activities start times: {current.started_activities}")
-        # print(f"makespan: {current.g_score}")
+
         return {
             "scheduling": current.started_activities,
             "total_jobs_scheduled": len(current.started_activities),
