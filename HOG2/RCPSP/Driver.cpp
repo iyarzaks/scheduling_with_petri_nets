@@ -35,7 +35,7 @@ void printNetworkSize1() {
         if (pair.second==1){pair.second=0;}
         if (pair.first==finalstatename){pair.second=1;}
     }
-    int a;
+    int a=0;
     RCPSP as1;
     TemplateAStar<RCPSPState, int, RCPSP> astar;
 
@@ -56,7 +56,8 @@ void printNetworkSize1() {
     // הדפסת הנתיב שנמצא
     std::cout << "Path found!" << std::endl;
     for (const auto& state : path) {
-        std::cout << std::endl << "time:" << state.g << std::endl;
+        std::cout << std::endl << "g:" << state.g<< std::endl;
+        std::cout << std::endl << "h:" << state.h<< std::endl;
 
         std::cout << "Actions in Progress: ";
         for (int i = 0; i < state.activeTransitions.size(); i++) {
@@ -72,6 +73,7 @@ void printNetworkSize1() {
 
         std::cout << state.name << std::endl;
     }
-    std::cout <<"end"<< "\n";
+    std::cout <<"end";
+    //std::cout<<path.size()<< "\n";
 
 }

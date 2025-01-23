@@ -7,6 +7,7 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
+#include <algorithm>
 
 // std::atomic<bool> stop_printing(false); // Flag to stop the printing thread
 //
@@ -161,7 +162,29 @@ RCPSPState::RCPSPState() {
   avilableTransition=getAvilableTransitions(marking);
   g=0;
   name=0;
+   expanded=true;
+   std::map<int, double> earlyfinishMap; // Map to store activity names and their early start
 
+   // For each activity in the unstartedtransitions vector from the state1 argument
+   for (int i = 0; i < unstartedTransitions.size(); ++i) {
+     int activityId = unstartedTransitions[i];
+
+     // For each backward dependency of the activity from the global RCPSPex object
+     double maxFinishTime = 0.0;
+     for (const auto& dep : RCPSPex.backword_dependencies[activityId-1]) {
+       int depId = std::stoi(dep) - 1; // Convert from string to index (1-based calculation)
+       maxFinishTime = std::max(maxFinishTime, earlyfinishMap[std::stoi(dep)] + RCPSPex.activities[depId].duration);
+     }
+
+     // Set the early start of the activity in the map
+     earlyfinishMap[activityId] = maxFinishTime;
+   }
+   if (earlyfinishMap.size()==0) {
+     h= 0;
+   }
+   else {
+     h= earlyfinishMap.rbegin()->second;
+   }
 }
 
 
@@ -175,21 +198,23 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
 
   //avilableTransition.erase(avilableTransition.begin()+location);
   g=predecesor.g;
+  h=predecesor.h;
   if (status) {
     for (const auto& arc : active.arcs_in) {
        marking[arc.first]-=arc.second;
      }
     //std::cout<<"activate:"<<active.name<<std::endl;
     activeTransitions.push_back(active);
-    if (name==34) {
-      int asd=0;
-      asd++;
-    }
+    // if (name==34) {
+    //   int asd=0;
+    //   asd++;
+    // }
     for (int i = unstartedTransitions.size() - 1; i >= 0; --i) {
       if (unstartedTransitions[i] == std::stoi(active.name)) {
         unstartedTransitions.erase(unstartedTransitions.begin() + i);
       }
     }
+
     //unstartedTransitions[active.name]=0;
     //std::cout<<state1.name<<std::endl;
     std::map<int, double> earlyfinishMap; // Map to store activity names and their early start
@@ -202,7 +227,11 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
       double maxFinishTime = 0.0;
       for (const auto& dep : RCPSPex.backword_dependencies[activityId-1]) {
         int depId = std::stoi(dep) - 1; // Convert from string to index (1-based calculation)
+
+
         maxFinishTime = std::max(maxFinishTime, earlyfinishMap[std::stoi(dep)] + RCPSPex.activities[depId].duration);
+
+        //maxFinishTime = std::max(maxFinishTime, earlyfinishMap[std::stoi(dep)] + RCPSPex.activities[depId].duration);
       }
 
       // Set the early start of the activity in the map
@@ -214,6 +243,9 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     else {
       h= earlyfinishMap.rbegin()->second;
     }
+
+
+
     // Return the early start of the last activity in the map (the one with the highest key)
     //std::cout<< earlyfinishMap.rbegin()->second<<std::endl;
       // rbegin() gives the last element in the map
@@ -223,19 +255,22 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
   }
   else {
     //std::cout<<"ending transition number:"<<active.name<<std::endl;
-    for (const auto& arc : active.arcs_out) {
-      marking[arc.first]+=arc.second;
-    }
+
     g+=active.duration;
-    int temp;
 
     //probebly can improve
-    for (int i=0;i<activeTransitions.size();i++) {
-      activeTransitions[i].duration-=active.duration;
-      //if (activeTransitions[i].name==active.name) {temp=i;break;}
+    for (int i = activeTransitions.size() - 1; i >= 0; --i) {
+      activeTransitions[i].duration -= active.duration;
+      if (activeTransitions[i].duration == 0) {
+        for (const auto& arc : activeTransitions[i].arcs_out) {
+          marking[arc.first]+=arc.second;
+        }
+        activeTransitions.erase(activeTransitions.begin() + i);
+      }
     }
 
-    activeTransitions.erase(activeTransitions.begin()+temp);
+
+
   }
   avilableTransition=getAvilableTransitions(marking);
   // for (int i=0;i<petri.Transitions.size();i++) {

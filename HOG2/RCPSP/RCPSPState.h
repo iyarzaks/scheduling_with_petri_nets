@@ -21,7 +21,7 @@ class RCPSPState {
   //std::vector<int> unstartedTransitions;
   bool expanded=0;
 
-  int name;
+  int name=0;
   int g=0;
   int h=0;
 

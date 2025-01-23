@@ -87,12 +87,12 @@ inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) cons
 }
 
 inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) const {
-//return state1.h-state2.h;
-return state2.h;
+//return state2.h-state1.h;
+return state1.h;
 }
 
 inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) const {
-  //return state1.g-state2.g;
+  //return state2.g-state1.g;
   return state2.g;
 }
 
