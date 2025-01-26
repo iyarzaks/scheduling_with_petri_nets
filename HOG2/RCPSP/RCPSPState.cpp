@@ -228,35 +228,36 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
         activeTransitions.erase(activeTransitions.begin() + i);
       }
     }
+    std::map<int, double> earlyfinishMap; // Map to store activity IDs and their early finish times
 
+    // Iterate over unstarted activities
+    for (int activityId : unstartedTransitions) {
+      double maxFinishTime = 0.0;
+
+      // Compute the maximum finish time of dependencies
+      for (const auto& dep : RCPSPex.backword_dependencies[activityId - 1]) {
+        int depId = std::stoi(dep) - 1; // Convert string dependency to index (0-based)
+
+        // Check if dependency is still unstarted
+        if (std::find(unstartedTransitions.begin(), unstartedTransitions.end(), depId + 1) != unstartedTransitions.end()) {
+          maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1] + RCPSPex.activities[depId].duration);
+        }
+      }
+
+      // Store the calculated early finish time for the activity
+      earlyfinishMap[activityId] = maxFinishTime;
+    }
+
+    // Set the heuristic value `h`
+    if (earlyfinishMap.empty()) {
+      h = 0;
+    } else {
+      h = earlyfinishMap.rbegin()->second; // Maximum finish time in the map
+    }
   }
   avilableTransition=getAvilableTransitions(marking);
-   std::map<int, double> earlyfinishMap; // Map to store activity IDs and their early finish times
 
-   // Iterate over unstarted activities
-   for (int activityId : unstartedTransitions) {
-     double maxFinishTime = 0.0;
 
-     // Compute the maximum finish time of dependencies
-     for (const auto& dep : RCPSPex.backword_dependencies[activityId - 1]) {
-       int depId = std::stoi(dep) - 1; // Convert string dependency to index (0-based)
-
-       // Check if dependency is still unstarted
-       if (std::find(unstartedTransitions.begin(), unstartedTransitions.end(), depId + 1) != unstartedTransitions.end()) {
-         maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1] + RCPSPex.activities[depId].duration);
-       }
-     }
-
-     // Store the calculated early finish time for the activity
-     earlyfinishMap[activityId] = maxFinishTime;
-   }
-
-   // Set the heuristic value `h`
-   if (earlyfinishMap.empty()) {
-     h = 0;
-   } else {
-     h = earlyfinishMap.rbegin()->second; // Maximum finish time in the map
-   }
 
 }
 
