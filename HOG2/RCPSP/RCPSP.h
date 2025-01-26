@@ -56,31 +56,13 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
         t=i;
       }
     }
-    // Transition active = nodeID.activeTransitions[t];
-    // RCPSPState temp(RCPSPState(nodeID,active,0,t,count));
-    // temp.name = count;
-    // neighbors.emplace_back(temp);
-    //Nsize++;
-
     neighbors.emplace_back(RCPSPState(nodeID,nodeID.activeTransitions[t],0,t,count));
   }
 
   for (int i=0;i<nodeID.avilableTransition.size();i++) {
     count++;
-    //RCPSPState temp(nodeID,nodeID.avilableTransition[i],1,i,count);
-    //temp.name = count;
     neighbors.emplace_back(RCPSPState(nodeID,nodeID.avilableTransition[i],1,i,count));
-
-    //Nsize++;
   }
-
-
-
-
-
-//   for (int i=0; i<nodeID.sons.size(); i++) {
-//   neighbors.emplace_back(nodeID.sons[i]);
-// }
 }
 
 inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) const {
@@ -96,10 +78,17 @@ return state1.h;
 }
 
 inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) const {
-  return state2.g-state1.g;//+state1.g
-  //return state2.g;
-}
+  int remain=0;
+  for (int i = state2.activeTransitions.size() - 1; i >= 0; --i) {
+    if (state2.activeTransitions[i].duration > remain) {
+      remain = state2.activeTransitions[i].duration;
+    }
+  }
+    //return remain-state2.g;
+    return state2.g-state1.g;//+state1.g
+    //return state2.g;
 
+}
 //NOT IN USE OF A*
 inline uint64_t RCPSP::GetActionHash(int act) const {
   // Example hash for an action
