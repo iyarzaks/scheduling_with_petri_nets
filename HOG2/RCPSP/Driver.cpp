@@ -30,7 +30,7 @@ void printNetworkSize1() {
      getRCPSP(RCPSPex);
     RCPSPState first;
     RCPSPState last=first;
-
+last.h=0;
     for ( auto& pair : last.marking) {
         if (pair.second==1){pair.second=0;}
         if (pair.first==finalstatename){pair.second=1;}
@@ -49,31 +49,39 @@ void printNetworkSize1() {
      //     first.sons.back().name = count;
      //
      // }
-    //std::thread printer(printNetworkSize1);
+    std::thread printer(printNetworkSize1);
 
      astar.GetPath(&as1, first, last, path);
 
     // הדפסת הנתיב שנמצא
-    std::cout << "Path found!" << std::endl;
-    for (const auto& state : path) {
-        std::cout << std::endl << "g:" << state.g<< std::endl;
-        std::cout << std::endl << "h:" << state.h<< std::endl;
+    if (path.size()>0) {
+        std::cout << "Path found!" << std::endl;
+        for (const auto& state : path) {
 
-        std::cout << "Actions in Progress: ";
-        for (int i = 0; i < state.activeTransitions.size(); i++) {
-            std::cout << state.activeTransitions[i].name << " ";
+
+            std::cout << "Actions in Progress: ";
+            for (int i = 0; i < state.activeTransitions.size(); i++) {
+                std::cout << state.activeTransitions[i].name << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "Available Transitions: ";
+            for (int i = 0; i < state.avilableTransition.size(); i++) {
+                std::cout << state.avilableTransition[i].name << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout <<"name:" <<state.name << std::endl;
+            std::cout << "g:" << state.g<< std::endl;
+            std::cout << "h:" << state.h<< std::endl<< std::endl;
         }
-        std::cout << std::endl;
-
-        std::cout << "Available Transitions: ";
-        for (int i = 0; i < state.avilableTransition.size(); i++) {
-            std::cout << state.avilableTransition[i].name << " ";
-        }
-        std::cout << std::endl;
-
-        std::cout << state.name << std::endl;
+        std::cout <<"end"<<std::endl;
     }
-    std::cout <<"end";
-    //std::cout<<path.size()<< "\n";
-
+    else{
+        std::cout<<"path not found"<< "\n";
+        std::cout<<count<< "\n";
+}
+    std::cout<<astar.GetNodesExpanded()<<std::endl;
+    std::cout<<astar.GetUniqueNodesExpanded()<<std::endl;
+    std::cout<<path.size()<<std::endl;
 }

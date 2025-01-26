@@ -205,57 +205,17 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
      }
     //std::cout<<"activate:"<<active.name<<std::endl;
     activeTransitions.push_back(active);
-    // if (name==34) {
-    //   int asd=0;
-    //   asd++;
-    // }
+
+    if (active.duration==0){status=false;}
+
     for (int i = unstartedTransitions.size() - 1; i >= 0; --i) {
       if (unstartedTransitions[i] == std::stoi(active.name)) {
         unstartedTransitions.erase(unstartedTransitions.begin() + i);
       }
     }
 
-    //unstartedTransitions[active.name]=0;
-    //std::cout<<state1.name<<std::endl;
-    std::map<int, double> earlyfinishMap; // Map to store activity names and their early start
-
-    // For each activity in the unstartedtransitions vector from the state1 argument
-    for (int i = 0; i < unstartedTransitions.size(); ++i) {
-      int activityId = unstartedTransitions[i];
-
-      // For each backward dependency of the activity from the global RCPSPex object
-      double maxFinishTime = 0.0;
-      for (const auto& dep : RCPSPex.backword_dependencies[activityId-1]) {
-        int depId = std::stoi(dep) - 1; // Convert from string to index (1-based calculation)
-
-
-        maxFinishTime = std::max(maxFinishTime, earlyfinishMap[std::stoi(dep)] + RCPSPex.activities[depId].duration);
-
-        //maxFinishTime = std::max(maxFinishTime, earlyfinishMap[std::stoi(dep)] + RCPSPex.activities[depId].duration);
-      }
-
-      // Set the early start of the activity in the map
-      earlyfinishMap[activityId] = maxFinishTime;
-    }
-    if (earlyfinishMap.size()==0) {
-      h= 0;
-    }
-    else {
-      h= earlyfinishMap.rbegin()->second;
-    }
-
-
-
-    // Return the early start of the last activity in the map (the one with the highest key)
-    //std::cout<< earlyfinishMap.rbegin()->second<<std::endl;
-      // rbegin() gives the last element in the map
-    //return 2;  // rbegin() gives the last element in the map
-
-
   }
-  else {
-    //std::cout<<"ending transition number:"<<active.name<<std::endl;
-
+  if (!status) {
     g+=active.duration;
 
     //probebly can improve
@@ -269,70 +229,37 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
       }
     }
 
-
-
   }
   avilableTransition=getAvilableTransitions(marking);
-  // for (int i=0;i<petri.Transitions.size();i++) {
-  //   if (unstartedTransitions[petri.Transitions[i].name]==1) {
-  //
-  //   }
-  // }
+   std::map<int, double> earlyfinishMap; // Map to store activity IDs and their early finish times
 
-//h=get(h)
+   // Iterate over unstarted activities
+   for (int activityId : unstartedTransitions) {
+     double maxFinishTime = 0.0;
+
+     // Compute the maximum finish time of dependencies
+     for (const auto& dep : RCPSPex.backword_dependencies[activityId - 1]) {
+       int depId = std::stoi(dep) - 1; // Convert string dependency to index (0-based)
+
+       // Check if dependency is still unstarted
+       if (std::find(unstartedTransitions.begin(), unstartedTransitions.end(), depId + 1) != unstartedTransitions.end()) {
+         maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1] + RCPSPex.activities[depId].duration);
+       }
+     }
+
+     // Store the calculated early finish time for the activity
+     earlyfinishMap[activityId] = maxFinishTime;
+   }
+
+   // Set the heuristic value `h`
+   if (earlyfinishMap.empty()) {
+     h = 0;
+   } else {
+     h = earlyfinishMap.rbegin()->second; // Maximum finish time in the map
+   }
+
 }
 
-// int RCPSPState::GetG() {
-//   return g;
-// }
-
-// int RCPSPState::checkEnd() {
-//   if (marking[finalstatename]==1) {std::cout<<"end"<<std::endl;
-//     return 1;
-//   }
-//   else
-//
-//     return 0;
-// }
-
-// bool operator==(const RCPSPState &l1, const RCPSPState &l2) {
-//    if (l1.expanded != l2.expanded) {
-//      return false;
-//    }
-//    if (l1.g != l2.g) {
-//      return false;
-//    }
-//    if (l1.h != l2.h) {
-//      return false;
-//    }
-//    // if (l1.marking != l2.marking) {
-//    //     return false;
-//    // }
-//    // if (l1.unstartedTransitions != l2.unstartedTransitions) {
-//    //     return false;
-//    // }
-//    if (l1.avilableTransition != l2.avilableTransition) {
-//      return false;
-//    }
-//    // if (l1.activeTransitions.size() == l2.activeTransitions.size()) {
-//    //     // Make local copies of the transitions for sorting
-//    //     std::vector<Transition> sortedL1Transitions = l1.activeTransitions;
-//    //     std::vector<Transition> sortedL2Transitions = l2.activeTransitions;
-//    //
-//    //     // Sort the copies
-//    //     std::sort(sortedL1Transitions.begin(), sortedL1Transitions.end(), namecomper);
-//    //     std::sort(sortedL2Transitions.begin(), sortedL2Transitions.end(), namecomper);
-//    //
-//    //     // Compare the sorted transitions
-//    //     for (size_t i = 0; i < sortedL1Transitions.size(); i++) {
-//    //         if (sortedL1Transitions[i].name != sortedL2Transitions[i].name) {
-//    //             return false;
-//    //         }
-//    //     }
-//    //     return true;
-//    // }
-//    return false;
-//  }
 bool RCPSPState::operator==(const RCPSPState& other) const {
    if (this->expanded != other.expanded) {
      return false;
@@ -347,6 +274,12 @@ bool RCPSPState::operator==(const RCPSPState& other) const {
      return false;
    }
    if (this->activeTransitions != other.activeTransitions) {
+     return false;
+   }
+   if (this->unstartedTransitions != other.unstartedTransitions) {
+     return false;
+   }
+   if (this->marking != other.marking) {
      return false;
    }
    return true;

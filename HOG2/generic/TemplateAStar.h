@@ -212,7 +212,7 @@ const char *TemplateAStar<state,action,environment,openList>::GetName()
  * @date 03/22/06
  *
  * @param _env The search environment
- * @param from The start state
+ * @param from The start states
  * @param to The goal state
  * @param thePath A vector of states which will contain an optimal path 
  * between from and to when the function returns, if one exists. 

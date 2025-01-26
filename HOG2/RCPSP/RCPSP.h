@@ -37,10 +37,13 @@ class RCPSP : public SearchEnvironment<RCPSPState,int>{
 inline double RCPSP::GCost(const RCPSPState &node, const int &act) const {
   return node.g;
 }
-
 inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
-  // Example hash: combine state name and some state property
-  return std::hash<int>()(node.name) ^ std::hash<int>()(node.g);
+  // Combine multiple state properties for a more robust hash
+  size_t hash = std::hash<int>()(node.name);
+
+
+
+  return hash;
 }
 
 
@@ -72,28 +75,34 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
     //RCPSPState temp(nodeID,nodeID.avilableTransition[i],1,i,count);
     //temp.name = count;
     neighbors.emplace_back(RCPSPState(nodeID,nodeID.avilableTransition[i],1,i,count));
+
     //Nsize++;
   }
+
+
+
+
+
 //   for (int i=0; i<nodeID.sons.size(); i++) {
 //   neighbors.emplace_back(nodeID.sons[i]);
 // }
 }
 
 inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) const {
-  if (node.marking.at(finalstatename) == goal.marking.at(finalstatename)) {
+  if (node.marking.at(finalstatename) == 1) {
   return true;
 }
   return false;
 }
 
 inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) const {
-//return state2.h-state1.h;
+//return state1.h-state2.h;
 return state1.h;
 }
 
 inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) const {
-  //return state2.g-state1.g;
-  return state2.g;
+  return state2.g-state1.g;//+state1.g
+  //return state2.g;
 }
 
 //NOT IN USE OF A*
