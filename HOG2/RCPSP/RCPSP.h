@@ -34,15 +34,10 @@ class RCPSP : public SearchEnvironment<RCPSPState,int>{
   std::vector<RCPSPState> GetSuccessors(const RCPSPState &nodeID) const;
   double GCost(const RCPSPState &node, const int &act) const override;
   };
-inline double RCPSP::GCost(const RCPSPState &node, const int &act) const {
-  return node.g;
-}
+
 inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
   // Combine multiple state properties for a more robust hash
   size_t hash = std::hash<int>()(node.name);
-
-
-
   return hash;
 }
 
@@ -168,7 +163,9 @@ inline void RCPSP::ApplyAction(RCPSPState &s, int a) const {
   //
   // }
 }
-
+inline double RCPSP::GCost(const RCPSPState &node, const int &act) const {
+  return node.g;
+}
 
 #endif //RCPSP_H
 //
