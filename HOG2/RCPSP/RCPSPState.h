@@ -20,15 +20,16 @@ class RCPSPState {
   //std::vector<RCPSPState> sons;
   //std::vector<int> unstartedTransitions;
   bool expanded=0;
-
+  int cureTime=0;
   int name=0;
-  int g=0;
-  int h=0;
+  int predecesorname=0;
+  double g=0;
+  double h=0;
 
   //int GetG();
   //int checkEnd();
   bool operator==(const RCPSPState& other) const;
 };
-
+int computeEarlyFinishTime(int activityId);
 
 #endif // RCPSPSTATE_H

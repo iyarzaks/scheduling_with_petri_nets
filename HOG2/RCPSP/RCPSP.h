@@ -35,10 +35,118 @@ class RCPSP : public SearchEnvironment<RCPSPState,int>{
   double GCost(const RCPSPState &node, const int &act) const override;
   };
 
+
+inline void hash_combine(size_t& seed, size_t value) {
+  seed ^= value + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+// Hash function for std::map<std::string, int>
+size_t hash_map(const std::map<std::string, int>& m) {
+  size_t seed = 0;
+  for (const auto& [key, value] : m) {
+    hash_combine(seed, std::hash<std::string>()(key));
+    hash_combine(seed, std::hash<int>()(value));
+  }
+  return seed;
+}
+struct TransitionHash {
+  size_t operator()(const Transition& t) const {
+    size_t seed = 0;
+    hash_combine(seed, std::hash<std::string>()(t.name));
+    hash_combine(seed, std::hash<int>()(t.duration));
+    hash_combine(seed, hash_map(t.arcs_in));
+    hash_combine(seed, hash_map(t.arcs_out));
+    return seed;
+  }
+};
 inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
-  // Combine multiple state properties for a more robust hash
-  size_t hash = std::hash<int>()(node.name);
+
+  constexpr uint64_t PRIME = 0x100000001b3;
+  uint64_t hash = 0xcbf29ce484222325;
+
+//  Hash g and h values
+  // hash ^= static_cast<uint64_t>(node.g);
+  // hash *= PRIME;
+  // hash ^= static_cast<uint64_t>(node.h);
+  // hash *= PRIME;
+
+  // For marking values, since they're mostly binary,
+  // we can pack multiple values into one hash operation
+  uint64_t markingBits = 0;
+  int bitPos = 0;
+  for (const auto& pair : node.marking) {
+    if (pair.second <= 1) {
+      // For binary values, use bit packing
+      if (pair.second == 1) {
+        markingBits |= (1ULL << bitPos);
+      }
+      bitPos++;
+      if (bitPos == 64) {
+        // If we fill up 64 bits, hash them and reset
+        hash ^= markingBits;
+        hash *= PRIME;
+        markingBits = 0;
+        bitPos = 0;
+      }
+    } else {
+      // For non-binary values, hash them directly
+      hash ^= static_cast<uint64_t>(pair.second);
+      hash *= PRIME;
+    }
+  }
+  // Hash any remaining marking bits
+  if (bitPos > 0) {
+    hash ^= markingBits;
+    hash *= PRIME;
+  }
+
+  // Hash active transitions in order-independent way
+  uint64_t transitionsHash = 0;
+  for (const Transition& trans : node.activeTransitions) {
+    uint64_t transHash = std::hash<std::string>{}(trans.name);
+    transHash ^= static_cast<uint64_t>(trans.duration);
+    transHash *= PRIME;
+    transitionsHash ^= transHash;
+  }
+  hash ^= transitionsHash;
+  hash *= PRIME;
+
   return hash;
+
+
+  // Combine multiple state properties for a more robust hash
+  /*size_t hash = 0;
+
+  // Hash integers
+  hash ^= std::hash<int>()(node.g) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  hash ^= std::hash<int>()(node.h) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
+  // Hash marking (std::map<std::string, int>)
+  for (const auto& [key, value] : node.marking) {
+    hash ^= std::hash<std::string>()(key) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    hash ^= std::hash<int>()(value) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  }
+
+  // Hash unstartedTransitions (std::vector<int>)
+  for (int val : node.unstartedTransitions) {
+    hash ^= std::hash<int>()(val) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  }
+
+  // Hash activeTransitions (std::vector<Transition>)
+  for (const auto& t : node.activeTransitions) {
+    hash ^= TransitionHash()(t) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  }
+
+  // Hash availableTransitions (std::vector<Transition>)
+  for (const auto& t : node.avilableTransition) {
+    hash ^= TransitionHash()(t) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  }
+
+  return hash;
+
+
+  */
+
 }
 
 
@@ -46,7 +154,9 @@ inline RCPSP::RCPSP() {
 }
 
 inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const {
-
+static int exnum;
+  exnum++;
+  if (exnum == 1000000) {exit;}
   if (nodeID.activeTransitions.size()>0) {
 
     count++;
@@ -58,11 +168,11 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
     }
     neighbors.emplace_back(RCPSPState(nodeID,nodeID.activeTransitions[t],0,t,count));
   }
-
   for (int i=0;i<nodeID.avilableTransition.size();i++) {
     count++;
     neighbors.emplace_back(RCPSPState(nodeID,nodeID.avilableTransition[i],1,i,count));
   }
+
 }
 
 inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) const {
@@ -73,19 +183,19 @@ inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) cons
 }
 
 inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) const {
-//return state1.h-state2.h;
+return state1.h-state2.h;
 return state1.h;
 }
 
 inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) const {
-  int remain=0;
-  for (int i = state2.activeTransitions.size() - 1; i >= 0; --i) {
-    if (state2.activeTransitions[i].duration > remain) {
-      remain = state2.activeTransitions[i].duration;
-    }
-  }
+  // int remain=0;
+  // for (int i = state2.activeTransitions.size() - 1; i >= 0; --i) {
+  //   if (state2.activeTransitions[i].duration > remain) {
+  //     remain = state2.activeTransitions[i].duration;
+  //   }
+  // }
     //return remain-state2.g;
-    return state2.g-state1.g;//+state1.g
+   return state2.g-state1.g;//+state1.g
     //return state2.g;
 
 }

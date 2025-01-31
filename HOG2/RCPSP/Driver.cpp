@@ -72,6 +72,7 @@ last.h=0;
             std::cout << std::endl;
 
             std::cout <<"name:" <<state.name << std::endl;
+            std::cout <<"startTime:" <<state.cureTime << std::endl;
             std::cout << "g:" << state.g<< std::endl;
             std::cout << "h:" << state.h<< std::endl<< std::endl;
         }
@@ -84,4 +85,6 @@ last.h=0;
     std::cout<<astar.GetNodesExpanded()<<std::endl;
     std::cout<<astar.GetUniqueNodesExpanded()<<std::endl;
     std::cout<<path.size()<<std::endl;
+    astar.openClosedList;
+    astar.openClosedList;
 }

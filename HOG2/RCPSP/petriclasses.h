@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 class Activity {
 public:
     int duration;
@@ -95,6 +96,8 @@ public:
 
           int initialDuration = 0)
         : name(TransitionName), arcs_in(inputArcs), arcs_out(outputArcs), duration(initialDuration) {}
+
+
     bool operator==(const Transition& other) const {
         return name == other.name &&
                arcs_in == other.arcs_in &&
@@ -102,6 +105,19 @@ public:
                duration == other.duration;
     }
 };
+int getTransitionDuration(const std::vector<Transition>& transitions, const std::string& name) {
+    auto it = std::find_if(transitions.begin(), transitions.end(),
+                           [&name](const Transition& t) { return t.name == name; });
+
+    if (it != transitions.end()) {
+        return it->duration;  // Return duration if found
+    }
+    return -1;  // Return -1 or any other value to indicate not found
+}
+
+
+
+
 class Transition_dict {
 public:
     std::map<std::string, int> arcs_in;  // Arcs coming into the place
