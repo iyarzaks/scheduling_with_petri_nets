@@ -19,10 +19,11 @@ class RCPSPState {
   std::vector<Transition> activeTransitions;
   //std::vector<RCPSPState> sons;
   //std::vector<int> unstartedTransitions;
-  bool expanded=0;
-  int cureTime=0;
-  int name=0;
+  double name=0;
   int predecesorname=0;
+
+  std::map<int, int> startedActivitiys;
+  std::map<int, int> finishedActivitiys;
   double g=0;
   double h=0;
 

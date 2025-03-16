@@ -142,6 +142,7 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,uint64_t &count) 
 }
 
 RCPSPState::RCPSPState() {
+   startedActivitiys[0]=0;
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].arcs_out.size()==0){finalstatename=petri.places[i].name;}
     if (petri.places[i].arcs_in.size()==0){initialstatename=petri.places[i].name;}
@@ -163,7 +164,6 @@ RCPSPState::RCPSPState() {
   avilableTransition=getAvilableTransitions(marking);
   g=0;
   name=0;
-   expanded=true;
    std::map<int, double> earlyfinishMap; // Map to store activity names and their early start
 
    // For each activity in the unstartedtransitions vector from the state1 argument
@@ -195,8 +195,9 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
   activeTransitions=predecesor.activeTransitions;
   avilableTransition=predecesor.avilableTransition;
   unstartedTransitions=predecesor.unstartedTransitions;
+   startedActivitiys=predecesor.startedActivitiys;
+   finishedActivitiys=predecesor.finishedActivitiys;
   //finalstatename=predecesor.finalstatename;
-  cureTime=predecesor.cureTime;
    predecesorname=predecesor.name;
   //avilableTransition.erase(avilableTransition.begin()+location);
   g=predecesor.g;
@@ -218,12 +219,15 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     activeTransitions.push_back(active);
 
     //if (active.duration==0){status=false;}
-
+    startedActivitiys[stoi(active.name)]=g;
 
 
   }
   if (!status) {
     g+=active.duration;
+
+    finishedActivitiys[stoi(active.name)]=g;
+
     //cureTime+=active.duration;
     for (int i = unstartedTransitions.size() - 1; i >= 0; --i) {
       if (unstartedTransitions[i] == std::stoi(active.name)) {
@@ -242,10 +246,10 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
       }
     }
     std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
-    std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
+    //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
     std::set<int> processedDependencies;
     // Iterate over unstarted activitiesint lastElementEarlyFinish = 0;
-    int lastElementEarlyFinish = 0;
+    //int lastElementEarlyFinish = 0;
     for (int activityId: unstartedTransitions) {
       int maxFinishTime = 0;
       std::set<int> processedDependencies;
@@ -285,10 +289,10 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     }
   }
    avilableTransition=getAvilableTransitions(marking);
-   if (predecesor.name==20974) {
-     int qwe;
-     qwe++;
-   }
+   // if (predecesor.name==20974) {
+   //   int qwe;
+   //   qwe++;
+   // }
 
 
 }

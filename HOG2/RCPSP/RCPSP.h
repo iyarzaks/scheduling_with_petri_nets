@@ -6,6 +6,10 @@
 //#include "../algorithms/OldSearchEnvironment.h"
 #include "../search/SearchEnvironment.h"
 #include "RCPSPState.h"
+
+#include <functional>
+
+
 //creted the RCPSPState in searchgraph
 // class RCPSPState{
 // searchNode node;
@@ -35,83 +39,103 @@ class RCPSP : public SearchEnvironment<RCPSPState,int>{
   double GCost(const RCPSPState &node, const int &act) const override;
   };
 
-
-inline void hash_combine(size_t& seed, size_t value) {
-  seed ^= value + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-}
-
-// Hash function for std::map<std::string, int>
-size_t hash_map(const std::map<std::string, int>& m) {
-  size_t seed = 0;
-  for (const auto& [key, value] : m) {
-    hash_combine(seed, std::hash<std::string>()(key));
-    hash_combine(seed, std::hash<int>()(value));
-  }
-  return seed;
-}
-struct TransitionHash {
-  size_t operator()(const Transition& t) const {
-    size_t seed = 0;
-    hash_combine(seed, std::hash<std::string>()(t.name));
-    hash_combine(seed, std::hash<int>()(t.duration));
-    hash_combine(seed, hash_map(t.arcs_in));
-    hash_combine(seed, hash_map(t.arcs_out));
-    return seed;
-  }
-};
 inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
 
-  constexpr uint64_t PRIME = 0x100000001b3;
-  uint64_t hash = 0xcbf29ce484222325;
+  std::size_t seed = 0;
 
-//  Hash g and h values
+  for (const auto& pair : node.startedActivitiys) {
+    seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  }
+
+  for (const auto& pair : node.finishedActivitiys) {
+    seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  }
+
+  return seed;
+
+
+  /*
+  uint64_t hash = 0;
+
+  // Hash the map of started activities
+  std::hash<int> int_hasher;
+
+  for (const auto& pair : node.startedActivitiys) {
+    // Combine hashes using a good mixing function
+    hash ^= int_hasher(pair.first) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    hash ^= int_hasher(pair.second) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  }
+
+  // Hash the g-value (assuming this is a member of RCPSPState)
+  std::hash<double> double_hasher;
+  uint64_t g_hash = double_hasher(node.g);
+
+  // Combine with the map hash
+  hash ^= g_hash + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
+  // Add other state components if needed
+  // For example, if RCPSPState has other members like completedActivities:
+  // for (int activity : node.completedActivities) {
+  //     hash ^= int_hasher(activity) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+  // }
+
+  return hash;
+
+  */
+
+
+
+
+ // return node.name;
+  //uint64_t hash_value = 0;
+  //
+  // // Hash the marking map
+  // for (const auto& [key, value] : node.marking) {
+  //   uint64_t map_element_hash = std::hash<std::string>{}(key) ^
+  //                              (std::hash<int>{}(value) << 1);
+  //   hash_value ^= map_element_hash + 0x9e3779b9 + (hash_value << 6) + (hash_value >> 2);
+  // }
+  //
+  // // Hash the active transitions vector using only the names
+  // for (const auto& transition : node.activeTransitions) {
+  //   uint64_t transition_hash = std::hash<std::string>{}(transition.name);
+  //   hash_value ^= transition_hash + 0x9e3779b9 + (hash_value << 6) + (hash_value >> 2);
+  // }
+  //
+  // return hash_value;
+  //
+  //return node.name;
+
+
+
+
+
+
+
+
+
+
+
+
+
+ //uint64_t hash = 0xcbf29ce484222325;
+
+  //  Hash g and h values
   // hash ^= static_cast<uint64_t>(node.g);
   // hash *= PRIME;
   // hash ^= static_cast<uint64_t>(node.h);
-  // hash *= PRIME;
 
-  // For marking values, since they're mostly binary,
-  // we can pack multiple values into one hash operation
-  uint64_t markingBits = 0;
-  int bitPos = 0;
-  for (const auto& pair : node.marking) {
-    if (pair.second <= 1) {
-      // For binary values, use bit packing
-      if (pair.second == 1) {
-        markingBits |= (1ULL << bitPos);
-      }
-      bitPos++;
-      if (bitPos == 64) {
-        // If we fill up 64 bits, hash them and reset
-        hash ^= markingBits;
-        hash *= PRIME;
-        markingBits = 0;
-        bitPos = 0;
-      }
-    } else {
-      // For non-binary values, hash them directly
-      hash ^= static_cast<uint64_t>(pair.second);
-      hash *= PRIME;
-    }
-  }
-  // Hash any remaining marking bits
-  if (bitPos > 0) {
-    hash ^= markingBits;
-    hash *= PRIME;
-  }
+  //constexpr uint64_t PRIME = 0x100000001b3;
+  //uint64_t hash = 0xcbf29ce484222325;
 
-  // Hash active transitions in order-independent way
-  uint64_t transitionsHash = 0;
-  for (const Transition& trans : node.activeTransitions) {
-    uint64_t transHash = std::hash<std::string>{}(trans.name);
-    transHash ^= static_cast<uint64_t>(trans.duration);
-    transHash *= PRIME;
-    transitionsHash ^= transHash;
-  }
-  hash ^= transitionsHash;
-  hash *= PRIME;
+  //Hash g and h values
+   // hash ^= static_cast<uint64_t>(node.g);
+   // hash *= PRIME;
+   // hash ^= static_cast<uint64_t>(node.h);
+   // hash *= PRIME;
 
-  return hash;
 
 
   // Combine multiple state properties for a more robust hash
