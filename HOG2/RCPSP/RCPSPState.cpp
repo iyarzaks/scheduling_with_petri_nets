@@ -202,7 +202,10 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
   //avilableTransition.erase(avilableTransition.begin()+location);
   g=predecesor.g;
   h=predecesor.h;
-
+if (predecesor.g+predecesor.h>44) {
+  int asdasd;
+  asdasd++;
+}
 
 
 

@@ -54,6 +54,7 @@ struct AStarCompareWithF {
 		{
 			return (fless(i1.g, i2.g));
 		}
+
 		return fgreater(i1.f, i2.f);
 	}
 };

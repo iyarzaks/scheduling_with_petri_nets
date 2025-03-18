@@ -52,7 +52,10 @@ inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
     seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   }
-
+  if (node.g+node.h>44) {
+    int asd;
+    asd++;
+  }
   return seed;
 
 
@@ -192,6 +195,7 @@ static int exnum;
     }
     neighbors.emplace_back(RCPSPState(nodeID,nodeID.activeTransitions[t],0,t,count));
   }
+
   for (int i=0;i<nodeID.avilableTransition.size();i++) {
     count++;
     neighbors.emplace_back(RCPSPState(nodeID,nodeID.avilableTransition[i],1,i,count));

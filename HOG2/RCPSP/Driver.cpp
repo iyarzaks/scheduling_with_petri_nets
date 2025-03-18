@@ -82,6 +82,7 @@ last.h=0;
         std::cout<<count<< "\n";
 }
     std::cout<<astar.GetNodesExpanded()<<std::endl;
+    std::cout<<astar.GetNodesTouched()<<std::endl;
     //std::cout<<astar.GetUniqueNodesExpanded()<<std::endl;
     //std::cout<<path.size()<<std::endl;
     //astar.openClosedList;
