@@ -44,7 +44,7 @@
 //typedef double (*phi)(double, double);
 // note, this should be consteval when C++20 is widespread
 //constexpr auto phi_astar = [](double h, double g) -> double { return g+h; };
-
+/*
 template <class state>
 struct AStarCompareWithF {
 	// returns true if i2 is preferred over i1
@@ -58,6 +58,28 @@ struct AStarCompareWithF {
 		return fgreater(i1.f, i2.f);
 	}
 };
+*/
+template <class state>
+struct AStarCompareWithF {
+	bool operator()(const AStarOpenClosedDataWithF<state> &i1, const AStarOpenClosedDataWithF<state> &i2) const
+	{
+		if (fequal(i1.f, i2.f)) {
+			if (fequal(i1.g, i2.g)) {
+				// בדיקת כמות ה-finished_activities
+				if (i1.data.finishedActivitiys.size() != i2.data.finishedActivitiys.size()){
+					return i1.data.finishedActivitiys.size() < i2.data.finishedActivitiys.size();
+				}
+				// בדיקת כמות ה-started_activities
+				return i1.data.startedActivitiys.size() < i2.data.startedActivitiys.size();
+			}
+			return fless(i1.g, i2.g); // g גבוה יותר עדיף
+		}
+		return fgreater(i1.f, i2.f); // f קטן יותר עדיף
+	}
+};
+
+
+
 
 template <class state>
 struct AStarCompare {
