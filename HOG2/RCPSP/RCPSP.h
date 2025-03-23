@@ -52,10 +52,7 @@ inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
     seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   }
-  if (node.g+node.h>44) {
-    int asd;
-    asd++;
-  }
+
   return seed;
 
 
@@ -211,7 +208,7 @@ inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) cons
 }
 
 inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) const {
-return state1.h-state2.h;
+  return state1.h-state2.h;
 return state1.h;
 }
 

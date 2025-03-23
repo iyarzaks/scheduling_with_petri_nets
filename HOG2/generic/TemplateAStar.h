@@ -59,6 +59,7 @@ struct AStarCompareWithF {
 	}
 };
 */
+
 template <class state>
 struct AStarCompareWithF {
 	bool operator()(const AStarOpenClosedDataWithF<state> &i1, const AStarOpenClosedDataWithF<state> &i2) const
@@ -67,7 +68,7 @@ struct AStarCompareWithF {
 			if (fequal(i1.g, i2.g)) {
 				// בדיקת כמות ה-finished_activities
 				if (i1.data.finishedActivitiys.size() != i2.data.finishedActivitiys.size()){
-					return i1.data.finishedActivitiys.size() < i2.data.finishedActivitiys.size();
+					return i1.data.finishedActivitiys.size() < i2.data.finishedActivitiys.size();//< or >
 				}
 				// בדיקת כמות ה-started_activities
 				return i1.data.startedActivitiys.size() < i2.data.startedActivitiys.size();

@@ -202,18 +202,11 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
   //avilableTransition.erase(avilableTransition.begin()+location);
   g=predecesor.g;
   h=predecesor.h;
-if (predecesor.g+predecesor.h>44) {
-  int asdasd;
-  asdasd++;
-}
+
 
 
 
   if (status) {
-    // if (active.duration+cureTime>g) {
-    //   g=active.duration+cureTime;
-    // }
-
 
     for (const auto& arc : active.arcs_in) {
        marking[arc.first]-=arc.second;
@@ -248,6 +241,7 @@ if (predecesor.g+predecesor.h>44) {
         activeTransitions.erase(activeTransitions.begin() + i);
       }
     }
+
     std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
     //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
     std::set<int> processedDependencies;
@@ -290,6 +284,7 @@ if (predecesor.g+predecesor.h>44) {
       h = earlyfinishMap.rbegin()->second;;
 
     }
+
   }
    avilableTransition=getAvilableTransitions(marking);
    // if (predecesor.name==20974) {
