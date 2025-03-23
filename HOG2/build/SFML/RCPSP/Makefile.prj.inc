@@ -57,11 +57,6 @@ PROJ_REL_DEP +=   $(REL_BINDIR)/libSTUB.a
 endif
 
 default : all
-PROJ_DBG_CXXFLAGS += -pg
-PROJ_REL_CXXFLAGS += -pg
-PROJ_DBG_LNFLAGS += -pg
-PROJ_REL_LNFLAGS += -pg
-
 SRC_CPP = \
 	RCPSP/Driver.cpp \
 
