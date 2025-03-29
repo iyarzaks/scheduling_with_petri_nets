@@ -4,14 +4,17 @@
 
 using json = nlohmann::json;  // alias for nlohmann::json
 
-void getPetri(PetriExample& petriExample) {
+void getPetri(PetriExample& petriExample,int group,int exam) {
     // Open the file for reading
     //std::ifstream input_file("petriExample.json");
-    std::ifstream input_file("petriExample.json");
-
+    //std::ifstream input_file("petriExample.json");
+    std::string basePath = "json_outputs/j30";
+    std::string folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
+    //std::ifstream input_file("rcpspExample.json");
+    std::ifstream input_file(folderName+"/petri.json");
     // If the file could not be opened
     if (!input_file.is_open()) {
-        std::cerr << "Failed to open petriExample.json" << std::endl;
+        std::cerr << "Failed to open petri.json" << std::endl;
         return;
     }
 
@@ -65,15 +68,16 @@ void getPetri(PetriExample& petriExample) {
     }
 
 }
-void getRCPSP(RCPSP_example& rcpsp_example) {
+void getRCPSP(RCPSP_example& rcpsp_example,int group,int exam) {
     // Open the file for reading
-
+    std::string basePath = "json_outputs/j30";
+    std::string folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
     //std::ifstream input_file("rcpspExample.json");
-    std::ifstream input_file("rcpspExample.json");
+    std::ifstream input_file(folderName+"/rcpsp.json");
 
     // If the file could not be opened
     if (!input_file.is_open()) {
-        std::cerr << "Failed to open rcpspExample.json" << std::endl;
+        std::cerr << "Failed to open rcpsp.json" << std::endl;
         return;
     }
 

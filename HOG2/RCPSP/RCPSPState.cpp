@@ -24,6 +24,7 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
  PetriExample petri;
  RCPSP_example RCPSPex;
  int main2() {
+   return 0;
 //    getPetri(petri);
 //    getRCPSP(RCPSPex);
 //    RCPSPState first;

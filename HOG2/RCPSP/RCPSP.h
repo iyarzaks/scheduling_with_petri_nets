@@ -178,9 +178,6 @@ inline RCPSP::RCPSP() {
 }
 
 inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const {
-static int exnum;
-  exnum++;
-  if (exnum == 1000000) {exit;}
   if (nodeID.activeTransitions.size()>0) {
 
     count++;
