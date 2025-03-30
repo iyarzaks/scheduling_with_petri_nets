@@ -42,6 +42,13 @@ class RCPSP_example{
     ~RCPSP_example() = default;
     RCPSP_example(): activity_len(0) {
     };
+    void reset() {
+        activities.clear();
+        dependencies.clear();
+        backword_dependencies.clear();
+        resources.clear();
+        activity_len = 0;
+    }
     //didnt put activity_names_duration activity_names_set depenedncy_deep_set
 };
 
@@ -158,6 +165,12 @@ public:
     void addTransition_dist(const Transition_dict& transition_dict) {
         Transitions_dict.push_back(transition_dict);
     }
-
+    void reset() {
+        places.clear();
+        places_dict.clear();
+        Transitions.clear();
+        Transitions_dict.clear();
+        place_len = 0;
+    }
 
 };

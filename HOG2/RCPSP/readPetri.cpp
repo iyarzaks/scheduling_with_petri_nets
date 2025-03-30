@@ -8,6 +8,7 @@ void getPetri(PetriExample& petriExample,int group,int exam) {
     // Open the file for reading
     //std::ifstream input_file("petriExample.json");
     //std::ifstream input_file("petriExample.json");
+    petriExample.reset();
     std::string basePath = "json_outputs/j30";
     std::string folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
     //std::ifstream input_file("rcpspExample.json");
@@ -70,6 +71,7 @@ void getPetri(PetriExample& petriExample,int group,int exam) {
 }
 void getRCPSP(RCPSP_example& rcpsp_example,int group,int exam) {
     // Open the file for reading
+    rcpsp_example.reset();
     std::string basePath = "json_outputs/j30";
     std::string folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
     //std::ifstream input_file("rcpspExample.json");
