@@ -9,6 +9,8 @@
 #include <chrono>
 #include <atomic>
 #include <algorithm>
+std::chrono::duration<double> generateTIME;
+std::chrono::duration<double> avelableTIME;
 
 // std::atomic<bool> stop_printing(false); // Flag to stop the printing thread
 //
@@ -104,6 +106,8 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
 
 //probebly Very inefficent
 std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking) {
+   auto startS1 = std::chrono::high_resolution_clock::now();
+
   std::vector<Transition> avilableTransitions;
   for (int i=0;i<petri.Transitions.size();i++) {
     int avilable=0;
@@ -118,6 +122,9 @@ std::vector<Transition> getAvilableTransitions(std::map<std::string, int> markin
     }
 
   }
+   auto endS1 = std::chrono::high_resolution_clock::now();
+
+   avelableTIME += endS1-startS1;
   return avilableTransitions;
 }
 
@@ -143,6 +150,8 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,uint64_t &count) 
 }
 
 RCPSPState::RCPSPState() {
+   auto startS1 = std::chrono::high_resolution_clock::now();
+
    startedActivitiys[0]=0;
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].arcs_out.size()==0){finalstatename=petri.places[i].name;}
@@ -187,10 +196,17 @@ RCPSPState::RCPSPState() {
    else {
      h= earlyfinishMap.rbegin()->second;
    }
+
+   auto endS1 = std::chrono::high_resolution_clock::now();
+
+   generateTIME += endS1-startS1;
+
 }
 
 
 RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int location,uint64_t &count) {
+   auto startS1 = std::chrono::high_resolution_clock::now();
+
   name=count;
   marking=predecesor.marking;
   activeTransitions=predecesor.activeTransitions;
@@ -216,18 +232,18 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     activeTransitions.push_back(active);
 
     //if (active.duration==0){status=false;}
-    startedActivitiys[stoi(active.name)]=g;
+    startedActivitiys[active.name]=g;
 
 
   }
-  if (!status) {
+ else {
     g+=active.duration;
 
-    finishedActivitiys[stoi(active.name)]=g;
+    finishedActivitiys[active.name]=g;
 
     //cureTime+=active.duration;
     for (int i = unstartedTransitions.size() - 1; i >= 0; --i) {
-      if (unstartedTransitions[i] == std::stoi(active.name)) {
+      if (unstartedTransitions[i] == active.name) {
         unstartedTransitions.erase(unstartedTransitions.begin() + i);
       }
     }
@@ -257,7 +273,7 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
         // if (processedDependencies.count(depId) > 0) continue;
         // processedDependencies.insert(depId);
         if (std::find(unstartedTransitions.begin(), unstartedTransitions.end(), depId + 1) != unstartedTransitions.end()) {
-          int duration = getTransitionDuration(activeTransitions, dep);
+          int duration = getTransitionDuration(activeTransitions, std::stoi(dep));
           if (duration !=-1) {
             maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1] + duration);
             //if (RCPSPex.activities[depId].duration !=duration) {
@@ -292,7 +308,9 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
    //   int qwe;
    //   qwe++;
    // }
+   auto endS1 = std::chrono::high_resolution_clock::now();
 
+   generateTIME += endS1-startS1;
 
 }
 

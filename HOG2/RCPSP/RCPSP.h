@@ -38,8 +38,14 @@ class RCPSP : public SearchEnvironment<RCPSPState,int>{
   std::vector<RCPSPState> GetSuccessors(const RCPSPState &nodeID) const;
   double GCost(const RCPSPState &node, const int &act) const override;
   };
+std::chrono::duration<double> hashTIME;
+std::chrono::duration<double> secssesorTIME;
+
+
+
 
 inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
+  auto startS1 = std::chrono::high_resolution_clock::now();
 
   std::size_t seed = 0;
 
@@ -52,7 +58,9 @@ inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
     seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   }
+  auto endS1 = std::chrono::high_resolution_clock::now();
 
+  hashTIME += endS1-startS1;
   return seed;
 
 
@@ -194,6 +202,7 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
     count++;
     neighbors.emplace_back(RCPSPState(nodeID,nodeID.avilableTransition[i],1,i,count));
   }
+  auto endS1 = std::chrono::high_resolution_clock::now();
 
 }
 

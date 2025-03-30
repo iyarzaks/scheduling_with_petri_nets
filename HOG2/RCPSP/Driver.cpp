@@ -25,7 +25,6 @@
 
 
 
-
 std::atomic<bool> stop_printing1(false); // Flag to stop the printing thread
 
 // void printNetworkSize1() {
@@ -44,7 +43,13 @@ int solveRCPSP();
 // Your function signature
 int solveRCPSP(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
+
+    generateTIME= std::chrono::duration<double>(0);
+    avelableTIME= std::chrono::duration<double>(0);
+    hashTIME= std::chrono::duration<double>(0);
+    //secssesorTIME= std::chrono::duration<double>(0);
     count=0;
+
     getPetri(petri, group, exam);
     getRCPSP(RCPSPex, group, exam);
 
@@ -97,7 +102,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     astar_thread.detach();
 
     // Create a time point for when the timeout should occur
-    auto timeout_point = start + std::chrono::minutes(1);
+    auto timeout_point = start + std::chrono::minutes(5);
 
     // Check periodically if the thread has completed or we've reached timeout
     while (!thread_completed && std::chrono::high_resolution_clock::now() < timeout_point) {
@@ -145,7 +150,10 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     file << group << "," << exam << "," << elapsed.count() << ","
          << (finished ? "True" : "False") << ","
          << astar.GetNodesExpanded() << ","
-         << astar.GetNodesTouched() << "\n";
+         << astar.GetNodesTouched() << ","<<100*generateTIME.count()/elapsed.count()<< ","<<generateTIME.count()/astar.GetNodesTouched()
+             << ","<<100*avelableTIME.count()/elapsed.count()<< ","<<avelableTIME.count()/astar.GetNodesTouched()
+                 << ","<<100*hashTIME.count()/elapsed.count()<< ","<<hashTIME.count()/astar.GetNodesTouched()<<
+             "\n";
 
     return 0;
 }
@@ -162,17 +170,21 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     }
 
     // Write header
-    file << "group,exam,time,finished,expand number,generated number" << std::endl;
+    file << "group,exam,time,finished,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)" << std::endl;
 
-    if (0) {
-        solveRCPSP(11,4,filename);
-        solveRCPSP(16,10,filename);
-        solveRCPSP(11,4,filename);
+    if (1) {
+        //solveRCPSP(36,4,filename);
+        //solveRCPSP(46,1,filename);
+        //solveRCPSP(43,3,filename);
+        solveRCPSP(47,1,filename);
+        //solveRCPSP(44,8,filename);
+        //solveRCPSP(38,7,filename);
+        //solveRCPSP(11,4,filename);
 
     }
     else {
-        for (int i=16;i<18;i++) {
-            for (int j=1;j<11;j++) {
+        for (int i=16;i<17;i++) {
+            for (int j=3;j<11;j++) {
                 solveRCPSP(i,j,filename);
             }
         }

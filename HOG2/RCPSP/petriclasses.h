@@ -94,7 +94,7 @@ public:
     std::map<std::string, int> arcs_in;  // Arcs coming into the place
     std::map<std::string, int> arcs_out; // Arcs going out from the place
     int duration;                       // Duration of the place
-    std::string name;                   // Name of the place
+    int name;                   // Name of the place
     // Constructor
     ~Transition() {};
     Transition(const std::string& TransitionName,
@@ -102,7 +102,7 @@ public:
           const std::map<std::string, int>& outputArcs = {},
 
           int initialDuration = 0)
-        : name(TransitionName), arcs_in(inputArcs), arcs_out(outputArcs), duration(initialDuration) {}
+        : name(std::stoi(TransitionName)), arcs_in(inputArcs), arcs_out(outputArcs), duration(initialDuration) {}
 
 
     bool operator==(const Transition& other) const {
@@ -112,7 +112,7 @@ public:
                duration == other.duration;
     }
 };
-int getTransitionDuration(const std::vector<Transition>& transitions, const std::string& name) {
+int getTransitionDuration(const std::vector<Transition>& transitions, const int& name) {
     auto it = std::find_if(transitions.begin(), transitions.end(),
                            [&name](const Transition& t) { return t.name == name; });
 
