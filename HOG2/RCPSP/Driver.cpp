@@ -21,6 +21,11 @@
 #include <fstream>
 #include <vector>
 
+
+
+
+
+
 std::atomic<bool> stop_printing1(false); // Flag to stop the printing thread
 
 // void printNetworkSize1() {
@@ -39,7 +44,7 @@ int solveRCPSP();
 // Your function signature
 int solveRCPSP(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
-
+    count=0;
     getPetri(petri, group, exam);
     getRCPSP(RCPSPex, group, exam);
 
@@ -160,7 +165,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     file << "group,exam,time,finished,expand number,generated number" << std::endl;
 
     if (0) {
-        solveRCPSP(16,9,filename);
+        solveRCPSP(11,4,filename);
         solveRCPSP(16,10,filename);
         solveRCPSP(11,4,filename);
 
