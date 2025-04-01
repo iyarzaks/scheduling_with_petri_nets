@@ -20,7 +20,8 @@ std::chrono::duration<double> avelableTIME;
 //     std::cout << "Current network size: " << network.size() << std::endl;
 //   }
 // }
-std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
+//std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
+std::vector<Transition> getAvilableTransitions(const std::map<std::string, int>& marking);
 void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
 //int ChooseExpansion(std::vector<RCPSPState> network);
  PetriExample petri;
@@ -105,6 +106,7 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
 //SearchGraph search_graph;
 
 //probebly Very inefficent
+/*
 std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking) {
    auto startS1 = std::chrono::high_resolution_clock::now();
 
@@ -127,6 +129,44 @@ std::vector<Transition> getAvilableTransitions(std::map<std::string, int> markin
    avelableTIME += endS1-startS1;
   return avilableTransitions;
 }
+*/
+
+std::vector<Transition> getAvilableTransitions(const std::map<std::string, int>& marking) {
+   auto startS1 = std::chrono::high_resolution_clock::now();
+
+   std::vector<Transition> avilableTransitions;
+   avilableTransitions.reserve(petri.Transitions.size());  // Reserve memory to avoid multiple reallocations
+
+   for (const auto& transition : petri.Transitions) {
+     int avilable = 0, requirment = 0;
+     bool canFire = true;
+
+     for (const auto& arc : transition.arcs_in) {
+       auto it = marking.find(arc.first);
+       int tokenCount = (it != marking.end()) ? it->second : 0;
+
+       if (tokenCount < arc.second) {
+         canFire = false;  // Not enough tokens to fire
+         break;            // Stop checking further
+       }
+       avilable += std::min(tokenCount, arc.second);
+       requirment += arc.second;
+     }
+
+     if (canFire) {
+       avilableTransitions.push_back(transition);
+     }
+   }
+
+   auto endS1 = std::chrono::high_resolution_clock::now();
+   avelableTIME += endS1 - startS1;
+
+   return avilableTransitions;
+ }
+
+
+
+
 /*
 void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,uint64_t &count) {
   if (NodeList[chosenNode].activeTransitions.size()>0) {
@@ -171,7 +211,8 @@ RCPSPState::RCPSPState() {
   // for (int i=0;i<petri.Transitions.size();i++) {
   //   unstartedTransitions[petri.places[i].name]= 1;
   // }
-  avilableTransition=getAvilableTransitions(marking);
+   avilableTransition = getAvilableTransitions(marking);
+
   g=0;
   name=0;
    std::map<int, double> earlyfinishMap; // Map to store activity names and their early start
@@ -242,11 +283,9 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     finishedActivitiys[active.name]=g;
 
     //cureTime+=active.duration;
-    for (int i = unstartedTransitions.size() - 1; i >= 0; --i) {
-      if (unstartedTransitions[i] == active.name) {
-        unstartedTransitions.erase(unstartedTransitions.begin() + i);
-      }
-    }
+   unstartedTransitions.erase(
+       std::remove(unstartedTransitions.begin(), unstartedTransitions.end(), active.name),
+       unstartedTransitions.end());
     //probebly can improve
     for (int i = activeTransitions.size() - 1; i >= 0; --i) {
       activeTransitions[i].duration -= active.duration;
@@ -303,14 +342,15 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     }
 
   }
+   auto endS1 = std::chrono::high_resolution_clock::now();
+
+   generateTIME += endS1-startS1;
+
    avilableTransition=getAvilableTransitions(marking);
    // if (predecesor.name==20974) {
    //   int qwe;
    //   qwe++;
    // }
-   auto endS1 = std::chrono::high_resolution_clock::now();
-
-   generateTIME += endS1-startS1;
 
 }
 

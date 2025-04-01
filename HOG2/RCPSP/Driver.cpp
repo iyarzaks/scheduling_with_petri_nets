@@ -6,6 +6,8 @@
 #include <iostream>
  #include "RCPSPState.cpp"
 #include "../../HOG2/generic/TemplateAStar.h"
+#include "../../HOG2/generic/BidirectionalGreedyBestFirst.h"
+
 #include "RCPSP.h"
 //****importent i changed GLUtil.h with recVec == operator abit****//
  //PetriExample petri;
@@ -40,6 +42,8 @@ int solveRCPSP();
 #include <vector>
 #include <thread>
 
+namespace fs = std::filesystem;
+
 // Your function signature
 int solveRCPSP(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
@@ -47,6 +51,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     generateTIME= std::chrono::duration<double>(0);
     avelableTIME= std::chrono::duration<double>(0);
     hashTIME= std::chrono::duration<double>(0);
+  //  comperTime= std::chrono::duration<double>(0);
     //secssesorTIME= std::chrono::duration<double>(0);
     count=0;
 
@@ -65,7 +70,11 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     RCPSP as1;
     TemplateAStar<RCPSPState, int, RCPSP> astar;
     std::vector<RCPSPState> path;
-
+    std::vector<RCPSPState> fpath;
+    std::vector<RCPSPState> bpath;
+    //BidirectionalGreedyBestFirst<RCPSPState, int, RCPSP_BiGreedy> Bi_RCPSP;
+    //RCPSP_BiGreedy bs1;
+   // Bi_RCPSP.GetPath(&bs1, first, last, fpath,bpath);
     bool finished = false;
     bool timeout_occurred = false;
     std::chrono::duration<double> elapsed;
@@ -131,12 +140,13 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     if (win_thread_handle != NULL) {
         CloseHandle(win_thread_handle);
     }
-
+int makespan;
     // Output results
     if (finished && !path.empty()) {
         std::cout << "Path found!" << std::endl;
         for (const auto& state : path) {
             std::cout << "State name: " << state.name << ", g: " << state.g << ", h: " << state.h << std::endl;
+        makespan=state.g;
         }
     } else {
         std::cout << "Path not found or timeout occurred.\n";
@@ -149,19 +159,43 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     std::ofstream file(filename, std::ios::app);
     file << group << "," << exam << "," << elapsed.count() << ","
          << (finished ? "True" : "False") << ","
+         << makespan << ","
          << astar.GetNodesExpanded() << ","
          << astar.GetNodesTouched() << ","<<100*generateTIME.count()/elapsed.count()<< ","<<generateTIME.count()/astar.GetNodesTouched()
              << ","<<100*avelableTIME.count()/elapsed.count()<< ","<<avelableTIME.count()/astar.GetNodesTouched()
                  << ","<<100*hashTIME.count()/elapsed.count()<< ","<<hashTIME.count()/astar.GetNodesTouched()<<
+                    // ","<<100*comperTime.count()/elapsed.count()<< ","<<comperTime.count()/astar.GetNodesTouched()<<
              "\n";
 
     return 0;
 }
- int main() {
-    std::string filename = "output.csv";
+std::string getNextFilename(const std::string& folder, const std::string& baseName, const std::string& extension) {
+    // Ensure folder exists
+    if (!fs::exists(folder)) {
+        fs::create_directories(folder);
+    }
 
-    // Open file stream
+    int count = 1;
+    std::string newFilename;
+
+    do {
+        newFilename = folder + "/" + baseName + std::to_string(count) + extension;
+        count++;
+    } while (fs::exists(newFilename)); // Ensure unique filename
+
+    return newFilename;
+}
+
+ int main() {
+    std::string folder = "results";
+    std::string baseName = "output_";
+    std::string extension = ".csv";
+
+    std::string filename = getNextFilename(folder, baseName, extension);
+
+    // Create and write to file
     std::ofstream file(filename);
+    // Open file stream
 
     // Check if file is open
     if (!file.is_open()) {
@@ -170,16 +204,19 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     }
 
     // Write header
-    file << "group,exam,time,finished,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)" << std::endl;
+    file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)" << std::endl;
 
     if (1) {
-        //solveRCPSP(36,4,filename);
-        //solveRCPSP(46,1,filename);
-        solveRCPSP(43,3,filename);
-        //solveRCPSP(16,9,filename);
-        //solveRCPSP(44,8,filename);
-        //solveRCPSP(38,7,filename);
-        //solveRCPSP(11,4,filename);
+        solveRCPSP(16,9,filename);
+
+
+         // solveRCPSP(8,9,filename);
+         // solveRCPSP(38,7,filename);
+         // solveRCPSP(46,1,filename);
+         // solveRCPSP(43,3,filename);
+         // solveRCPSP(16,9,filename);
+         // solveRCPSP(44,8,filename);
+         // solveRCPSP(11,4,filename);
 
     }
     else {

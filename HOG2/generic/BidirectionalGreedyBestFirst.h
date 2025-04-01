@@ -1,5 +1,6 @@
 #include "TemplateAStar.h"
-#include "AStarOpenClosed.h"
+//#include "AStarOpenClosed.h"
+#include "../algorithms/AStarOpenClosed.h"
 #include "BidirGreedyBestFirstFrontier.h"
 #include <set>
 

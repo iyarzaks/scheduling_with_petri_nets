@@ -59,24 +59,41 @@ struct AStarCompareWithF {
 	}
 };
 */
+//std::chrono::duration<double> comperTime;
 
 template <class state>
 struct AStarCompareWithF {
+
+
 	bool operator()(const AStarOpenClosedDataWithF<state> &i1, const AStarOpenClosedDataWithF<state> &i2) const
 	{
+		//auto startSCF = std::chrono::high_resolution_clock::now();
 		if (fequal(i1.f, i2.f)) {
 			if (fequal(i1.g, i2.g)) {
 				// בדיקת כמות ה-finished_activities
 				if (i1.data.finishedActivitiys.size() != i2.data.finishedActivitiys.size()){
+					//auto endSCF = std::chrono::high_resolution_clock::now();
+
+					//comperTime += endSCF-startSCF;
 					return i1.data.finishedActivitiys.size() < i2.data.finishedActivitiys.size();//< or >
 				}
 				// בדיקת כמות ה-started_activities
+				//auto endSCF = std::chrono::high_resolution_clock::now();
+
+				//comperTime += endSCF-startSCF;
 				return i1.data.startedActivitiys.size() < i2.data.startedActivitiys.size();
 			}
+			//auto endSCF = std::chrono::high_resolution_clock::now();
+
+			//comperTime += endSCF-startSCF;
 			return fless(i1.g, i2.g); // g גבוה יותר עדיף
 		}
+		//auto endSCF = std::chrono::high_resolution_clock::now();
+
+		//comperTime += endSCF-startSCF;
 		return fgreater(i1.f, i2.f); // f קטן יותר עדיף
 	}
+
 };
 
 

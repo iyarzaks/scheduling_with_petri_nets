@@ -44,6 +44,8 @@ std::chrono::duration<double> secssesorTIME;
 
 
 
+
+
 inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
   auto startS1 = std::chrono::high_resolution_clock::now();
 
@@ -296,6 +298,51 @@ inline void RCPSP::ApplyAction(RCPSPState &s, int a) const {
 inline double RCPSP::GCost(const RCPSPState &node, const int &act) const {
   return node.g;
 }
+
+class RCPSP_BiGreedy : public SearchEnvironment<RCPSPState, action> {
+public:
+  inline void GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const override {
+    if (nodeID.activeTransitions.size() > 0) {
+      count++;
+      int t = 0;
+      for (int i = 0; i < nodeID.activeTransitions.size(); i++) {
+        if (nodeID.activeTransitions[i].duration < nodeID.activeTransitions[t].duration) {
+          t = i;
+        }
+      }
+      neighbors.emplace_back(RCPSPState(nodeID, nodeID.activeTransitions[t], 0, t, count));
+    }
+
+    for (int i = 0; i < nodeID.avilableTransition.size(); i++) {
+      count++;
+      neighbors.emplace_back(RCPSPState(nodeID, nodeID.avilableTransition[i], 1, i, count));
+    }
+  }
+
+  inline bool GoalTest(const RCPSPState &node, const RCPSPState &goal) const override {
+    return node.marking.at(finalstatename) == 1;
+  }
+
+  inline double HCost(const RCPSPState &state1, const RCPSPState &state2) const override {
+    return state1.g + state1.h; // Trick BidirectionalGreedyBestFirst into behaving like A*
+  }
+
+  inline double GCost(const RCPSPState &state1, const RCPSPState &state2) const override {
+    return state2.g - state1.g; // Track actual transition cost
+  }
+  inline void GetActions(const RCPSPState &state, std::vector<action> &actions) const override {
+    // Not used in BidirectionalGreedyBestFirst, but must be implemented
+  }
+
+  inline void ApplyAction(RCPSPState &state, action action) const override {
+    // Not used, but required for abstract class
+  }
+
+  inline void UndoAction(RCPSPState &state, action action) const override {
+    // Not needed for bidirectional search, but required
+  }
+};
+
 
 #endif //RCPSP_H
 //
