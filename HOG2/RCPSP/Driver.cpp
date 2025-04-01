@@ -102,7 +102,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     astar_thread.detach();
 
     // Create a time point for when the timeout should occur
-    auto timeout_point = start + std::chrono::minutes(5);
+    auto timeout_point = start + std::chrono::minutes(1);
 
     // Check periodically if the thread has completed or we've reached timeout
     while (!thread_completed && std::chrono::high_resolution_clock::now() < timeout_point) {
@@ -172,7 +172,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     // Write header
     file << "group,exam,time,finished,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)" << std::endl;
 
-    if (1) {
+    if (0) {
         //solveRCPSP(36,4,filename);
         //solveRCPSP(46,1,filename);
         //solveRCPSP(43,3,filename);
@@ -183,8 +183,8 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
 
     }
     else {
-        for (int i=16;i<17;i++) {
-            for (int j=3;j<11;j++) {
+        for (int i=10;i<16;i++) {
+            for (int j=1;j<11;j++) {
                 solveRCPSP(i,j,filename);
             }
         }
