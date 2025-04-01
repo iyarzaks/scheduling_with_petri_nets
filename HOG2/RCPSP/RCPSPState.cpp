@@ -127,7 +127,7 @@ std::vector<Transition> getAvilableTransitions(std::map<std::string, int> markin
    avelableTIME += endS1-startS1;
   return avilableTransitions;
 }
-
+/*
 void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,uint64_t &count) {
   if (NodeList[chosenNode].activeTransitions.size()>0) {
     count++;
@@ -148,7 +148,7 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,uint64_t &count) 
 
  }
 }
-
+*/
 RCPSPState::RCPSPState() {
    auto startS1 = std::chrono::high_resolution_clock::now();
 
@@ -207,7 +207,7 @@ RCPSPState::RCPSPState() {
 RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int location,uint64_t &count) {
    auto startS1 = std::chrono::high_resolution_clock::now();
 
-  name=count;
+  //name=count;
   marking=predecesor.marking;
   activeTransitions=predecesor.activeTransitions;
   avilableTransition=predecesor.avilableTransition;
@@ -215,15 +215,15 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
    startedActivitiys=predecesor.startedActivitiys;
    finishedActivitiys=predecesor.finishedActivitiys;
   //finalstatename=predecesor.finalstatename;
-   predecesorname=predecesor.name;
+   //predecesorname=predecesor.name;
   //avilableTransition.erase(avilableTransition.begin()+location);
   g=predecesor.g;
-  h=predecesor.h;
 
 
 
 
   if (status) {
+    h=predecesor.h;
 
     for (const auto& arc : active.arcs_in) {
        marking[arc.first]-=arc.second;

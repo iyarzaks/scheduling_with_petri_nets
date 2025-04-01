@@ -172,11 +172,11 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     // Write header
     file << "group,exam,time,finished,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)" << std::endl;
 
-    if (0) {
+    if (1) {
         //solveRCPSP(36,4,filename);
         //solveRCPSP(46,1,filename);
-        //solveRCPSP(43,3,filename);
-        solveRCPSP(47,1,filename);
+        solveRCPSP(43,3,filename);
+        //solveRCPSP(16,9,filename);
         //solveRCPSP(44,8,filename);
         //solveRCPSP(38,7,filename);
         //solveRCPSP(11,4,filename);
