@@ -6,7 +6,7 @@
 #include <iostream>
  #include "RCPSPState.cpp"
 #include "../../HOG2/generic/TemplateAStar.h"
-#include "../../HOG2/generic/BidirectionalGreedyBestFirst.h"
+#include "../../HOG2/generic/BAE.h"
 
 #include "RCPSP.h"
 //****importent i changed GLUtil.h with recVec == operator abit****//
@@ -35,6 +35,7 @@ std::atomic<bool> stop_printing1(false); // Flag to stop the printing thread
 //     }
 // }
 int solveRCPSP();
+int solveRCPSP_Bi();
 #include <iostream>
 #include <fstream>
 #include <future>
@@ -72,8 +73,11 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     std::vector<RCPSPState> path;
     std::vector<RCPSPState> fpath;
     std::vector<RCPSPState> bpath;
-    //BidirectionalGreedyBestFirst<RCPSPState, int, RCPSP_BiGreedy> Bi_RCPSP;
+
     //RCPSP_BiGreedy bs1;
+
+
+    //BidirectionalGreedyBestFirst<RCPSPState, int, RCPSP_BiGreedy> Bi_RCPSP;
    // Bi_RCPSP.GetPath(&bs1, first, last, fpath,bpath);
     bool finished = false;
     bool timeout_occurred = false;
@@ -145,7 +149,7 @@ int makespan;
     if (finished && !path.empty()) {
         std::cout << "Path found!" << std::endl;
         for (const auto& state : path) {
-            std::cout << "State name: " << state.name << ", g: " << state.g << ", h: " << state.h << std::endl;
+            std::cout << ", g: " << state.g << ", h: " << state.h << std::endl;
         makespan=state.g;
         }
     } else {
@@ -163,7 +167,133 @@ int makespan;
          << astar.GetNodesExpanded() << ","
          << astar.GetNodesTouched() << ","<<100*generateTIME.count()/elapsed.count()<< ","<<generateTIME.count()/astar.GetNodesTouched()
              << ","<<100*avelableTIME.count()/elapsed.count()<< ","<<avelableTIME.count()/astar.GetNodesTouched()
-                 << ","<<100*hashTIME.count()/elapsed.count()<< ","<<hashTIME.count()/astar.GetNodesTouched()<<
+                 << ","<<100*hashTIME.count()/elapsed.count()<< ","<<hashTIME.count()/astar.GetNodesTouched()
+                 << ","<<100*HTIME.count()/elapsed.count()<< ","<<HTIME.count()/astar.GetNodesTouched()<<
+                    // ","<<100*comperTime.count()/elapsed.count()<< ","<<comperTime.count()/astar.GetNodesTouched()<<
+             "\n";
+
+    return 0;
+}
+
+int solveRCPSP_Bi(int group, int exam, const std::string& filename) {
+    std::cout << "started solving: " << group<<":"<<exam << std::endl;
+
+    generateTIME= std::chrono::duration<double>(0);
+    avelableTIME= std::chrono::duration<double>(0);
+    hashTIME= std::chrono::duration<double>(0);
+  //  comperTime= std::chrono::duration<double>(0);
+    //secssesorTIME= std::chrono::duration<double>(0);
+    count=0;
+
+    getPetri(petri, group, exam);
+    getRCPSP(RCPSPex, group, exam);
+
+    RCPSPState first;
+    RCPSPState last = first;
+    last.h = 0;
+
+    for (auto& pair : last.marking) {
+        if (pair.second == 1) { pair.second = 0; }
+        if (pair.first == finalstatename) { pair.second = 1; }
+    }
+
+
+    std::vector<RCPSPState> path;
+
+    RCPSP_BiGreedy bs1;
+
+
+    BAE<RCPSPState, int, RCPSP_BiGreedy> Bi_RCPSP;
+
+
+    Bi_RCPSP.GetPath(&bs1, first, last,0,0 ,path);
+    bool finished = false;
+    bool timeout_occurred = false;
+    std::chrono::duration<double> elapsed;
+
+    // Create a flag for thread completion
+    std::atomic<bool> thread_completed(false);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Create Windows thread handle
+    HANDLE win_thread_handle = NULL;
+
+    // Run A* in a separate thread
+    std::thread astar_thread([&]() {
+        // Get thread handle for potential termination
+        DuplicateHandle(
+            GetCurrentProcess(),
+            GetCurrentThread(),
+            GetCurrentProcess(),
+            &win_thread_handle,
+            0,
+            FALSE,
+            DUPLICATE_SAME_ACCESS
+        );
+
+        // Run the A* algorithm
+
+        // Set completion flag when done
+        thread_completed = true;
+    });
+
+    // Detach the thread so we don't need to join it
+    astar_thread.detach();
+
+    // Create a time point for when the timeout should occur
+    auto timeout_point = start + std::chrono::minutes(1);
+
+    // Check periodically if the thread has completed or we've reached timeout
+    while (!thread_completed && std::chrono::high_resolution_clock::now() < timeout_point) {
+        // Short sleep to prevent busy waiting
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    // Record end time and calculate elapsed time
+    auto end = std::chrono::high_resolution_clock::now();
+    elapsed = end - start;
+
+    // Check if timeout occurred
+    timeout_occurred = !thread_completed;
+
+    // If timeout occurred, terminate the thread
+    if (timeout_occurred && win_thread_handle != NULL) {
+        TerminateThread(win_thread_handle, 1);
+        std::cout << "Timeout! A* took too long.\n";
+        finished = false;
+    } else {
+        // Thread completed successfully
+        finished = true;
+    }
+
+    // Close the handle if it exists
+    if (win_thread_handle != NULL) {
+        CloseHandle(win_thread_handle);
+    }
+int makespan;
+    // Output results
+    if (finished && !path.empty()) {
+        std::cout << "Path found!" << std::endl;
+        for (const auto& state : path) {
+            std::cout << ", g: " << state.g << ", h: " << state.h << std::endl;
+        makespan=state.g;
+        }
+    } else {
+        std::cout << "Path not found or timeout occurred.\n";
+    }
+
+    std::cout << "Nodes Expanded: " << Bi_RCPSP.GetNodesExpanded() << std::endl;
+
+    // Save to file
+    std::ofstream file(filename, std::ios::app);
+    file << group << "," << exam << "," << elapsed.count() << ","
+         << (finished ? "True" : "False") << ","
+         << makespan << ","
+         << Bi_RCPSP.GetNodesExpanded() << ","
+          << ","<<100*generateTIME.count()/elapsed.count()<< ","<<generateTIME.count()
+             << ","<<100*avelableTIME.count()/elapsed.count()<< ","<<avelableTIME.count()
+                 << ","<<100*hashTIME.count()/elapsed.count()<< ","<<hashTIME.count()<<
                     // ","<<100*comperTime.count()/elapsed.count()<< ","<<comperTime.count()/astar.GetNodesTouched()<<
              "\n";
 
@@ -204,18 +334,18 @@ std::string getNextFilename(const std::string& folder, const std::string& baseNa
     }
 
     // Write header
-    file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)" << std::endl;
+    file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)<<HcostTime%,HcostTime(ave)" << std::endl;
 
     if (1) {
-        solveRCPSP(16,9,filename);
+        solveRCPSP_Bi(16,9,filename);
 
-
+         //
          // solveRCPSP(8,9,filename);
          // solveRCPSP(38,7,filename);
          // solveRCPSP(46,1,filename);
          // solveRCPSP(43,3,filename);
-         // solveRCPSP(16,9,filename);
-         // solveRCPSP(44,8,filename);
+          //solveRCPSP(16,9,filename);
+          //solveRCPSP(44,8,filename);
          // solveRCPSP(11,4,filename);
 
     }

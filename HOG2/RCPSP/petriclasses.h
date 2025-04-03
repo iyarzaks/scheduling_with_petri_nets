@@ -57,16 +57,16 @@ class RCPSP_example{
 class Place {
 public:
     std::string name;
-    std::map<std::string, int> arcs_in;
-    std::map<std::string, int> arcs_out;
+    std::unordered_map<std::string, int> arcs_in;
+    std::unordered_map<std::string, int> arcs_out;
     std::vector<std::vector<int>> state;
     int duration;             // TODO delete
 
     ~Place() {};
     // Constructor
     Place(const std::string& placeName,
-          const std::map<std::string, int>& inputArcs = {},
-          const std::map<std::string, int>& outputArcs = {},
+          const std::unordered_map<std::string, int>& inputArcs = {},
+          const std::unordered_map<std::string, int>& outputArcs = {},
           const std::vector<std::vector<int>>& initialState = {},
           int initialDuration = 0)
         : name(placeName), arcs_in(inputArcs), arcs_out(outputArcs), state(initialState), duration(initialDuration) {}
@@ -91,15 +91,15 @@ public:
 };
 class Transition {
 public:
-    std::map<std::string, int> arcs_in;  // Arcs coming into the place
-    std::map<std::string, int> arcs_out; // Arcs going out from the place
+    std::unordered_map<std::string, int> arcs_in;  // Arcs coming into the place
+    std::unordered_map<std::string, int> arcs_out; // Arcs going out from the place
     int duration;                       // Duration of the place
     int name;                   // Name of the place
     // Constructor
     ~Transition() {};
     Transition(const std::string& TransitionName,
-          const std::map<std::string, int>& inputArcs = {},
-          const std::map<std::string, int>& outputArcs = {},
+          const std::unordered_map<std::string, int>& inputArcs = {},
+          const std::unordered_map<std::string, int>& outputArcs = {},
 
           int initialDuration = 0)
         : name(std::stoi(TransitionName)), arcs_in(inputArcs), arcs_out(outputArcs), duration(initialDuration) {}

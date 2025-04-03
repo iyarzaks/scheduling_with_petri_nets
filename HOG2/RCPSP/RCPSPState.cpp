@@ -11,6 +11,7 @@
 #include <algorithm>
 std::chrono::duration<double> generateTIME;
 std::chrono::duration<double> avelableTIME;
+std::chrono::duration<double> HTIME;
 
 // std::atomic<bool> stop_printing(false); // Flag to stop the printing thread
 //
@@ -21,7 +22,7 @@ std::chrono::duration<double> avelableTIME;
 //   }
 // }
 //std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
-std::vector<Transition> getAvilableTransitions(const std::map<std::string, int>& marking);
+std::vector<Transition> getAvilableTransitions(const std::unordered_map<std::string, int>& marking);
 void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
 //int ChooseExpansion(std::vector<RCPSPState> network);
  PetriExample petri;
@@ -131,7 +132,7 @@ std::vector<Transition> getAvilableTransitions(std::map<std::string, int> markin
 }
 */
 
-std::vector<Transition> getAvilableTransitions(const std::map<std::string, int>& marking) {
+std::vector<Transition> getAvilableTransitions(const std::unordered_map<std::string, int>& marking) {
    auto startS1 = std::chrono::high_resolution_clock::now();
 
    std::vector<Transition> avilableTransitions;
@@ -281,6 +282,7 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
     g+=active.duration;
 
     finishedActivitiys[active.name]=g;
+   auto startS2 = std::chrono::high_resolution_clock::now();
 
     //cureTime+=active.duration;
    unstartedTransitions.erase(
@@ -340,6 +342,9 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
       h = earlyfinishMap.rbegin()->second;;
 
     }
+   auto endS2 = std::chrono::high_resolution_clock::now();
+
+   HTIME += endS2-startS2;
 
   }
    auto endS1 = std::chrono::high_resolution_clock::now();

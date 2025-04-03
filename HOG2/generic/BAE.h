@@ -15,13 +15,18 @@
 #ifndef BAE_H
 #define BAE_H
 
-#include "AStarOpenClosed.h"
-#include "FPUtil.h"
-#include "Timer.h"
+//#include "AStarOpenClosed.h"#
+#include "../algorithms/AStarOpenClosed.h"
+
+#include "../utils//FPUtil.h"
+//#include "FPUtil.h"
+//#include "Timer.h"
+#include "../utils//Timer.h"
 #include <unordered_map>
 #include <cmath>
 #include <iostream>
-#include "Heuristic.h"
+//#include "Heuristic.h"
+#include "../search//Heuristic.h"
 #include <vector>
 #include <algorithm>
 

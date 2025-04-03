@@ -6,7 +6,7 @@
 //#include "../algorithms/OldSearchEnvironment.h"
 #include "../search/SearchEnvironment.h"
 #include "RCPSPState.h"
-
+#include "../utils//GLUtil.h"
 #include <functional>
 
 
@@ -16,10 +16,8 @@
 //   };
 std::uint64_t count=0;
 //int Nsize=0;
-class action {
-public:
-int a=0;
-};
+typedef int action;
+
 class RCPSP : public SearchEnvironment<RCPSPState,int>{
   public:
   RCPSP();
@@ -64,122 +62,6 @@ inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
 
   hashTIME += endS1-startS1;
   return seed;
-
-
-  /*
-  uint64_t hash = 0;
-
-  // Hash the map of started activities
-  std::hash<int> int_hasher;
-
-  for (const auto& pair : node.startedActivitiys) {
-    // Combine hashes using a good mixing function
-    hash ^= int_hasher(pair.first) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-    hash ^= int_hasher(pair.second) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-  }
-
-  // Hash the g-value (assuming this is a member of RCPSPState)
-  std::hash<double> double_hasher;
-  uint64_t g_hash = double_hasher(node.g);
-
-  // Combine with the map hash
-  hash ^= g_hash + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-
-  // Add other state components if needed
-  // For example, if RCPSPState has other members like completedActivities:
-  // for (int activity : node.completedActivities) {
-  //     hash ^= int_hasher(activity) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-  // }
-
-  return hash;
-
-  */
-
-
-
-
- // return node.name;
-  //uint64_t hash_value = 0;
-  //
-  // // Hash the marking map
-  // for (const auto& [key, value] : node.marking) {
-  //   uint64_t map_element_hash = std::hash<std::string>{}(key) ^
-  //                              (std::hash<int>{}(value) << 1);
-  //   hash_value ^= map_element_hash + 0x9e3779b9 + (hash_value << 6) + (hash_value >> 2);
-  // }
-  //
-  // // Hash the active transitions vector using only the names
-  // for (const auto& transition : node.activeTransitions) {
-  //   uint64_t transition_hash = std::hash<std::string>{}(transition.name);
-  //   hash_value ^= transition_hash + 0x9e3779b9 + (hash_value << 6) + (hash_value >> 2);
-  // }
-  //
-  // return hash_value;
-  //
-  //return node.name;
-
-
-
-
-
-
-
-
-
-
-
-
-
- //uint64_t hash = 0xcbf29ce484222325;
-
-  //  Hash g and h values
-  // hash ^= static_cast<uint64_t>(node.g);
-  // hash *= PRIME;
-  // hash ^= static_cast<uint64_t>(node.h);
-
-  //constexpr uint64_t PRIME = 0x100000001b3;
-  //uint64_t hash = 0xcbf29ce484222325;
-
-  //Hash g and h values
-   // hash ^= static_cast<uint64_t>(node.g);
-   // hash *= PRIME;
-   // hash ^= static_cast<uint64_t>(node.h);
-   // hash *= PRIME;
-
-
-
-  // Combine multiple state properties for a more robust hash
-  /*size_t hash = 0;
-
-  // Hash integers
-  hash ^= std::hash<int>()(node.g) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-  hash ^= std::hash<int>()(node.h) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-
-  // Hash marking (std::map<std::string, int>)
-  for (const auto& [key, value] : node.marking) {
-    hash ^= std::hash<std::string>()(key) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-    hash ^= std::hash<int>()(value) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-  }
-
-  // Hash unstartedTransitions (std::vector<int>)
-  for (int val : node.unstartedTransitions) {
-    hash ^= std::hash<int>()(val) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-  }
-
-  // Hash activeTransitions (std::vector<Transition>)
-  for (const auto& t : node.activeTransitions) {
-    hash ^= TransitionHash()(t) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-  }
-
-  // Hash availableTransitions (std::vector<Transition>)
-  for (const auto& t : node.avilableTransition) {
-    hash ^= TransitionHash()(t) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-  }
-
-  return hash;
-
-
-  */
 
 }
 
@@ -245,7 +127,6 @@ inline void RCPSP::GetActions(const RCPSPState &nodeID, std::vector<int> &action
 
 inline bool RCPSP::InvertAction(int &a) const {
   // Example logic to invert an action
-  a = -a; // Negate the action (depends on your domain).
   return true;
 }
 
@@ -260,7 +141,6 @@ inline std::vector<RCPSPState> RCPSP::GetSuccessors(const RCPSPState &nodeID) co
 
 
 inline int RCPSP::GetAction(const RCPSPState &nodeID, const RCPSPState &nodeID2) const {
-  return 0; // Placeholder. Adjust this logic to your needs.
 }
 
 //inline uint64_t RCPSP::GetStateHash(const RCPSPState &s) const {
@@ -276,34 +156,16 @@ inline int RCPSP::GetNumSuccessors(const RCPSPState &stateID) const {
 
 inline void RCPSP::ApplyAction(RCPSPState &s, int a) const {
 
-  // if (s.activeTransitions.size()>0) {
-  //   count++;
-  //   int t=0;
-  //   for (int i=0;i<s.activeTransitions.size();i++) {
-  //     if (s.activeTransitions[i].duration<s.activeTransitions[t].duration) {
-  //       t=i;
-  //     }
-  //   }
-  //   Transition active = s.activeTransitions[t];
-  //   s.sons.push_back(RCPSPState(s,active,0,t,count));
-  // }
-  //
-  // for (int i=0;i<s.avilableTransition.size();i++) {
-  //   count++;
-  //   s.sons.push_back(RCPSPState(s,s.avilableTransition[i],1,i,count));
-  //   s.sons.back().name = count;
-  //
-  // }
 }
 inline double RCPSP::GCost(const RCPSPState &node, const int &act) const {
   return node.g;
 }
-
 class RCPSP_BiGreedy : public SearchEnvironment<RCPSPState, action> {
 public:
+
   inline void GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const override {
     if (nodeID.activeTransitions.size() > 0) {
-      count++;
+     // count++;
       int t = 0;
       for (int i = 0; i < nodeID.activeTransitions.size(); i++) {
         if (nodeID.activeTransitions[i].duration < nodeID.activeTransitions[t].duration) {
@@ -314,13 +176,21 @@ public:
     }
 
     for (int i = 0; i < nodeID.avilableTransition.size(); i++) {
-      count++;
+     // count++;
       neighbors.emplace_back(RCPSPState(nodeID, nodeID.avilableTransition[i], 1, i, count));
     }
   }
 
   inline bool GoalTest(const RCPSPState &node, const RCPSPState &goal) const override {
+  if (goal.marking.at(finalstatename) == 1) {
+    if (node.name == 0) {
+      return false;
+    }
     return node.marking.at(finalstatename) == 1;
+  }
+  //else {
+   // return node.marking.at("_pre_1") == 1;
+  //}
   }
 
   inline double HCost(const RCPSPState &state1, const RCPSPState &state2) const override {
@@ -332,8 +202,46 @@ public:
   }
   inline void GetActions(const RCPSPState &state, std::vector<action> &actions) const override {
     // Not used in BidirectionalGreedyBestFirst, but must be implemented
+    return;
   }
+  virtual action GetAction(const RCPSPState &state1, const RCPSPState &state2) const override {
+    // // Determine what action takes you from state1 to state2
+    // // For RCPSP, this might be the index of the transition or activity that was started/completed
+    //
 
+    // // Compare the states to figure out what changed
+    // for (int i = 0; i < state2.activeTransitions.size(); i++) {
+    //   bool foundInState1 = false;
+    //   for (int j = 0; j < state1.activeTransitions.size(); j++) {
+    //     if (state2.activeTransitions[i].name == state1.activeTransitions[j].name) {
+    //       foundInState1 = true;
+    //       break;
+    //     }
+    //   }
+    //   if (!foundInState1) {
+    //     // This activity was started between state1 and state2
+    //     return static_cast<action>(state2.activeTransitions[i].name);
+    //   }
+    // }
+    //
+    // // Otherwise, check if an activity was completed
+    // for (int i = 0; i < state1.activeTransitions.size(); i++) {
+    //   bool foundInState2 = false;
+    //   for (int j = 0; j < state2.activeTransitions.size(); j++) {
+    //     if (state1.activeTransitions[i].name == state2.activeTransitions[j].name) {
+    //       foundInState2 = true;
+    //       break;
+    //     }
+    //   }
+    //   if (!foundInState2) {
+    //     // This activity was completed between state1 and state2
+    //     return static_cast<action>(-state1.activeTransitions[i].name);  // Negative to indicate completion
+    //   }
+    // }
+    //
+    // // If we can't determine the action, return a default
+    return static_cast<action>(0);
+  }
   inline void ApplyAction(RCPSPState &state, action action) const override {
     // Not used, but required for abstract class
   }
@@ -341,6 +249,35 @@ public:
   inline void UndoAction(RCPSPState &state, action action) const override {
     // Not needed for bidirectional search, but required
   }
+double GCost(const RCPSPState &node, const action &act) const override {
+    return node.g;
+  };
+  bool InvertAction(action& a) const override {
+    return false; // Replace with appropriate logic
+  }
+  uint64_t GetActionHash(action act) const override {
+    return 0;
+  };
+  uint64_t GetStateHash(const RCPSPState &node) const override {
+    auto startS1 = std::chrono::high_resolution_clock::now();
+
+    std::size_t seed = 0;
+
+    for (const auto& pair : node.startedActivitiys) {
+      seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+      seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+
+    for (const auto& pair : node.finishedActivitiys) {
+      seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+      seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    auto endS1 = std::chrono::high_resolution_clock::now();
+
+    hashTIME += endS1-startS1;
+    return seed;
+
+  };
 };
 
 
