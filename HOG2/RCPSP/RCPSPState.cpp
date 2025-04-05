@@ -22,7 +22,9 @@ std::chrono::duration<double> HTIME;
 //   }
 // }
 //std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
+
 std::vector<Transition> getAvilableTransitions(const std::unordered_map<std::string, int>& marking);
+
 void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
 //int ChooseExpansion(std::vector<RCPSPState> network);
  PetriExample petri;
@@ -130,8 +132,80 @@ std::vector<Transition> getAvilableTransitions(std::map<std::string, int> markin
    avelableTIME += endS1-startS1;
   return avilableTransitions;
 }
-*/
+//*/
+//std::vector<Transition> getAvilableTransitions(const std::unordered_map<std::string, int>& marking) {
+//   auto startS1 = std::chrono::high_resolution_clock::now();
+//
+//   std::vector<Transition> avilableTransitions;
+//   avilableTransitions.reserve(petri.Transitions.size());  // Reserve memory to avoid multiple reallocations
+//
+//   std::cout << "Current marking: ";
+//   for (const auto& m : marking) {
+//     std::cout << m.first << ":" << m.second << " ";
+//   }
+//   std::cout << std::endl;
+//
+//   for (const auto& transition : petri.Transitions) {
+//     std::cout << "Checking transition " << transition.name << std::endl;
+//     int avilable = 0, requirment = 0;
+//     bool canFire = true;
+//
+//     for (const auto& arc : transition.arcs_in) {
+//       auto it = marking.find(arc.first);
+//       int tokenCount = (it != marking.end()) ? it->second : 0;
+//
+//       std::cout << "  Place " << arc.first << " has " << tokenCount << " tokens, needs " << arc.second << std::endl;
+//
+//       if (tokenCount < arc.second) {
+//         canFire = false;  // Not enough tokens to fire
+//         std::cout << "  Cannot fire: insufficient tokens" << std::endl;
+//         break;            // Stop checking further
+//       }
+//       avilable += std::min(tokenCount, arc.second);
+//       requirment += arc.second;
+//     }
+//
+//     if (canFire) {
+//       std::cout << "  Transition " << transition.name << " can fire!" << std::endl;
+//       avilableTransitions.push_back(transition);
+//     }
+//   }
+//
+//   std::cout << "Found " << avilableTransitions.size() << " available transitions" << std::endl;
+//
+//   auto endS1 = std::chrono::high_resolution_clock::now();
+//   avelableTIME += endS1 - startS1;
+//
+//   return avilableTransitions;
+// }
+//
+std::vector<Transition> getAvilableDetransitions(const std::unordered_map<std::string, int>& marking) {
+   std::vector<Transition> availableDetransitions;
+   availableDetransitions.reserve(petri.Transitions.size());
 
+   for (const auto& transition : petri.Transitions) {
+     bool canUndo = true;
+
+     // Check if this transition can be undone
+     for (const auto& arc : transition.arcs_out) {  // Instead of arcs_in, we check arcs_out
+       auto it = marking.find(arc.first);
+       int tokenCount = (it != marking.end()) ? it->second : 0;
+
+       if (tokenCount < arc.second) {
+         canUndo = false;  // Not enough tokens in the output place to undo
+         break;
+       }
+     }
+
+     if (canUndo) {
+       availableDetransitions.push_back(transition);
+     }
+   }
+
+   return availableDetransitions;
+
+
+ }
 std::vector<Transition> getAvilableTransitions(const std::unordered_map<std::string, int>& marking) {
    auto startS1 = std::chrono::high_resolution_clock::now();
 
@@ -192,7 +266,8 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,uint64_t &count) 
 */
 RCPSPState::RCPSPState() {
    auto startS1 = std::chrono::high_resolution_clock::now();
-
+   //status=true;
+direction=true;
    startedActivitiys[0]=0;
   for (int i=0;i<petri.places.size();i++) {
     if (petri.places[i].arcs_out.size()==0){finalstatename=petri.places[i].name;}
@@ -216,28 +291,7 @@ RCPSPState::RCPSPState() {
 
   g=0;
   name=0;
-   std::map<int, double> earlyfinishMap; // Map to store activity names and their early start
 
-   // For each activity in the unstartedtransitions vector from the state1 argument
-   for (int i = 0; i < unstartedTransitions.size(); ++i) {
-     int activityId = unstartedTransitions[i];
-
-     // For each backward dependency of the activity from the global RCPSPex object
-     double maxFinishTime = 0.0;
-     for (const auto& dep : RCPSPex.backword_dependencies[activityId-1]) {
-       int depId = std::stoi(dep) - 1; // Convert from string to index (1-based calculation)
-       maxFinishTime = std::max(maxFinishTime, earlyfinishMap[std::stoi(dep)] + RCPSPex.activities[depId].duration);
-     }
-
-     // Set the early start of the activity in the map
-     earlyfinishMap[activityId] = maxFinishTime;
-   }
-   if (earlyfinishMap.size()==0) {
-     h= 0;
-   }
-   else {
-     h= earlyfinishMap.rbegin()->second;
-   }
 
    auto endS1 = std::chrono::high_resolution_clock::now();
 
@@ -248,8 +302,8 @@ RCPSPState::RCPSPState() {
 
 RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int location,uint64_t &count) {
    auto startS1 = std::chrono::high_resolution_clock::now();
-
-  //name=count;
+direction=predecesor.direction;
+  name=count;
   marking=predecesor.marking;
   activeTransitions=predecesor.activeTransitions;
   avilableTransition=predecesor.avilableTransition;
@@ -260,10 +314,10 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
    //predecesorname=predecesor.name;
   //avilableTransition.erase(avilableTransition.begin()+location);
   g=predecesor.g;
+  //nodestatus=status;
 
 
-
-
+if (direction){
   if (status) {
     h=predecesor.h;
 
@@ -279,84 +333,110 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int 
 
   }
  else {
-    g+=active.duration;
+   g+=active.duration;
 
-    finishedActivitiys[active.name]=g;
+   finishedActivitiys[active.name]=g;
    auto startS2 = std::chrono::high_resolution_clock::now();
 
-    //cureTime+=active.duration;
+   //cureTime+=active.duration;
    unstartedTransitions.erase(
        std::remove(unstartedTransitions.begin(), unstartedTransitions.end(), active.name),
        unstartedTransitions.end());
+   //probebly can improve
+
+   for (int i = activeTransitions.size() - 1; i >= 0; --i) {
+     activeTransitions[i].duration -= active.duration;
+    //  if (activeTransitions[i].duration <= 0) {
+    //
+    //    finishedActivitiys[active.name]=g-activeTransitions[i].duration;
+    //
+    //    unstartedTransitions.erase(
+    // std::remove(unstartedTransitions.begin(), unstartedTransitions.end(), activeTransitions[i].name),
+    // unstartedTransitions.end());
+    //
+    //    activeTransitions[i].duration=0;
+    //
+    //    for (const auto& arc : activeTransitions[i].arcs_out) {
+    //      marking[arc.first]+=arc.second;
+    //
+    //    }
+    //    activeTransitions.erase(activeTransitions.begin() + i);
+    //
+    //  }
+     if (activeTransitions[i].duration<0){std::cout<<"!!!!!!!!!!!";}
+
+     if (activeTransitions[i].name == active.name) {
+        for (const auto& arc : activeTransitions[i].arcs_out) {
+          marking[arc.first]+=arc.second;
+
+        }
+        activeTransitions.erase(activeTransitions.begin() + i);
+      }
+
+   }
+ }
+
+  }
+else {
+  if (status) {
+    h=predecesor.h;
+
+    for (const auto& arc : active.arcs_out) {
+      marking[arc.first]-=arc.second;
+    }
+    //std::cout<<"activate:"<<active.name<<std::endl;
+    activeTransitions.push_back(active);
+
+    //if (active.duration==0){status=false;}
+    startedActivitiys[active.name]=g;
+
+  }
+
+  else {
+    g+=active.duration;
+
+    finishedActivitiys[active.name]=g;
+    auto startS2 = std::chrono::high_resolution_clock::now();
+
+    //cureTime+=active.duration;
+    unstartedTransitions.erase(
+        std::remove(unstartedTransitions.begin(), unstartedTransitions.end(), active.name),
+        unstartedTransitions.end());
     //probebly can improve
     for (int i = activeTransitions.size() - 1; i >= 0; --i) {
       activeTransitions[i].duration -= active.duration;
       //if (activeTransitions[i].duration<0){std::cout<<"!!!!!!!!!!!";}
       if (activeTransitions[i].name == active.name) {
-        for (const auto& arc : activeTransitions[i].arcs_out) {
+        for (const auto& arc : activeTransitions[i].arcs_in) {
           marking[arc.first]+=arc.second;
         }
         activeTransitions.erase(activeTransitions.begin() + i);
       }
     }
 
-    std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
-    //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
-    std::set<int> processedDependencies;
-    // Iterate over unstarted activitiesint lastElementEarlyFinish = 0;
-    //int lastElementEarlyFinish = 0;
-    for (int activityId: unstartedTransitions) {
-      int maxFinishTime = 0;
-      std::set<int> processedDependencies;
+  }
 
-      for (const auto &dep: RCPSPex.backword_dependencies[activityId - 1]) {
-        int depId = std::stoi(dep) - 1;
-        // if (processedDependencies.count(depId) > 0) continue;
-        // processedDependencies.insert(depId);
-        if (std::find(unstartedTransitions.begin(), unstartedTransitions.end(), depId + 1) != unstartedTransitions.end()) {
-          int duration = getTransitionDuration(activeTransitions, std::stoi(dep));
-          if (duration !=-1) {
-            maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1] + duration);
-            //if (RCPSPex.activities[depId].duration !=duration) {
-            //  std::cout<<name<<":"<<dep<<" "<<activityId<<" "<<RCPSPex.activities[depId].duration-duration<<std::endl;
-            //}
-          }
-          else {
-            maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1] + RCPSPex.activities[depId].duration);
-
-          }
-        }
-        else {
-          maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1]);
-        }
-      }
-
-      earlyfinishMap[activityId] = maxFinishTime;
-      //std::cout <<activityId<<":"<< earlyfinishMap[activityId]+RCPSPex.activities[activityId-1].duration << std::endl;
-      // For last element with duration 0, just use the max finish time of dependencies
-    }
-    if (earlyfinishMap.size()==0) {
-      h = 0;
-    }
-    else {
-      h = earlyfinishMap.rbegin()->second;;
-
-    }
    auto endS2 = std::chrono::high_resolution_clock::now();
 
-   HTIME += endS2-startS2;
 
   }
    auto endS1 = std::chrono::high_resolution_clock::now();
 
-   generateTIME += endS1-startS1;
 
-   avilableTransition=getAvilableTransitions(marking);
+   if (direction==true){
+     avilableTransition=getAvilableTransitions(marking);
+
+   }
+   else {
+     avilableTransition=getAvilableDetransitions(marking);
+
+   }
+
    // if (predecesor.name==20974) {
    //   int qwe;
    //   qwe++;
    // }
-
+generateTIME += endS1-startS1;
 }
 
 

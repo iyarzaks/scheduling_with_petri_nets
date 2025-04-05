@@ -17,6 +17,8 @@ class RCPSPState {
    std::vector<int> unstartedTransitions;
   std::vector<Transition> avilableTransition;
   std::vector<Transition> activeTransitions;
+    bool direction;
+    bool nodestatus;
   //std::vector<RCPSPState> sons;
   //std::vector<int> unstartedTransitions;
   double name=0;

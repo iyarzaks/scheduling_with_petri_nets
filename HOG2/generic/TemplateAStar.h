@@ -75,7 +75,7 @@ struct AStarCompareWithF {
 					//auto endSCF = std::chrono::high_resolution_clock::now();
 
 					//comperTime += endSCF-startSCF;
-					return i1.data.finishedActivitiys.size() < i2.data.finishedActivitiys.size();//< or >
+					return i1.data.finishedActivitiys.size() > i2.data.finishedActivitiys.size();//< or >
 				}
 				// בדיקת כמות ה-started_activities
 				//auto endSCF = std::chrono::high_resolution_clock::now();

@@ -71,8 +71,6 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     RCPSP as1;
     TemplateAStar<RCPSPState, int, RCPSP> astar;
     std::vector<RCPSPState> path;
-    std::vector<RCPSPState> fpath;
-    std::vector<RCPSPState> bpath;
 
     //RCPSP_BiGreedy bs1;
 
@@ -115,7 +113,8 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     astar_thread.detach();
 
     // Create a time point for when the timeout should occur
-    auto timeout_point = start + std::chrono::minutes(1);
+    auto timeout_point = start + std::chrono::minutes(4
+        );
 
     // Check periodically if the thread has completed or we've reached timeout
     while (!thread_completed && std::chrono::high_resolution_clock::now() < timeout_point) {
@@ -149,7 +148,19 @@ int makespan;
     if (finished && !path.empty()) {
         std::cout << "Path found!" << std::endl;
         for (const auto& state : path) {
-            std::cout << ", g: " << state.g << ", h: " << state.h << std::endl;
+            std::cout << "g: " << state.g<< std::endl;
+            std::cout << "active: ";
+            for (int a=0; a<state.activeTransitions.size(); a++) {
+                std::cout << " " << state.activeTransitions[a].name;
+            }
+            std::cout <<  std::endl;
+            std::cout << "avilable: ";
+            for (int a=0; a<state.avilableTransition.size(); a++) {
+                std::cout << " " << state.avilableTransition[a].name;
+            }
+            std::cout <<  std::endl;
+            std::cout <<  std::endl;
+
         makespan=state.g;
         }
     } else {
@@ -189,24 +200,33 @@ int solveRCPSP_Bi(int group, int exam, const std::string& filename) {
     getRCPSP(RCPSPex, group, exam);
 
     RCPSPState first;
+    first.direction=true;
+    count=2;
     RCPSPState last = first;
+    last.direction=false;
     last.h = 0;
-
+last.name=1;
     for (auto& pair : last.marking) {
+        if (pair.first=="R1"){continue;}
+        if (pair.first=="R2"){continue;}
+        if (pair.first=="R3"){continue;}
+        if (pair.first=="R4"){continue;}
         if (pair.second == 1) { pair.second = 0; }
         if (pair.first == finalstatename) { pair.second = 1; }
     }
+    last.avilableTransition=getAvilableDetransitions(last.marking);
 
 
     std::vector<RCPSPState> path;
-
+    ForwardRCPSPHeuristic H_F;
+    BackwardRCPSPHeuristic H_B;
     RCPSP_BiGreedy bs1;
 
 
     BAE<RCPSPState, int, RCPSP_BiGreedy> Bi_RCPSP;
 
 
-    Bi_RCPSP.GetPath(&bs1, first, last,0,0 ,path);
+    Bi_RCPSP.GetPath(&bs1, first, last,&H_F,&H_B ,path);
     bool finished = false;
     bool timeout_occurred = false;
     std::chrono::duration<double> elapsed;
@@ -271,7 +291,7 @@ int solveRCPSP_Bi(int group, int exam, const std::string& filename) {
     if (win_thread_handle != NULL) {
         CloseHandle(win_thread_handle);
     }
-int makespan;
+    int makespan;
     // Output results
     if (finished && !path.empty()) {
         std::cout << "Path found!" << std::endl;
@@ -337,17 +357,16 @@ std::string getNextFilename(const std::string& folder, const std::string& baseNa
     file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)<<HcostTime%,HcostTime(ave)" << std::endl;
 
     if (1) {
-        solveRCPSP_Bi(16,9,filename);
-
-         //
-         // solveRCPSP(8,9,filename);
-         // solveRCPSP(38,7,filename);
-         // solveRCPSP(46,1,filename);
-         // solveRCPSP(43,3,filename);
-          //solveRCPSP(16,9,filename);
-          //solveRCPSP(44,8,filename);
-         // solveRCPSP(11,4,filename);
-
+        //solveRCPSP_Bi(16,9,filename);
+        //
+       // solveRCPSP(8,9,filename);
+       // solveRCPSP(47,1,filename);
+       solveRCPSP(38,7,filename);
+     //  solveRCPSP(46,1,filename);
+   //   solveRCPSP(43,3,filename);
+        //solveRCPSP(16,9,filename);
+       // solveRCPSP(44,8,filename);
+         //solveRCPSP(11,4,filename);
     }
     else {
         for (int i=10;i<16;i++) {
