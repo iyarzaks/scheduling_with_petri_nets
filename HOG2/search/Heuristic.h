@@ -34,8 +34,7 @@ public:
 	virtual double HCost(const state &a, const state &b) const;
 	std::vector<HeuristicTreeNode> lookups;
 	std::vector<Heuristic*> heuristics;
-	mutable uint64_t histogram[256];
-private:
+	mutable uint64_t histogram[256];private:
 	double HCost(const state &s1, const state &s2, int treeNode) const;
 };
 

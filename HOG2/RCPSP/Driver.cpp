@@ -113,7 +113,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     astar_thread.detach();
 
     // Create a time point for when the timeout should occur
-    auto timeout_point = start + std::chrono::minutes(4
+    auto timeout_point = start + std::chrono::minutes(1
         );
 
     // Check periodically if the thread has completed or we've reached timeout
@@ -179,8 +179,8 @@ int makespan;
          << astar.GetNodesTouched() << ","<<100*generateTIME.count()/elapsed.count()<< ","<<generateTIME.count()/astar.GetNodesTouched()
              << ","<<100*avelableTIME.count()/elapsed.count()<< ","<<avelableTIME.count()/astar.GetNodesTouched()
                  << ","<<100*hashTIME.count()/elapsed.count()<< ","<<hashTIME.count()/astar.GetNodesTouched()
-                 << ","<<100*HTIME.count()/elapsed.count()<< ","<<HTIME.count()/astar.GetNodesTouched()<<
-                    // ","<<100*comperTime.count()/elapsed.count()<< ","<<comperTime.count()/astar.GetNodesTouched()<<
+                 << ","<<100*HTIME.count()/elapsed.count()<< ","<<HTIME.count()/count<<
+                   //  ","<<100*comperTime.count()/elapsed.count()<< ","<<comperTime.count()/astar.GetNodesTouched()<<
              "\n";
 
     return 0;
@@ -354,18 +354,18 @@ std::string getNextFilename(const std::string& folder, const std::string& baseNa
     }
 
     // Write header
-    file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave)<<HcostTime%,HcostTime(ave)" << std::endl;
+    file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
 
     if (1) {
         //solveRCPSP_Bi(16,9,filename);
         //
-       // solveRCPSP(8,9,filename);
+        solveRCPSP(8,9,filename);
        // solveRCPSP(47,1,filename);
-       solveRCPSP(38,7,filename);
-     //  solveRCPSP(46,1,filename);
-   //   solveRCPSP(43,3,filename);
+       //solveRCPSP(38,7,filename);
+       //solveRCPSP(46,1,filename);
+      //solveRCPSP(43,3,filename);
         //solveRCPSP(16,9,filename);
-       // solveRCPSP(44,8,filename);
+        //solveRCPSP(44,8,filename);
          //solveRCPSP(11,4,filename);
     }
     else {

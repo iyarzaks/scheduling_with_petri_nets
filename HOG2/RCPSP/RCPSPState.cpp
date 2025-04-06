@@ -287,36 +287,46 @@ direction=true;
   // for (int i=0;i<petri.Transitions.size();i++) {
   //   unstartedTransitions[petri.places[i].name]= 1;
   // }
+    auto endS1 = std::chrono::high_resolution_clock::now();
+
+   generateTIME += endS1-startS1;
    avilableTransition = getAvilableTransitions(marking);
 
   g=0;
   name=0;
 
 
-   auto endS1 = std::chrono::high_resolution_clock::now();
 
-   generateTIME += endS1-startS1;
 
 }
 
 
 RCPSPState::RCPSPState(RCPSPState predecesor, Transition active,bool status,int location,uint64_t &count) {
-   auto startS1 = std::chrono::high_resolution_clock::now();
-direction=predecesor.direction;
-  name=count;
-  marking=predecesor.marking;
-  activeTransitions=predecesor.activeTransitions;
-  avilableTransition=predecesor.avilableTransition;
-  unstartedTransitions=predecesor.unstartedTransitions;
-   startedActivitiys=predecesor.startedActivitiys;
-   finishedActivitiys=predecesor.finishedActivitiys;
+   auto startS4 = std::chrono::high_resolution_clock::now();
+
+   // Only copy what's needed, use references where possible
+   direction = predecesor.direction;
+   name = count;
+   nodestatus = status;
+
+   // Copy containers that will be modified (potentially more efficient than copy+modify)
+
+   unstartedTransitions = predecesor.unstartedTransitions;
+   startedActivitiys = predecesor.startedActivitiys;
+   finishedActivitiys = predecesor.finishedActivitiys;
+
+   marking = predecesor.marking;
+   activeTransitions = predecesor.activeTransitions;
+   avilableTransition = predecesor.avilableTransition;
+   g=predecesor.g;
+
   //finalstatename=predecesor.finalstatename;
    //predecesorname=predecesor.name;
   //avilableTransition.erase(avilableTransition.begin()+location);
-  g=predecesor.g;
   //nodestatus=status;
+   auto endS1 = std::chrono::high_resolution_clock::now();
 
-
+   generateTIME += endS1-startS4;
 if (direction){
   if (status) {
     h=predecesor.h;
@@ -363,7 +373,7 @@ if (direction){
     //    activeTransitions.erase(activeTransitions.begin() + i);
     //
     //  }
-     if (activeTransitions[i].duration<0){std::cout<<"!!!!!!!!!!!";}
+     //if (activeTransitions[i].duration<0){std::cout<<"!!!!!!!!!!!";}
 
      if (activeTransitions[i].name == active.name) {
         for (const auto& arc : activeTransitions[i].arcs_out) {
@@ -416,18 +426,22 @@ else {
 
   }
 
-   auto endS2 = std::chrono::high_resolution_clock::now();
 
 
   }
-   auto endS1 = std::chrono::high_resolution_clock::now();
 
 
    if (direction==true){
+
+
      avilableTransition=getAvilableTransitions(marking);
 
    }
    else {
+     auto endS1 = std::chrono::high_resolution_clock::now();
+
+     generateTIME += endS1-startS4;
+
      avilableTransition=getAvilableDetransitions(marking);
 
    }
@@ -436,8 +450,8 @@ else {
    //   int qwe;
    //   qwe++;
    // }
-generateTIME += endS1-startS1;
-}
+
+ }
 
 
 bool RCPSPState::operator==(const RCPSPState &other) const {

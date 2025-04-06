@@ -22,6 +22,7 @@
 //#include "FPUtil.h"
 //#include "Timer.h"
 #include "../utils//Timer.h"
+#include "../utils//Graphics.h"
 #include <unordered_map>
 #include <cmath>
 #include <iostream>
@@ -29,6 +30,12 @@
 #include "../search//Heuristic.h"
 #include <vector>
 #include <algorithm>
+
+//              *****ido lublin 3.4.25*****
+bool GetExpandForward;
+//              ***************************
+
+
 
 template<class state>
 struct BAECompare {
@@ -109,6 +116,8 @@ public:
     }
 	void Draw(Graphics::Display &d) const;
 	void Draw(Graphics::Display &d, const priorityQueue &q) const;
+
+
 
 private:
 
@@ -235,6 +244,8 @@ bool BAE<state, action, environment, priorityQueue>::InitializeSearch(environmen
     backwardQueue.AddOpenNode(goal, env->GetStateHash(goal), 0, backwardHeuristic->HCost(goal, start));
 
     expandForward = true;
+    //****
+    GetExpandForward=expandForward;
     return true;
 }
 
@@ -245,7 +256,7 @@ bool BAE<state, action, environment, priorityQueue>::InitializeSearch(environmen
  */
 template<class state, class action, class environment, class priorityQueue>
 bool BAE<state, action, environment, priorityQueue>::DoSingleSearchStep(std::vector<state> &thePath) {
-    if ((forwardQueue.OpenSize() == 0 || backwardQueue.OpenSize() == 0) && currentCost == DBL_MAX) {
+    if ((forwardQueue.OpenSize() == 0 || backwardQueue.OpenSize() == 0) && currentCost == DBL_MAX) { //temp change from || to && ido lublin 3.4.25
         std::cerr << " !! Problem with no solution?? Expanded: " << nodesExpanded << std::endl;
         exit(0);
     }
@@ -268,9 +279,13 @@ bool BAE<state, action, environment, priorityQueue>::DoSingleSearchStep(std::vec
         if (expandForward) {
             Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
             expandForward = false;
+            //****
+            GetExpandForward=expandForward;
         } else {
             Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
             expandForward = true;
+            //****
+            GetExpandForward=expandForward;
         }
     } else { // BS* policy, roughly Pohl's criterion
         if (forwardQueue.OpenSize() > backwardQueue.OpenSize())
@@ -325,6 +340,7 @@ void BAE<state, action, environment, priorityQueue>::Expand(priorityQueue &curre
 
     env->GetSuccessors(current.Lookup(nextID).data, neighbors);
     for (auto &succ: neighbors) {
+
         nodesTouched++;
         uint64_t childID;
         uint64_t hash = env->GetStateHash(succ);
