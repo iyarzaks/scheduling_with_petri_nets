@@ -541,6 +541,7 @@ void runBenchmark() {
 
     // Write header
     file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
+    solveRCPSP(16, 9, filename);
    solveRCPSP(1, 2, filename);
 solveRCPSP(1, 7, filename);
 solveRCPSP(2, 3, filename);
