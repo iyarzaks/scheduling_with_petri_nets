@@ -18,7 +18,7 @@
 #include <chrono>
 #include <atomic>
 #include <iostream>
-#include <windows.h>
+// #include <windows.h>
 
 #include <fstream>
 #include <vector>
@@ -27,6 +27,8 @@
 
 
 void runBenchmark();
+std::atomic<bool> cancel_requested(false);
+
 std::atomic<bool> stop_printing1(false); // Flag to stop the printing thread
 
 // void printNetworkSize1() {
@@ -42,7 +44,8 @@ int solveRCPSP_Bi();
 #include <chrono>
 #include <vector>
 #include <thread>
-
+#include <thread>
+#include <atomic>
 namespace fs = std::filesystem;
 
 // Your function signature
@@ -187,7 +190,109 @@ int makespan;
     return 0;
 }
 */
+#include <iostream>
+#include <fstream>
+#include <chrono>
+#include <thread>
+#include <future>
+#include <atomic>
+#include "RCPSP.h" // assuming these are your own headers
 
+int solveRCPSP(int group, int exam, const std::string& filename) {
+    std::cout << "started solving: " << group<<":"<<exam << std::endl;
+
+    generateTIME= std::chrono::duration<double>(0);
+    avelableTIME= std::chrono::duration<double>(0);
+    hashTIME= std::chrono::duration<double>(0);
+    //  comperTime= std::chrono::duration<double>(0);
+    //secssesorTIME= std::chrono::duration<double>(0);
+    count=0;
+
+    getPetri(petri, group, exam);
+    getRCPSP(RCPSPex, group, exam);
+
+    RCPSPState first;
+    RCPSPState last = first;
+    last.h = 0;
+
+    for (auto& pair : last.marking) {
+        if (pair.second == 1) { pair.second = 0; }
+        if (pair.first == finalstatename) { pair.second = 1; }
+    }
+
+    RCPSP as1;
+    TemplateAStar<RCPSPState, int, RCPSP> astar;
+    std::vector<RCPSPState> path;
+
+
+    bool finished = false;
+    bool timeout_occurred = false;
+    std::chrono::duration<double> elapsed;
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Use std::async to run A* in a separate thread with future
+    auto future = std::async(std::launch::async, [&]() {
+        astar.GetPath(&as1, first, last, path);
+    });
+
+    // Wait for up to 5 minutes
+    if (future.wait_for(std::chrono::minutes(10)) == std::future_status::timeout) {
+        timeout_occurred = true;
+        std::cout << "Timeout! A* took too long.\n";
+        finished = false;
+    } else {
+        finished = true;
+    }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    elapsed = end - start;
+
+    int makespan = 0;
+
+    if (finished && !path.empty()) {
+        std::cout << "Path found!" << std::endl;
+        for (const auto& state : path) {
+            std::cout << "g: " << state.g << std::endl;
+
+            std::cout << "active: ";
+            for (const auto& [transIdx, duration] : state.activeTransitionIndices)
+                std::cout << " " << transIdx;
+            std::cout << std::endl;
+
+            std::cout << "available: ";
+            for (int transIdx : state.avilableTransitionIndices)
+                std::cout << " " << transIdx;
+            std::cout << std::endl << std::endl;
+
+            makespan = state.g;
+        }
+    } else {
+        std::cout << "Path not found or timeout occurred.\n";
+    }
+
+    std::cout << "Nodes Expanded: " << astar.GetNodesExpanded() << std::endl;
+    std::cout << "Nodes Touched: " << astar.GetNodesTouched() << std::endl;
+
+    std::ofstream file(filename, std::ios::app);
+    file << group << "," << exam << "," << elapsed.count() << ","
+         << (finished ? "True" : "False") << ","
+         << makespan << ","
+         << astar.GetNodesExpanded() << ","
+         << astar.GetNodesTouched() << ","
+         << 100 * generateTIME.count() / elapsed.count() << ","
+         << generateTIME.count() / astar.GetNodesTouched() << ","
+         << 100 * avelableTIME.count() / elapsed.count() << ","
+         << avelableTIME.count() / astar.GetNodesTouched() << ","
+         << 100 * hashTIME.count() / elapsed.count() << ","
+         << hashTIME.count() / astar.GetNodesTouched() << ","
+         << 100 * HTIME.count() / elapsed.count() << ","
+         << HTIME.count() / count << "\n";
+
+    return 0;
+}
+
+/*
 int solveRCPSP(int group, int exam, const std::string& filename) {
 
 
@@ -330,7 +435,8 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
 
     return 0;
 }
-
+*/
+/*
 int solveRCPSP_Bi(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
 
@@ -464,7 +570,7 @@ last.name=1;
 
     return 0;
 }
-
+*/
 
 
 std::string getNextFilename(const std::string& folder, const std::string& baseName, const std::string& extension) {
@@ -486,10 +592,10 @@ std::string getNextFilename(const std::string& folder, const std::string& baseNa
 
  int main() {
      runBenchmark();
-    // if (1) {
+     //if (1) {
     //    // solveRCPSP_Bi(-1,-1,filename);
     //     //
-    //     solveRCPSP(8,9,filename);
+       // solveRCPSP(8,9,filename);
     //     //solveRCPSP(-1,-1,filename);
     //     //solveRCPSP(47,1,filename);
     //   // solveRCPSP(38,7,filename);
@@ -509,7 +615,7 @@ std::string getNextFilename(const std::string& folder, const std::string& baseNa
     //
     //
     //
-    // }
+     //}
     // else {
     //     for (int i=10;i<16;i++) {
     //         for (int j=1;j<11;j++) {
@@ -541,7 +647,7 @@ void runBenchmark() {
 
     // Write header
     file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
-    solveRCPSP(16, 9, filename);
+
    solveRCPSP(1, 2, filename);
 solveRCPSP(1, 7, filename);
 solveRCPSP(2, 3, filename);
@@ -638,6 +744,6 @@ solveRCPSP(47, 3, filename);
 solveRCPSP(47, 6, filename);
 solveRCPSP(48, 2, filename);
 solveRCPSP(48, 9, filename);
-
+return;;
 
 }

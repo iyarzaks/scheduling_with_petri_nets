@@ -59,7 +59,7 @@ struct AStarCompareWithF {
 	}
 };
 */
-//std::chrono::duration<double> comperTime;
+std::chrono::steady_clock::time_point timeout = std::chrono::steady_clock::now() + std::chrono::minutes(1);
 
 template <class state>
 struct AStarCompareWithF {
@@ -315,6 +315,11 @@ void TemplateAStar<state,action,environment,openList>::Reset()
 template <class state, class action, class environment, class openList>
 bool TemplateAStar<state,action,environment,openList>::InitializeSearch(environment *_env, const state& from, const state& to, std::vector<state> &thePath)
 {
+	//****ido lublin 10.4.25 timeout
+	timeout = std::chrono::steady_clock::now() + std::chrono::minutes(10);
+	//***************
+
+
 	if (theHeuristic == 0 || !heuristicSet)
 		theHeuristic = _env;
 	thePath.resize(0);
@@ -372,12 +377,22 @@ void TemplateAStar<state,action,environment,openList>::AddAdditionalStartState(c
 template <class state, class action, class environment, class openList>
 bool TemplateAStar<state,action,environment,openList>::DoSingleSearchStep(std::vector<state> &thePath)
 {
+
+
+
 	if (openClosedList.OpenSize() == 0)
 	{
 		thePath.resize(0); // no path found!
 		//closedList.clear();
 		return true;
 	}
+
+	//****idolublin 10.4 timeout exit*******
+	if (std::chrono::steady_clock::now() > timeout) {
+		return true; // Exit early on timeout
+	}
+
+
 	uint64_t nodeid = openClosedList.Close();
 //	if (openClosedList.Lookup(nodeid).g+openClosedList.Lookup(nodeid).h > lastF)
 //	{ lastF = openClosedList.Lookup(nodeid).g+openClosedList.Lookup(nodeid).h;
