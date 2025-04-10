@@ -15,8 +15,11 @@ class RCPSPState {
   RCPSPState(RCPSPState predecessor,Transition newTransition,bool status,int location,uint64_t &count);
   std::unordered_map<std::string, int> marking;
    std::vector<int> unstartedTransitions;
-  std::vector<Transition> avilableTransition;
-  std::vector<Transition> activeTransitions;
+  //std::vector<Transition> avilableTransition;
+  //std::vector<Transition> activeTransitions;
+    std::vector<int> avilableTransitionIndices;  // Store transition IDs
+    std::vector<std::pair<int, int>> activeTransitionIndices;  // Store transition ID and remaining duration
+
     bool direction;
     bool nodestatus;
   //std::vector<RCPSPState> sons;

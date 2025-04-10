@@ -281,11 +281,13 @@ bool BAE<state, action, environment, priorityQueue>::DoSingleSearchStep(std::vec
             expandForward = false;
             //****
             GetExpandForward=expandForward;
+            //****
         } else {
             Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
             expandForward = true;
             //****
             GetExpandForward=expandForward;
+            //****
         }
     } else { // BS* policy, roughly Pohl's criterion
         if (forwardQueue.OpenSize() > backwardQueue.OpenSize())

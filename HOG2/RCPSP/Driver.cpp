@@ -26,7 +26,7 @@
 
 
 
-
+void runBenchmark();
 std::atomic<bool> stop_printing1(false); // Flag to stop the printing thread
 
 // void printNetworkSize1() {
@@ -46,7 +46,8 @@ int solveRCPSP_Bi();
 namespace fs = std::filesystem;
 
 // Your function signature
-int solveRCPSP(int group, int exam, const std::string& filename) {
+/*
+int solveRCPSP_old(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
 
     generateTIME= std::chrono::duration<double>(0);
@@ -185,6 +186,150 @@ int makespan;
 
     return 0;
 }
+*/
+
+int solveRCPSP(int group, int exam, const std::string& filename) {
+
+
+    std::cout << "started solving: " << group << ":" << exam << std::endl;
+
+    generateTIME = std::chrono::duration<double>(0);
+    avelableTIME = std::chrono::duration<double>(0);
+    hashTIME = std::chrono::duration<double>(0);
+    HTIME = std::chrono::duration<double>(0);
+    count = 0;
+
+    getPetri(petri, group, exam);
+    getRCPSP(RCPSPex, group, exam);
+
+    RCPSPState first;
+    RCPSPState last = first;
+    last.h = 0;
+
+    for (auto& pair : last.marking) {
+        if (pair.second == 1) { pair.second = 0; }
+        if (pair.first == finalstatename) { pair.second = 1; }
+    }
+
+    RCPSP as1;
+    TemplateAStar<RCPSPState, int, RCPSP> astar;
+    std::vector<RCPSPState> path;
+
+    bool finished = false;
+    bool timeout_occurred = false;
+    std::chrono::duration<double> elapsed;
+
+    // Create a flag for thread completion
+    std::atomic<bool> thread_completed(false);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    // Create Windows thread handle
+    HANDLE win_thread_handle = NULL;
+
+    // Run A* in a separate thread
+    std::thread astar_thread([&]() {
+        // Get thread handle for potential termination
+        DuplicateHandle(
+            GetCurrentProcess(),
+            GetCurrentThread(),
+            GetCurrentProcess(),
+            &win_thread_handle,
+            0,
+            FALSE,
+            DUPLICATE_SAME_ACCESS
+        );
+
+        // Run the A* algorithm
+        astar.GetPath(&as1, first, last, path);
+
+        // Set completion flag when done
+        thread_completed = true;
+    });
+
+    // Detach the thread so we don't need to join it
+    astar_thread.detach();
+
+    // Create a time point for when the timeout should occur
+    auto timeout_point = start + std::chrono::minutes(5);
+
+    // Check periodically if the thread has completed or we've reached timeout
+    while (!thread_completed && std::chrono::high_resolution_clock::now() < timeout_point) {
+        // Short sleep to prevent busy waiting
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    // Record end time and calculate elapsed time
+    auto end = std::chrono::high_resolution_clock::now();
+    elapsed = end - start;
+
+    // Check if timeout occurred
+    timeout_occurred = !thread_completed;
+
+    // If timeout occurred, terminate the thread
+    if (timeout_occurred && win_thread_handle != NULL) {
+        TerminateThread(win_thread_handle, 1);
+        std::cout << "Timeout! A* took too long.\n";
+        finished = false;
+    } else {
+        // Thread completed successfully
+        finished = true;
+    }
+
+    // Close the handle if it exists
+    if (win_thread_handle != NULL) {
+        CloseHandle(win_thread_handle);
+    }
+
+    int makespan = 0;
+
+    // Output results
+    if (finished && !path.empty()) {
+        std::cout << "Path found!" << std::endl;
+        for (const auto& state : path) {
+            std::cout << "g: " << state.g << std::endl;
+
+            // Changed: Display active transitions using indices
+            std::cout << "active: ";
+            for (const auto& [transIdx, duration] : state.activeTransitionIndices) {
+                std::cout << " " << transIdx;
+            }
+            std::cout << std::endl;
+
+            // Changed: Display available transitions using indices
+            std::cout << "available: ";
+            for (int transIdx : state.avilableTransitionIndices) {
+                std::cout << " " << transIdx;
+            }
+            std::cout << std::endl << std::endl;
+
+            makespan = state.g;
+        }
+    } else {
+        std::cout << "Path not found or timeout occurred.\n";
+    }
+
+    std::cout << "Nodes Expanded: " << astar.GetNodesExpanded() << std::endl;
+    std::cout << "Nodes Touched: " << astar.GetNodesTouched() << std::endl;
+
+    // Save to file
+    std::ofstream file(filename, std::ios::app);
+    file << group << "," << exam << "," << elapsed.count() << ","
+         << (finished ? "True" : "False") << ","
+         << makespan << ","
+         << astar.GetNodesExpanded() << ","
+         << astar.GetNodesTouched() << ","
+         << 100 * generateTIME.count() / elapsed.count() << ","
+         << generateTIME.count() / astar.GetNodesTouched() << ","
+         << 100 * avelableTIME.count() / elapsed.count() << ","
+         << avelableTIME.count() / astar.GetNodesTouched() << ","
+         << 100 * hashTIME.count() / elapsed.count() << ","
+         << hashTIME.count() / astar.GetNodesTouched() << ","
+         << 100 * HTIME.count() / elapsed.count() << ","
+         << HTIME.count() / count << "\n";
+
+    return 0;
+}
 
 int solveRCPSP_Bi(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
@@ -214,7 +359,7 @@ last.name=1;
         if (pair.second == 1) { pair.second = 0; }
         if (pair.first == finalstatename) { pair.second = 1; }
     }
-    last.avilableTransition=getAvilableDetransitions(last.marking);
+    last.avilableTransitionIndices=getAvilableDetransitionIndices(last.marking);
 
 
     std::vector<RCPSPState> path;
@@ -262,7 +407,7 @@ last.name=1;
     astar_thread.detach();
 
     // Create a time point for when the timeout should occur
-    auto timeout_point = start + std::chrono::minutes(1);
+    auto timeout_point = start + std::chrono::minutes(5);
 
     // Check periodically if the thread has completed or we've reached timeout
     while (!thread_completed && std::chrono::high_resolution_clock::now() < timeout_point) {
@@ -319,6 +464,9 @@ last.name=1;
 
     return 0;
 }
+
+
+
 std::string getNextFilename(const std::string& folder, const std::string& baseName, const std::string& extension) {
     // Ensure folder exists
     if (!fs::exists(folder)) {
@@ -337,6 +485,44 @@ std::string getNextFilename(const std::string& folder, const std::string& baseNa
 }
 
  int main() {
+     runBenchmark();
+    // if (1) {
+    //    // solveRCPSP_Bi(-1,-1,filename);
+    //     //
+    //     solveRCPSP(8,9,filename);
+    //     //solveRCPSP(-1,-1,filename);
+    //     //solveRCPSP(47,1,filename);
+    //   // solveRCPSP(38,7,filename);
+    //   // solveRCPSP(46,1,filename);
+    //   //  solveRCPSP(43,3,filename);
+    // //    solveRCPSP(16,9,filename);
+    //     //solveRCPSP(44,8,filename);
+    //      //solveRCPSP(11,4,filename);
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    // }
+    // else {
+    //     for (int i=10;i<16;i++) {
+    //         for (int j=1;j<11;j++) {
+    //             solveRCPSP(i,j,filename);
+    //         }
+    //     }
+    // }
+
+    return 0;
+
+
+}
+void runBenchmark() {
     std::string folder = "results";
     std::string baseName = "output_";
     std::string extension = ".csv";
@@ -350,34 +536,107 @@ std::string getNextFilename(const std::string& folder, const std::string& baseNa
     // Check if file is open
     if (!file.is_open()) {
         std::cerr << "Error opening file!" << std::endl;
-        return 1;
+        return;
     }
 
     // Write header
     file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
-
-    if (1) {
-        //solveRCPSP_Bi(16,9,filename);
-        //
-        solveRCPSP(8,9,filename);
-       // solveRCPSP(47,1,filename);
-       //solveRCPSP(38,7,filename);
-       //solveRCPSP(46,1,filename);
-      //solveRCPSP(43,3,filename);
-        //solveRCPSP(16,9,filename);
-        //solveRCPSP(44,8,filename);
-         //solveRCPSP(11,4,filename);
-    }
-    else {
-        for (int i=10;i<16;i++) {
-            for (int j=1;j<11;j++) {
-                solveRCPSP(i,j,filename);
-            }
-        }
-    }
-
-
-    return 0;
+   solveRCPSP(1, 2, filename);
+solveRCPSP(1, 7, filename);
+solveRCPSP(2, 3, filename);
+solveRCPSP(2, 7, filename);
+solveRCPSP(3, 1, filename);
+solveRCPSP(3, 10, filename);
+solveRCPSP(4, 6, filename);
+solveRCPSP(4, 9, filename);
+solveRCPSP(5, 1, filename);
+solveRCPSP(5, 10, filename);
+solveRCPSP(6, 2, filename);
+solveRCPSP(6, 9, filename);
+solveRCPSP(7, 5, filename);
+solveRCPSP(7, 8, filename);
+solveRCPSP(8, 1, filename);
+solveRCPSP(8, 6, filename);
+solveRCPSP(9, 3, filename);
+solveRCPSP(9, 9, filename);
+solveRCPSP(10, 1, filename);
+solveRCPSP(10, 4, filename);
+solveRCPSP(11, 2, filename);
+solveRCPSP(11, 7, filename);
+solveRCPSP(12, 3, filename);
+solveRCPSP(12, 10, filename);
+solveRCPSP(13, 4, filename);
+solveRCPSP(13, 6, filename);
+solveRCPSP(14, 2, filename);
+solveRCPSP(14, 8, filename);
+solveRCPSP(15, 5, filename);
+solveRCPSP(15, 9, filename);
+solveRCPSP(16, 2, filename);
+solveRCPSP(16, 7, filename);
+solveRCPSP(17, 8, filename);
+solveRCPSP(17, 10, filename);
+solveRCPSP(18, 4, filename);
+solveRCPSP(18, 7, filename);
+solveRCPSP(19, 1, filename);
+solveRCPSP(19, 5, filename);
+solveRCPSP(20, 1, filename);
+solveRCPSP(20, 5, filename);
+solveRCPSP(21, 1, filename);
+solveRCPSP(21, 9, filename);
+solveRCPSP(22, 4, filename);
+solveRCPSP(22, 6, filename);
+solveRCPSP(23, 2, filename);
+solveRCPSP(23, 5, filename);
+solveRCPSP(24, 3, filename);
+solveRCPSP(24, 6, filename);
+solveRCPSP(25, 2, filename);
+solveRCPSP(25, 10, filename);
+solveRCPSP(26, 4, filename);
+solveRCPSP(26, 7, filename);
+solveRCPSP(27, 6, filename);
+solveRCPSP(27, 8, filename);
+solveRCPSP(28, 3, filename);
+solveRCPSP(28, 9, filename);
+solveRCPSP(29, 1, filename);
+solveRCPSP(29, 6, filename);
+solveRCPSP(30, 2, filename);
+solveRCPSP(30, 4, filename);
+solveRCPSP(31, 2, filename);
+solveRCPSP(31, 9, filename);
+solveRCPSP(32, 6, filename);
+solveRCPSP(32, 10, filename);
+solveRCPSP(33, 1, filename);
+solveRCPSP(33, 7, filename);
+solveRCPSP(34, 5, filename);
+solveRCPSP(34, 9, filename);
+solveRCPSP(35, 1, filename);
+solveRCPSP(35, 6, filename);
+solveRCPSP(36, 1, filename);
+solveRCPSP(36, 5, filename);
+solveRCPSP(37, 5, filename);
+solveRCPSP(37, 8, filename);
+solveRCPSP(38, 1, filename);
+solveRCPSP(38, 4, filename);
+solveRCPSP(39, 2, filename);
+solveRCPSP(39, 7, filename);
+solveRCPSP(40, 2, filename);
+solveRCPSP(40, 7, filename);
+solveRCPSP(41, 4, filename);
+solveRCPSP(41, 10, filename);
+solveRCPSP(42, 1, filename);
+solveRCPSP(42, 8, filename);
+solveRCPSP(43, 3, filename);
+solveRCPSP(43, 7, filename);
+solveRCPSP(44, 3, filename);
+solveRCPSP(44, 6, filename);
+solveRCPSP(45, 1, filename);
+solveRCPSP(45, 5, filename);
+solveRCPSP(46, 1, filename);
+solveRCPSP(46, 8, filename);
+solveRCPSP(47, 3, filename);
+solveRCPSP(47, 6, filename);
+solveRCPSP(48, 2, filename);
+solveRCPSP(48, 9, filename);
 
 
 }

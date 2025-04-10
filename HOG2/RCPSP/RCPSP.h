@@ -68,7 +68,7 @@ inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
 
 inline RCPSP::RCPSP() {
 }
-
+/*
 inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const {
 
 
@@ -91,6 +91,40 @@ inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPStat
   auto endS1 = std::chrono::high_resolution_clock::now();
 
 }
+*/
+inline void RCPSP::GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const {
+  // Handle active transitions
+  if (!nodeID.activeTransitionIndices.empty()) {
+    count++;
+    int t = 0;
+    // Find the transition with the minimum remaining duration
+    for (int i = 0; i < nodeID.activeTransitionIndices.size(); i++) {
+      if (nodeID.activeTransitionIndices[i].second < nodeID.activeTransitionIndices[t].second) {
+        t = i;
+      }
+    }
+
+    // Get the actual transition object using the index
+    int transitionIdx = nodeID.activeTransitionIndices[t].first;
+    Transition transition = petri.Transitions[transitionIdx - 1];
+    transition.duration= nodeID.activeTransitionIndices[t].second;
+
+    // Create successor state
+    neighbors.emplace_back(RCPSPState(nodeID, transition, false, t, count));
+  }
+
+  // Handle available transitions
+  for (int i = 0; i < nodeID.avilableTransitionIndices.size(); i++) {
+    count++;
+    // Get the actual transition object using the index
+    int transitionIdx = nodeID.avilableTransitionIndices[i];
+    const Transition& transition = petri.Transitions[transitionIdx - 1];
+
+    // Create successor state
+    neighbors.emplace_back(RCPSPState(nodeID, transition, true, i, count));
+  }
+
+}
 
 inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) const {
   if (node.marking.at(finalstatename) == 1) {
@@ -98,7 +132,7 @@ inline bool RCPSP::GoalTest(const RCPSPState &node, const RCPSPState &goal) cons
 }
   return false;
 }
-
+/*
 inline double calculateEarlyFinishRecursive(int activityId, std::map<int, int>& earlyfinishMap,
                                             const std::vector<int>& unstartedTransitions,
                                             const std::vector<Transition>& activeTransitions,
@@ -135,39 +169,50 @@ inline double calculateEarlyFinishRecursive(int activityId, std::map<int, int>& 
   earlyfinishMap[activityId] = maxFinishTime;
   return maxFinishTime;
 }
+*/
+
+double calculateEarlyFinishRecursive(int activityId, std::map<int, int>& earlyfinishMap,
+                                    const std::vector<int>& unstartedTransitions,
+                                    const std::vector<std::pair<int, int>>& activeTransitions,
+                                    const RCPSP_example& RCPSPex) {
+  // If we've already computed this activity's early finish time, return it
+  if (earlyfinishMap.find(activityId) != earlyfinishMap.end()) {
+    return earlyfinishMap[activityId];
+  }
+
+  int maxFinishTime = 0;
+
+  // Process all dependencies
+  for (const auto &dep: RCPSPex.backword_dependencies[activityId - 1]) {
+    int depId = std::stoi(dep) - 1;
+
+    // Recursively compute the early finish time of the dependency if not already computed
+    if (earlyfinishMap.find(depId + 1) == earlyfinishMap.end()) {
+      calculateEarlyFinishRecursive(depId + 1, earlyfinishMap, unstartedTransitions, activeTransitions, RCPSPex);
+    }
+
+    if (std::find(unstartedTransitions.begin(), unstartedTransitions.end(), depId + 1) != unstartedTransitions.end()) {
+      int duration = getTransitionDuration2(activeTransitions, std::stoi(dep));
+      if (duration != -1) {
+        maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1] + duration);
+      } else {
+        maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1] + RCPSPex.activities[depId].duration);
+      }
+    } else {
+      maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1]);
+    }
+  }
+
+  // Store and return the result
+  earlyfinishMap[activityId] = maxFinishTime;
+  return maxFinishTime;
+}
 
 
 
 
 inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) const {
-  auto startS3 = std::chrono::high_resolution_clock::now();
-
-  double newH = 0;
-  std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
-
-  if (!state1.unstartedTransitions.empty()) {
-    // We want the maximum early finish time, which should be the last activity
-    int lastActivity = state1.unstartedTransitions.back(); // Assuming the last activity is the one we care about
-    newH = calculateEarlyFinishRecursive(lastActivity, earlyfinishMap,
-                                    state1.unstartedTransitions,
-                                    state1.activeTransitions,
-                                    RCPSPex);
-  }
-  auto endS3 = std::chrono::high_resolution_clock::now();
-  HTIME += endS3 - startS3;
-  return newH;
-
-
-
-
-
-  //
-  // std::map<int, int> earlyfinishMap2; // Map to store activity IDs and their early finish times
-  // //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
-  // double h;
-  // std::set<int> processedDependencies;
-  // // Iterate over unstarted activitiesint lastElementEarlyFinish = 0;
-  // //int lastElementEarlyFinish = 0;
+ return state1.h;
   // for (int activityId: state1.unstartedTransitions) {
   //   int maxFinishTime = 0;
   //   std::set<int> processedDependencies;
@@ -177,7 +222,7 @@ inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) c
   //     // if (processedDependencies.count(depId) > 0) continue;
   //     // processedDependencies.insert(depId);
   //     if (std::find(state1.unstartedTransitions.begin(), state1.unstartedTransitions.end(), depId + 1) != state1.unstartedTransitions.end()) {
-  //       int duration = getTransitionDuration(state1.activeTransitions, std::stoi(dep));
+  //       int duration = getTransitionDuration2(state1.activeTransitionIndices, std::stoi(dep));
   //       if (duration !=-1) {
   //         maxFinishTime = std::max(maxFinishTime, earlyfinishMap2[depId+1] + duration);
   //         //if (RCPSPex.activities[depId].duration !=duration) {
@@ -205,17 +250,57 @@ inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) c
   //   h = earlyfinishMap2.rbegin()->second;;
   //
   // }
-  // if (h != newH) {
-  //   int asd;
-  //   asd++;
+  // // if (h != newH) {
+  // //   int asd;
+  // //   asd++;
+  // // }
+  // auto endS3 = std::chrono::high_resolution_clock::now();
+  // HTIME += endS3 - startS3;
+  //
+  // return h;
+  /* double newH = 0;
+  // std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
+  //
+  // if (!state1.unstartedTransitions.empty()) {
+  //   // We want the maximum early finish time, which should be the last activity
+  //   int lastActivity = state1.unstartedTransitions.back(); // Assuming the last activity is the one we care about
+  //   newH = calculateEarlyFinishRecursive(lastActivity, earlyfinishMap,
+  //                                   state1.unstartedTransitions,
+  //                                   state1.activeTransitions,
+  //                                   RCPSPex);
   // }
-
- // return h;
+  // auto endS3 = std::chrono::high_resolution_clock::now();
+  // HTIME += endS3 - startS3;
+  // return newH;*/
 
 }
+/*
+inline double RCPSP::HCost(const RCPSPState &state1, const RCPSPState &state2) const {
+  auto startS3 = std::chrono::high_resolution_clock::now();
 
+  double newH = 0;
+  std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
 
+  if (!state1.unstartedTransitions.empty()) {
+    // Convert activeTransitionIndices to a compatible format for the recursive function
+    std::vector<std::pair<int, int>> activeTransitions;
+    for (const auto& [transIdx, duration] : state1.activeTransitionIndices) {
+      activeTransitions.push_back({transIdx, duration});
+    }
 
+    // We want the maximum early finish time, which should be the last activity
+    int lastActivity = state1.unstartedTransitions.back(); // Assuming the last activity is the one we care about
+    newH = calculateEarlyFinishRecursive(lastActivity, earlyfinishMap,
+                                    state1.unstartedTransitions,
+                                    activeTransitions,
+                                    RCPSPex);
+  }
+
+  auto endS3 = std::chrono::high_resolution_clock::now();
+  HTIME += endS3 - startS3;
+  return newH;
+}
+*/
 
 inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) const {
   // int remain=0;
@@ -229,6 +314,7 @@ inline double RCPSP::GCost(const RCPSPState &state1, const RCPSPState &state2) c
     //return state2.g;
 
 }
+
 //NOT IN USE OF A*
 inline uint64_t RCPSP::GetActionHash(int act) const {
   // Example hash for an action
@@ -256,15 +342,17 @@ inline std::vector<RCPSPState> RCPSP::GetSuccessors(const RCPSPState &nodeID) co
 
 
 inline int RCPSP::GetAction(const RCPSPState &nodeID, const RCPSPState &nodeID2) const {
+  return 0;
 }
 
 //inline uint64_t RCPSP::GetStateHash(const RCPSPState &s) const {
  // return s.name;
 //}
 inline int RCPSP::GetNumSuccessors(const RCPSPState &stateID) const {
-  int i=0;
-  if (stateID.activeTransitions.size() > 0){i=1;}
-  return stateID.avilableTransition.size()+i;
+  // int i=0;
+  // if (stateID.activeTransitions.size() > 0){i=1;}
+  // return stateID.avilableTransition.size()+i;
+  return 0;
 }
 
 
@@ -275,44 +363,65 @@ inline void RCPSP::ApplyAction(RCPSPState &s, int a) const {
 inline double RCPSP::GCost(const RCPSPState &node, const int &act) const {
   return node.g;
 }
+
 class RCPSP_BiGreedy : public SearchEnvironment<RCPSPState, action> {
 public:
 
 inline void GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const override {
 if (GetExpandForward==true) {
-  if (nodeID.activeTransitions.size() > 0) {
-    count++;
-    int t = 0;
-    for (int i = 0; i < nodeID.activeTransitions.size(); i++) {
-      if (nodeID.activeTransitions[i].duration < nodeID.activeTransitions[t].duration) {
-        t = i;
+    if (!nodeID.activeTransitionIndices.empty()) {
+      count++;
+      int t = 0;
+      // Find the transition with the minimum remaining duration
+      for (int i = 0; i < nodeID.activeTransitionIndices.size(); i++) {
+        if (nodeID.activeTransitionIndices[i].second < nodeID.activeTransitionIndices[t].second) {
+          t = i;
+        }
       }
-    }
-    neighbors.emplace_back(RCPSPState(nodeID, nodeID.activeTransitions[t], 0, t, count));
-  }
 
-  for (int i = 0; i < nodeID.avilableTransition.size(); i++) {
-    count++;
-    neighbors.emplace_back(RCPSPState(nodeID, nodeID.avilableTransition[i], 1, i, count));
+      // Get the actual transition object using the index
+      int transitionIdx = nodeID.activeTransitionIndices[t].first;
+      Transition transition = petri.Transitions[transitionIdx - 1];
+      transition.duration= nodeID.activeTransitionIndices[t].second;
+
+      // Create successor state
+      neighbors.emplace_back(RCPSPState(nodeID, transition, false, t, count));
+    }
+
+    // Handle available transitions
+    for (int i = 0; i < nodeID.avilableTransitionIndices.size(); i++) {
+      count++;
+      // Get the actual transition object using the index
+      int transitionIdx = nodeID.avilableTransitionIndices[i];
+      const Transition& transition = petri.Transitions[transitionIdx - 1];
+
+      // Create successor state
+      neighbors.emplace_back(RCPSPState(nodeID, transition, true, i, count));
+    }
   }
-}
-    else {
-      return;
-      if (nodeID.activeTransitions.size() > 0) {
+else {
+      if (nodeID.activeTransitionIndices.size() > 0) {
         count++;
         int t = 0;
-        for (int i = 0; i < nodeID.activeTransitions.size(); i++) {
-          if (nodeID.activeTransitions[i].duration < nodeID.activeTransitions[t].duration) {
+        for (int i = 0; i < nodeID.activeTransitionIndices.size(); i++) {
+           if (nodeID.activeTransitionIndices[i].second < nodeID.activeTransitionIndices[t].second) {
             t = i;
           }
         }
-        neighbors.emplace_back(RCPSPState(nodeID, nodeID.activeTransitions[t], 0, t, count));
-      }
+        int transitionIdx = nodeID.activeTransitionIndices[t].first;
+        Transition transition = petri.Transitions[transitionIdx - 1];
+        transition.duration= nodeID.activeTransitionIndices[t].second;
 
-      for (int i = 0; i < nodeID.avilableTransition.size(); i++) {
+        // Create successor state
+        neighbors.emplace_back(RCPSPState(nodeID, transition, false, t, count));      }
+
+      for (int i = 0; i < nodeID.avilableTransitionIndices.size(); i++) {
         count++;
-        neighbors.emplace_back(RCPSPState(nodeID, nodeID.avilableTransition[i], 1, i, count));
-      }
+        int transitionIdx = nodeID.avilableTransitionIndices[i];
+        const Transition& transition = petri.Transitions[transitionIdx - 1];
+
+        // Create successor state
+        neighbors.emplace_back(RCPSPState(nodeID, transition, true, i, count));      }
 
 
     }
@@ -347,7 +456,8 @@ return false;
         // if (processedDependencies.count(depId) > 0) continue;
         // processedDependencies.insert(depId);
         if (std::find(state1.unstartedTransitions.begin(), state1.unstartedTransitions.end(), depId + 1) != state1.unstartedTransitions.end()) {
-          int duration = getTransitionDuration(state1.activeTransitions, std::stoi(dep));
+          //maby state1 or state2
+          int duration = getTransitionDuration2(state1.activeTransitionIndices, std::stoi(dep));
           if (duration !=-1) {
             maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1] + duration);
             //if (RCPSPex.activities[depId].duration !=duration) {
@@ -457,7 +567,8 @@ public:
         // if (processedDependencies.count(depId) > 0) continue;
         // processedDependencies.insert(depId);
         if (std::find(current.unstartedTransitions.begin(), current.unstartedTransitions.end(), depId + 1) != current.unstartedTransitions.end()) {
-          int duration = getTransitionDuration(current.activeTransitions, std::stoi(dep));
+          //maby current or goal
+          int duration = getTransitionDuration2(goal.activeTransitionIndices, std::stoi(dep));
           if (duration !=-1) {
             maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1] + duration);
             //if (RCPSPex.activities[depId].duration !=duration) {
@@ -504,7 +615,8 @@ public:
 
         // If dependency is also unstarted in `state`, account for its duration
         if (std::find(current.unstartedTransitions.begin(), current.unstartedTransitions.end(), depId + 1) != current.unstartedTransitions.end()) {
-          int duration = getTransitionDuration(current.activeTransitions, std::stoi(dep));
+          //maby current or goal
+          int duration = getTransitionDuration2(goal.activeTransitionIndices, std::stoi(dep));
           if (duration != -1) {
             maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1] + duration);
           } else {

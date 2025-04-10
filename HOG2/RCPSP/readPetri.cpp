@@ -9,8 +9,16 @@ void getPetri(PetriExample& petriExample,int group,int exam) {
     //std::ifstream input_file("petriExample.json");
     //std::ifstream input_file("petriExample.json");
     petriExample.reset();
-    std::string basePath = "json_outputs/j30";
-    std::string folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
+    std::string folderName;
+    if (group==-1) {
+         folderName = "json_outputs/smallData";;
+        //std::ifstream input_file("rcpspExample.json");
+    }
+    else {
+        std::string basePath = "json_outputs/j30";
+         folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
+
+    }
     //std::ifstream input_file("rcpspExample.json");
     std::ifstream input_file(folderName+"/petri.json");
     // If the file could not be opened
@@ -18,7 +26,6 @@ void getPetri(PetriExample& petriExample,int group,int exam) {
         std::cerr << "Failed to open petri.json" << std::endl;
         return;
     }
-
     // Create JSON object
     json j;
 
@@ -72,9 +79,14 @@ void getPetri(PetriExample& petriExample,int group,int exam) {
 void getRCPSP(RCPSP_example& rcpsp_example,int group,int exam) {
     // Open the file for reading
     rcpsp_example.reset();
-    std::string basePath = "json_outputs/j30";
-    std::string folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
-    //std::ifstream input_file("rcpspExample.json");
+    std::string folderName;
+    if (group==-1) {
+        folderName = "json_outputs/smallData";;
+    }
+    else {
+        std::string basePath = "json_outputs/j30";
+        folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
+    }
     std::ifstream input_file(folderName+"/rcpsp.json");
 
     // If the file could not be opened
@@ -82,7 +94,6 @@ void getRCPSP(RCPSP_example& rcpsp_example,int group,int exam) {
         std::cerr << "Failed to open rcpsp.json" << std::endl;
         return;
     }
-
     // Create JSON object
     json j;
 
