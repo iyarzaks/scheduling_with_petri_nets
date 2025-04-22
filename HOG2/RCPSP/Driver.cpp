@@ -436,7 +436,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     return 0;
 }
 */
-/*
+
 int solveRCPSP_Bi(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
 
@@ -465,7 +465,8 @@ last.name=1;
         if (pair.second == 1) { pair.second = 0; }
         if (pair.first == finalstatename) { pair.second = 1; }
     }
-    last.avilableTransitionIndices=getAvilableDetransitionIndices(last.marking);
+    last.avilableDeTransitionIndices=getAvilableDetransitionIndices(last.marking);
+    last.avilableTransitionIndices=getAvilableTransitionIndices(last.marking);
 
 
     std::vector<RCPSPState> path;
@@ -570,7 +571,7 @@ last.name=1;
 
     return 0;
 }
-*/
+
 
 
 std::string getNextFilename(const std::string& folder, const std::string& baseName, const std::string& extension) {
@@ -647,103 +648,105 @@ void runBenchmark() {
 
     // Write header
     file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
-
-   solveRCPSP(1, 2, filename);
-solveRCPSP(1, 7, filename);
-solveRCPSP(2, 3, filename);
-solveRCPSP(2, 7, filename);
-solveRCPSP(3, 1, filename);
-solveRCPSP(3, 10, filename);
-solveRCPSP(4, 6, filename);
-solveRCPSP(4, 9, filename);
-solveRCPSP(5, 1, filename);
-solveRCPSP(5, 10, filename);
-solveRCPSP(6, 2, filename);
-solveRCPSP(6, 9, filename);
-solveRCPSP(7, 5, filename);
-solveRCPSP(7, 8, filename);
-solveRCPSP(8, 1, filename);
-solveRCPSP(8, 6, filename);
-solveRCPSP(9, 3, filename);
-solveRCPSP(9, 9, filename);
-solveRCPSP(10, 1, filename);
-solveRCPSP(10, 4, filename);
-solveRCPSP(11, 2, filename);
-solveRCPSP(11, 7, filename);
-solveRCPSP(12, 3, filename);
-solveRCPSP(12, 10, filename);
-solveRCPSP(13, 4, filename);
-solveRCPSP(13, 6, filename);
-solveRCPSP(14, 2, filename);
-solveRCPSP(14, 8, filename);
-solveRCPSP(15, 5, filename);
-solveRCPSP(15, 9, filename);
-solveRCPSP(16, 2, filename);
-solveRCPSP(16, 7, filename);
-solveRCPSP(17, 8, filename);
-solveRCPSP(17, 10, filename);
-solveRCPSP(18, 4, filename);
-solveRCPSP(18, 7, filename);
-solveRCPSP(19, 1, filename);
-solveRCPSP(19, 5, filename);
-solveRCPSP(20, 1, filename);
-solveRCPSP(20, 5, filename);
-solveRCPSP(21, 1, filename);
-solveRCPSP(21, 9, filename);
-solveRCPSP(22, 4, filename);
-solveRCPSP(22, 6, filename);
-solveRCPSP(23, 2, filename);
-solveRCPSP(23, 5, filename);
-solveRCPSP(24, 3, filename);
-solveRCPSP(24, 6, filename);
-solveRCPSP(25, 2, filename);
-solveRCPSP(25, 10, filename);
-solveRCPSP(26, 4, filename);
-solveRCPSP(26, 7, filename);
-solveRCPSP(27, 6, filename);
-solveRCPSP(27, 8, filename);
-solveRCPSP(28, 3, filename);
-solveRCPSP(28, 9, filename);
-solveRCPSP(29, 1, filename);
-solveRCPSP(29, 6, filename);
-solveRCPSP(30, 2, filename);
-solveRCPSP(30, 4, filename);
-solveRCPSP(31, 2, filename);
-solveRCPSP(31, 9, filename);
-solveRCPSP(32, 6, filename);
-solveRCPSP(32, 10, filename);
-solveRCPSP(33, 1, filename);
-solveRCPSP(33, 7, filename);
-solveRCPSP(34, 5, filename);
-solveRCPSP(34, 9, filename);
-solveRCPSP(35, 1, filename);
-solveRCPSP(35, 6, filename);
-solveRCPSP(36, 1, filename);
-solveRCPSP(36, 5, filename);
-solveRCPSP(37, 5, filename);
-solveRCPSP(37, 8, filename);
-solveRCPSP(38, 1, filename);
-solveRCPSP(38, 4, filename);
-solveRCPSP(39, 2, filename);
-solveRCPSP(39, 7, filename);
-solveRCPSP(40, 2, filename);
-solveRCPSP(40, 7, filename);
-solveRCPSP(41, 4, filename);
-solveRCPSP(41, 10, filename);
-solveRCPSP(42, 1, filename);
-solveRCPSP(42, 8, filename);
-solveRCPSP(43, 3, filename);
-solveRCPSP(43, 7, filename);
-solveRCPSP(44, 3, filename);
-solveRCPSP(44, 6, filename);
-solveRCPSP(45, 1, filename);
-solveRCPSP(45, 5, filename);
-solveRCPSP(46, 1, filename);
-solveRCPSP(46, 8, filename);
-solveRCPSP(47, 3, filename);
-solveRCPSP(47, 6, filename);
-solveRCPSP(48, 2, filename);
-solveRCPSP(48, 9, filename);
+//
+    solveRCPSP_Bi(-1,-1,filename);
+    //solveRCPSP(17, 10, filename);
+//    solveRCPSP(1, 2, filename);
+// solveRCPSP(1, 7, filename);
+// solveRCPSP(2, 3, filename);
+// solveRCPSP(2, 7, filename);
+// solveRCPSP(3, 1, filename);
+// solveRCPSP(3, 10, filename);
+// solveRCPSP(4, 6, filename);
+// solveRCPSP(4, 9, filename);
+// solveRCPSP(5, 1, filename);
+// solveRCPSP(5, 10, filename);
+// solveRCPSP(6, 2, filename);
+// solveRCPSP(6, 9, filename);
+// solveRCPSP(7, 5, filename);
+// solveRCPSP(7, 8, filename);
+// solveRCPSP(8, 1, filename);
+// solveRCPSP(8, 6, filename);
+// solveRCPSP(9, 3, filename);
+// solveRCPSP(9, 9, filename);
+// solveRCPSP(10, 1, filename);
+// solveRCPSP(10, 4, filename);
+// solveRCPSP(11, 2, filename);
+// solveRCPSP(11, 7, filename);
+// solveRCPSP(12, 3, filename);
+// solveRCPSP(12, 10, filename);
+// solveRCPSP(13, 4, filename);
+// solveRCPSP(13, 6, filename);
+// solveRCPSP(14, 2, filename);
+// solveRCPSP(14, 8, filename);
+// solveRCPSP(15, 5, filename);
+// solveRCPSP(15, 9, filename);
+// solveRCPSP(16, 2, filename);
+// solveRCPSP(16, 7, filename);
+// solveRCPSP(17, 8, filename);
+// solveRCPSP(17, 10, filename);
+// solveRCPSP(18, 4, filename);
+// solveRCPSP(18, 7, filename);
+// solveRCPSP(19, 1, filename);
+// solveRCPSP(19, 5, filename);
+// solveRCPSP(20, 1, filename);
+// solveRCPSP(20, 5, filename);
+// solveRCPSP(21, 1, filename);
+// solveRCPSP(21, 9, filename);
+// solveRCPSP(22, 4, filename);
+// solveRCPSP(22, 6, filename);
+// solveRCPSP(23, 2, filename);
+// solveRCPSP(23, 5, filename);
+// solveRCPSP(24, 3, filename);
+// solveRCPSP(24, 6, filename);
+// solveRCPSP(25, 2, filename);
+// solveRCPSP(25, 10, filename);
+// solveRCPSP(26, 4, filename);
+// solveRCPSP(26, 7, filename);
+// solveRCPSP(27, 6, filename);
+// solveRCPSP(27, 8, filename);
+// solveRCPSP(28, 3, filename);
+// solveRCPSP(28, 9, filename);
+// solveRCPSP(29, 1, filename);
+// solveRCPSP(29, 6, filename);
+// solveRCPSP(30, 2, filename);
+// solveRCPSP(30, 4, filename);
+// solveRCPSP(31, 2, filename);
+// solveRCPSP(31, 9, filename);
+// solveRCPSP(32, 6, filename);
+// solveRCPSP(32, 10, filename);
+// solveRCPSP(33, 1, filename);
+// solveRCPSP(33, 7, filename);
+// solveRCPSP(34, 5, filename);
+// solveRCPSP(34, 9, filename);
+// solveRCPSP(35, 1, filename);
+// solveRCPSP(35, 6, filename);
+// solveRCPSP(36, 1, filename);
+// solveRCPSP(36, 5, filename);
+// solveRCPSP(37, 5, filename);
+// solveRCPSP(37, 8, filename);
+// solveRCPSP(38, 1, filename);
+// solveRCPSP(38, 4, filename);
+// solveRCPSP(39, 2, filename);
+// solveRCPSP(39, 7, filename);
+// solveRCPSP(40, 2, filename);
+// solveRCPSP(40, 7, filename);
+// solveRCPSP(41, 4, filename);
+// solveRCPSP(41, 10, filename);
+// solveRCPSP(42, 1, filename);
+// solveRCPSP(42, 8, filename);
+// solveRCPSP(43, 3, filename);
+// solveRCPSP(43, 7, filename);
+// solveRCPSP(44, 3, filename);
+// solveRCPSP(44, 6, filename);
+// solveRCPSP(45, 1, filename);
+// solveRCPSP(45, 5, filename);
+// solveRCPSP(46, 1, filename);
+// solveRCPSP(46, 8, filename);
+// solveRCPSP(47, 3, filename);
+// solveRCPSP(47, 6, filename);
+// solveRCPSP(48, 2, filename);
+// solveRCPSP(48, 9, filename);
 return;;
 
 }

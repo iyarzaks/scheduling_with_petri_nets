@@ -303,6 +303,7 @@ RCPSPState::RCPSPState(): nodestatus(false) {
   // Change: Get indices of available transitions instead of full Transition objects
   avilableTransitionIndices = getAvilableTransitionIndices(marking);
 
+  avilableDeTransitionIndices = getAvilableDetransitionIndices(marking);
   g = 0;
   name = 0;
 }
@@ -554,6 +555,99 @@ double getForwardHcost(std::vector<int>unstartedTransitions, std::vector<std::pa
  return h;
 
 }
+double getBackwordsHcost(std::vector<int> completedActivities,
+                           std::vector<std::pair<int, int>> activeTransitionIndices,
+                           int active) {
+  auto startS3 = std::chrono::high_resolution_clock::now();
+
+  std::map<int, int> earlyStartMap; // Map to store activity IDs and their early start times
+  std::map<int, int> earlyFinishMap; // Map to store activity IDs and their early finish times
+
+  // Initialize all activities with early start = 0
+  for (int i = 0; i < RCPSPex.activities.size(); i++) {
+    earlyStartMap[i + 1] = 0;
+    earlyFinishMap[i + 1] = 0;
+  }
+
+  // Process activities in topological order
+  std::vector<int> toProcess;
+  std::set<int> processed;
+
+  // First, add activities with no dependencies (project start activities)
+  for (int i = 0; i < RCPSPex.activities.size(); i++) {
+    if (RCPSPex.dependencies[i].empty()) {
+      toProcess.push_back(i + 1);
+    }
+  }
+
+  // Process activities in topological order
+  while (!toProcess.empty()) {
+    int currentActivity = toProcess.front();
+    toProcess.erase(toProcess.begin());
+
+    if (processed.count(currentActivity) > 0) continue;
+
+    // Check if all predecessors have been processed
+    bool allPredecessorsProcessed = true;
+    for (const auto& pred : RCPSPex.backword_dependencies[currentActivity - 1]) {
+      int predId = std::stoi(pred);
+      if (processed.count(predId) == 0) {
+        allPredecessorsProcessed = false;
+        break;
+      }
+    }
+
+    if (!allPredecessorsProcessed) {
+      toProcess.push_back(currentActivity);
+      continue;
+    }
+
+    // Calculate early start time (maximum of all predecessors' early finish times)
+    int maxPredFinish = 0;
+    for (const auto& pred : RCPSPex.backword_dependencies[currentActivity - 1]) {
+      int predId = std::stoi(pred);
+      maxPredFinish = std::max(maxPredFinish, earlyFinishMap[predId]);
+    }
+
+    earlyStartMap[currentActivity] = maxPredFinish;
+
+    // Calculate early finish time
+    int duration;
+    // Check if this activity has a modified duration in activeTransitionIndices
+    auto it = std::find_if(activeTransitionIndices.begin(), activeTransitionIndices.end(),
+                        [currentActivity](const std::pair<int, int>& p) { return p.first == currentActivity; });
+
+    if (it != activeTransitionIndices.end()) {
+      // Use the remaining duration from activeTransitionIndices
+      duration = it->second;
+    } else {
+      // Use the full duration from activities list
+      duration = RCPSPex.activities[currentActivity - 1].duration;
+    }
+
+    earlyFinishMap[currentActivity] = earlyStartMap[currentActivity] + duration;
+
+    // Add successors to the processing queue
+    for (const auto& succ : RCPSPex.dependencies[currentActivity - 1]) {
+      int succId = std::stoi(succ);
+      toProcess.push_back(succId);
+    }
+
+    processed.insert(currentActivity);
+
+    // If we've processed the active activity, we can stop
+    if (currentActivity == active) {
+      break;
+    }
+  }
+
+  auto endS3 = std::chrono::high_resolution_clock::now();
+  HTIME += endS3 - startS3;
+
+  // Return early finish time of active activity
+  return earlyFinishMap[active];
+}
+
 RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, int location, uint64_t &count) {
   auto startS4 = std::chrono::high_resolution_clock::now();
 
@@ -658,20 +752,22 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, in
       }
       auto endS1 = std::chrono::high_resolution_clock::now();
       generateTIME += endS1-startS4;
-      h=getForwardHcost(unstartedTransitions,activeTransitionIndices);
+      h=getBackwordsHcost(unstartedTransitions,activeTransitionIndices,active.name);
 
     }
   }
+  avilableTransitionIndices = getAvilableTransitionIndices(marking);
 
+
+
+  avilableDeTransitionIndices = getAvilableDetransitionIndices(marking);
   // You'll need to modify these functions to return indices instead of Transitions
-  if (direction) {
-    avilableTransitionIndices = getAvilableTransitionIndices(marking);
-
-  }
-  else {
-
-    avilableTransitionIndices = getAvilableDetransitionIndices(marking);
-  }
+//   if (direction) {
+// }
+// else {
+//   }
+int asdasd;
+  asdasd++;
 }
 
 

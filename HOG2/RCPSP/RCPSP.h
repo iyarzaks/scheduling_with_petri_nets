@@ -368,7 +368,8 @@ class RCPSP_BiGreedy : public SearchEnvironment<RCPSPState, action> {
 public:
 
 inline void GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const override {
-if (GetExpandForward==true) {
+neighbors.clear();
+  if (GetExpandForward==true) {
     if (!nodeID.activeTransitionIndices.empty()) {
       count++;
       int t = 0;
@@ -415,9 +416,9 @@ else {
         // Create successor state
         neighbors.emplace_back(RCPSPState(nodeID, transition, false, t, count));      }
 
-      for (int i = 0; i < nodeID.avilableTransitionIndices.size(); i++) {
+      for (int i = 0; i < nodeID.avilableDeTransitionIndices.size(); i++) {
         count++;
-        int transitionIdx = nodeID.avilableTransitionIndices[i];
+        int transitionIdx = nodeID.avilableDeTransitionIndices[i];
         const Transition& transition = petri.Transitions[transitionIdx - 1];
 
         // Create successor state
@@ -552,6 +553,8 @@ double GCost(const RCPSPState &node, const action &act) const override {
 class ForwardRCPSPHeuristic : public Heuristic<RCPSPState> {
 public:
   double HCost(const RCPSPState &current, const RCPSPState &goal) const override {
+    return current.h;
+
     std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
     //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
     double h;
@@ -603,6 +606,7 @@ public:
 class BackwardRCPSPHeuristic : public Heuristic<RCPSPState> {
 public:
   double HCost(const RCPSPState &goal, const RCPSPState &current) const override {
+    return current.h;
     std::map<int, int> earlyfinishMap; // Store early finish times
     double h = 0;
 

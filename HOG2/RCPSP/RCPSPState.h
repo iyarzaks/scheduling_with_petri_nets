@@ -18,6 +18,7 @@ class RCPSPState {
   //std::vector<Transition> avilableTransition;
   //std::vector<Transition> activeTransitions;
     std::vector<int> avilableTransitionIndices;  // Store transition IDs
+    std::vector<int> avilableDeTransitionIndices;  // Store transition IDs
     std::vector<std::pair<int, int>> activeTransitionIndices;  // Store transition ID and remaining duration
 
     bool direction;
