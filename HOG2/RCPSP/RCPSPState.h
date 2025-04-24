@@ -18,7 +18,7 @@ class RCPSPState {
   //std::vector<Transition> avilableTransition;
   //std::vector<Transition> activeTransitions;
     std::vector<int> avilableTransitionIndices;  // Store transition IDs
-    std::vector<int> avilableDeTransitionIndices;  // Store transition IDs
+    //std::vector<int> avilableDeTransitionIndices;  // Store transition IDs
     std::vector<std::pair<int, int>> activeTransitionIndices;  // Store transition ID and remaining duration
 
     bool direction;
@@ -36,6 +36,35 @@ class RCPSPState {
   //int GetG();
   //int checkEnd();
   bool operator==(const RCPSPState& other) const;
+};
+
+class RCPSPState_bi {
+public:
+    RCPSPState_bi();
+    RCPSPState_bi(RCPSPState_bi predecessor,Transition newTransition,bool status,int location,uint64_t &count);
+    std::unordered_map<std::string, int> marking;
+    std::vector<int> unstartedTransitions;
+    //std::vector<Transition> avilableTransition;
+    //std::vector<Transition> activeTransitions;
+    std::vector<int> avilableTransitionIndices;  // Store transition IDs
+    std::vector<int> avilableDeTransitionIndices;  // Store transition IDs
+    std::vector<std::pair<int, int>> activeTransitionIndices;  // Store transition ID and remaining duration
+
+    bool direction;
+    bool nodestatus;
+    //std::vector<RCPSPState> sons;
+    //std::vector<int> unstartedTransitions;
+    double name=0;
+    int predecesorname=0;
+
+    std::map<int, int> startedActivitiys;
+    std::map<int, int> finishedActivitiys;
+    double g=0;
+    double h=0;
+
+    //int GetG();
+    //int checkEnd();
+    bool operator==(const RCPSPState_bi& other) const;
 };
 int computeEarlyFinishTime(int activityId);
 

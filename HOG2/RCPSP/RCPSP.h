@@ -364,10 +364,10 @@ inline double RCPSP::GCost(const RCPSPState &node, const int &act) const {
   return node.g;
 }
 
-class RCPSP_BiGreedy : public SearchEnvironment<RCPSPState, action> {
+class RCPSP_BiGreedy : public SearchEnvironment<RCPSPState_bi, action> {
 public:
 
-inline void GetSuccessors(const RCPSPState &nodeID, std::vector<RCPSPState> &neighbors) const override {
+inline void GetSuccessors(const RCPSPState_bi &nodeID, std::vector<RCPSPState_bi> &neighbors) const override {
 neighbors.clear();
   if (GetExpandForward==true) {
     if (!nodeID.activeTransitionIndices.empty()) {
@@ -386,7 +386,7 @@ neighbors.clear();
       transition.duration= nodeID.activeTransitionIndices[t].second;
 
       // Create successor state
-      neighbors.emplace_back(RCPSPState(nodeID, transition, false, t, count));
+      neighbors.emplace_back(RCPSPState_bi(nodeID, transition, false, t, count));
     }
 
     // Handle available transitions
@@ -397,7 +397,7 @@ neighbors.clear();
       const Transition& transition = petri.Transitions[transitionIdx - 1];
 
       // Create successor state
-      neighbors.emplace_back(RCPSPState(nodeID, transition, true, i, count));
+      neighbors.emplace_back(RCPSPState_bi(nodeID, transition, true, i, count));
     }
   }
 else {
@@ -414,7 +414,7 @@ else {
         transition.duration= nodeID.activeTransitionIndices[t].second;
 
         // Create successor state
-        neighbors.emplace_back(RCPSPState(nodeID, transition, false, t, count));      }
+        neighbors.emplace_back(RCPSPState_bi(nodeID, transition, false, t, count));      }
 
       for (int i = 0; i < nodeID.avilableDeTransitionIndices.size(); i++) {
         count++;
@@ -422,13 +422,13 @@ else {
         const Transition& transition = petri.Transitions[transitionIdx - 1];
 
         // Create successor state
-        neighbors.emplace_back(RCPSPState(nodeID, transition, true, i, count));      }
+        neighbors.emplace_back(RCPSPState_bi(nodeID, transition, true, i, count));      }
 
 
     }
   }
 
-   inline bool GoalTest(const RCPSPState &node, const RCPSPState &goal) const override {
+   inline bool GoalTest(const RCPSPState_bi &node, const RCPSPState_bi &goal) const override {
 return false;
     if (goal.marking.at(finalstatename) == 1) {
      if (node.name == 0) {
@@ -441,8 +441,9 @@ return false;
   }
   }
 
-  inline double HCost(const RCPSPState &state1, const RCPSPState &state2) const override {
-    std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
+  inline double HCost(const RCPSPState_bi &state1, const RCPSPState_bi &state2) const override {
+
+  std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
     //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
     double h;
     std::set<int> processedDependencies;
@@ -490,25 +491,25 @@ return false;
   }
 
   //
-   inline double GCost(const RCPSPState &state1, const RCPSPState &state2) const override {
+   inline double GCost(const RCPSPState_bi &state1, const RCPSPState_bi &state2) const override {
     return state2.g - state1.g; // Track actual transition cost
    }
-  inline void GetActions(const RCPSPState &state, std::vector<action> &actions) const override {
+  inline void GetActions(const RCPSPState_bi &state, std::vector<action> &actions) const override {
     // Not used in BidirectionalGreedyBestFirst, but must be implemented
     return;
   }
-  virtual action GetAction(const RCPSPState &state1, const RCPSPState &state2) const override {
+  virtual action GetAction(const RCPSPState_bi &state1, const RCPSPState_bi &state2) const override {
 
     return static_cast<action>(0);
   }
-  inline void ApplyAction(RCPSPState &state, action action) const override {
+  inline void ApplyAction(RCPSPState_bi &state, action action) const override {
     // Not used, but required for abstract class
   }
 
-  inline void UndoAction(RCPSPState &state, action action) const override {
+  inline void UndoAction(RCPSPState_bi &state, action action) const override {
     // Not needed for bidirectional search, but required
   }
-double GCost(const RCPSPState &node, const action &act) const override {
+double GCost(const RCPSPState_bi &node, const action &act) const override {
     return node.g;
   };
   bool InvertAction(action& a) const override {
@@ -518,10 +519,9 @@ double GCost(const RCPSPState &node, const action &act) const override {
     return 0;
   };
 
-  uint64_t GetStateHash(const RCPSPState &node) const {
+  uint64_t GetStateHash(const RCPSPState_bi &node) const {
     auto startS1 = std::chrono::high_resolution_clock::now();
     std::size_t seed = 0;
-
     // Hash the marking (Petri net state)
     for (const auto& pair : node.marking) {
       seed ^= std::hash<std::string>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -529,16 +529,23 @@ double GCost(const RCPSPState &node, const action &act) const override {
     }
 
     // Hash the started activities
-    for (const auto& pair : node.startedActivitiys) {
+    for (const auto& pair : node.activeTransitionIndices) {
       seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
       seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
+    double g = node.g; // Assuming g is stored in node.g
+    std::size_t g_hash;
+
+    // Method 1: Using bit representation (most accurate)
+    std::memcpy(&g_hash, &g, sizeof(double));
+    seed ^= g_hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
     // Hash the finished activities
-    for (const auto& pair : node.finishedActivitiys) {
-      seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-      seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
+    // for (const auto& pair : node.finishedActivitiys) {
+    //   seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    //   seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    // }
 
     // Distinguish forward vs. backward search by modifying the seed
     //seed ^= (GetExpandForward ? 0xAAAAAAAAAAAAAAAA : 0x5555555555555555);
@@ -550,9 +557,9 @@ double GCost(const RCPSPState &node, const action &act) const override {
   }
 
 };
-class ForwardRCPSPHeuristic : public Heuristic<RCPSPState> {
+class ForwardRCPSPHeuristic : public Heuristic<RCPSPState_bi> {
 public:
-  double HCost(const RCPSPState &current, const RCPSPState &goal) const override {
+  double HCost(const RCPSPState_bi &current, const RCPSPState_bi &goal) const override {
     return current.h;
 
     std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
@@ -603,9 +610,9 @@ public:
   }
 };
 
-class BackwardRCPSPHeuristic : public Heuristic<RCPSPState> {
+class BackwardRCPSPHeuristic : public Heuristic<RCPSPState_bi> {
 public:
-  double HCost(const RCPSPState &goal, const RCPSPState &current) const override {
+  double HCost(const RCPSPState_bi &goal, const RCPSPState_bi &current) const override {
     return current.h;
     std::map<int, int> earlyfinishMap; // Store early finish times
     double h = 0;
