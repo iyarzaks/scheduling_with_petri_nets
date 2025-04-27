@@ -505,10 +505,13 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
       // Store index and duration instead of full Transition
       activeTransitionIndices.push_back({active.name, active.duration});
       startedActivitiys[active.name] = g;
+      if (active.duration==0) {
+        status=0;
+      }
       auto endS1 = std::chrono::high_resolution_clock::now();
       generateTIME += endS1-startS4;
     }
-    else {
+    if (!status) {
       g += active.duration;
       finishedActivitiys[active.name] = g;
 
@@ -552,11 +555,13 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
 
       activeTransitionIndices.push_back({active.name, active.duration});
       finishedActivitiys[active.name] = g;
-
+      if (active.duration==0) {
+        status=0;
+      }
       auto endS1 = std::chrono::high_resolution_clock::now();
       generateTIME += endS1-startS4;
     }
-    else {
+    if (!status) {
       g += active.duration;
       startedActivitiys[active.name] = g;
 
