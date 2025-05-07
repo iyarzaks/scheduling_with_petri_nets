@@ -38,6 +38,57 @@ bool GetExpandForward;
 
 
 template<class state>
+//ido lublin 28.4.25
+struct BAECompare {
+    bool operator()(const AStarOpenClosedData<state> &i1, const AStarOpenClosedData<state> &i2) const {
+        //auto startSCF = std::chrono::high_resolution_clock::now();
+        if (fequal(i1.data.f, i2.data.f)) {
+            // First check original g
+            // Then check g_f
+            if (i1.data.direction ==true && i2.data.direction==true) {
+                if (fequal(i1.data.g_f, i2.data.g_f)) {
+                    if (i1.data.finishedActivitiys.size() != i2.data.finishedActivitiys.size()){
+                        //auto endSCF = std::chrono::high_resolution_clock::now();
+                        //comperTime += endSCF-startSCF;
+                        return i1.data.finishedActivitiys.size() < i2.data.finishedActivitiys.size();//< or >
+                    }
+                    // Then check started_activities count
+                    //auto endSCF = std::chrono::high_resolution_clock::now();
+                    //comperTime += endSCF-startSCF;
+                    return i1.data.startedActivitiys.size() < i2.data.startedActivitiys.size();
+                }
+                return fless(i1.data.g_f, i2.data.g_f);
+
+            }
+            else{
+                if (fequal(i1.data.g_b, i2.data.g_b)) {
+                // If all g values are equal, check finished_activities count
+                if (i1.data.finishedActivitiys.size() != i2.data.finishedActivitiys.size()){
+                    //auto endSCF = std::chrono::high_resolution_clock::now();
+                    //comperTime += endSCF-startSCF;
+                    return i1.data.startedActivitiys.size() > i2.data.startedActivitiys.size();//< or >
+                }
+                // Then check started_activities count
+                //auto endSCF = std::chrono::high_resolution_clock::now();
+                //comperTime += endSCF-startSCF;
+                return i1.data.finishedActivitiys.size() > i2.data.finishedActivitiys.size();
+            }
+                // Prefer higher g_b
+                return fless(i1.data.g_b, i2.data.g_b);
+            }
+        }
+        // Prefer higher g_f
+
+
+            // Prefer higher original g
+            //auto endSCF = std::chrono::high_resolution_clock::now();
+            //comperTime += endSCF-startSCF;
+        //auto endSCF = std::chrono::high_resolution_clock::now();
+        //comperTime += endSCF-startSCF;
+        return fgreater(i1.data.f, i2.data.f); // Prefer smaller f
+    }
+};
+/*
 struct BAECompare {
     bool operator()(const AStarOpenClosedData<state> &i1, const AStarOpenClosedData<state> &i2) const {
         // Note that h here is used to contain the b-value of a node, which is the priority of it.
@@ -49,7 +100,7 @@ struct BAECompare {
         return (fgreater(p1, p2)); // low priority over high
     }
 };
-
+*/
 /**
  * A class which implements the BAE algorithm. This implementation uses two papers' details:
  * A. "Bidirectional Heuristic Search based on Error Estimate" by Samir K Sadhukhan (2013).

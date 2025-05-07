@@ -369,7 +369,7 @@ public:
 
 inline void GetSuccessors(const RCPSPState_bi &nodeID, std::vector<RCPSPState_bi> &neighbors) const override {
 neighbors.clear();
-  if (GetExpandForward==true) {
+  if (GetExpandForward) {
     if (!nodeID.activeTransitionIndices.empty()) {
       count++;
       int t = 0;
@@ -405,7 +405,7 @@ else {
         count++;
         int t = 0;
         for (int i = 0; i < nodeID.activeTransitionIndices.size(); i++) {
-           if (nodeID.activeTransitionIndices[i].second < nodeID.activeTransitionIndices[t].second) {
+           if (petri.Transitions[nodeID.activeTransitionIndices[i].first-1].duration -nodeID.activeTransitionIndices[i].second< petri.Transitions[nodeID.activeTransitionIndices[t].first-1].duration -nodeID.activeTransitionIndices[t].second) {
             t = i;
           }
         }
@@ -442,7 +442,6 @@ return false;
   }
 
   inline double HCost(const RCPSPState_bi &state1, const RCPSPState_bi &state2) const override {
-
   std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
     //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
     double h;
@@ -492,7 +491,14 @@ return false;
 
   //
    inline double GCost(const RCPSPState_bi &state1, const RCPSPState_bi &state2) const override {
-    return state2.g - state1.g; // Track actual transition cost
+  return 0;
+  if (state2.direction) {
+  return state2.g_f - state1.g_f;
+}
+else {
+    return state2.g_b - state1.g_b;
+  }
+  // Track actual transition cost
    }
   inline void GetActions(const RCPSPState_bi &state, std::vector<action> &actions) const override {
     // Not used in BidirectionalGreedyBestFirst, but must be implemented
@@ -510,7 +516,12 @@ return false;
     // Not needed for bidirectional search, but required
   }
 double GCost(const RCPSPState_bi &node, const action &act) const override {
-    return node.g;
+if (node.direction) {
+    return node.g_f;
+}
+else {
+  return node.g_b;
+}
   };
   bool InvertAction(action& a) const override {
     return false; // Replace with appropriate logic
@@ -523,23 +534,25 @@ double GCost(const RCPSPState_bi &node, const action &act) const override {
     auto startS1 = std::chrono::high_resolution_clock::now();
     std::size_t seed = 0;
     // Hash the marking (Petri net state)
-    for (const auto& pair : node.marking) {
-      seed ^= std::hash<std::string>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-      seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-
-    // Hash the started activities
     for (const auto& pair : node.activeTransitionIndices) {
       seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
       seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
-    double g = node.g; // Assuming g is stored in node.g
-    std::size_t g_hash;
+    // Hash the startedActivitiys vector
+    for (const auto& activity : node.startedActivitiys) {
+      seed ^= std::hash<int>{}(activity) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
 
-    // Method 1: Using bit representation (most accurate)
-    std::memcpy(&g_hash, &g, sizeof(double));
-    seed ^= g_hash + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    // Hash the finishedActivitiys vector
+    for (const auto& activity : node.finishedActivitiys) {
+      seed ^= std::hash<int>{}(activity) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+
+    auto endS1 = std::chrono::high_resolution_clock::now();
+    hashTIME += endS1 - startS1;
+
+    return seed;
 
     // Hash the finished activities
     // for (const auto& pair : node.finishedActivitiys) {
@@ -550,104 +563,22 @@ double GCost(const RCPSPState_bi &node, const action &act) const override {
     // Distinguish forward vs. backward search by modifying the seed
     //seed ^= (GetExpandForward ? 0xAAAAAAAAAAAAAAAA : 0x5555555555555555);
 
-    auto endS1 = std::chrono::high_resolution_clock::now();
-    hashTIME += endS1 - startS1;
 
-    return seed;
   }
 
 };
 class ForwardRCPSPHeuristic : public Heuristic<RCPSPState_bi> {
 public:
   double HCost(const RCPSPState_bi &current, const RCPSPState_bi &goal) const override {
-    return current.h;
-
-    std::map<int, int> earlyfinishMap; // Map to store activity IDs and their early finish times
-    //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
-    double h;
-    std::set<int> processedDependencies;
-    // Iterate over unstarted activitiesint lastElementEarlyFinish = 0;
-    //int lastElementEarlyFinish = 0;
-    for (int activityId: current.unstartedTransitions) {
-      int maxFinishTime = 0;
-      std::set<int> processedDependencies;
-
-      for (const auto &dep: RCPSPex.backword_dependencies[activityId - 1]) {
-        int depId = std::stoi(dep) - 1;
-        // if (processedDependencies.count(depId) > 0) continue;
-        // processedDependencies.insert(depId);
-        if (std::find(current.unstartedTransitions.begin(), current.unstartedTransitions.end(), depId + 1) != current.unstartedTransitions.end()) {
-          //maby current or goal
-          int duration = getTransitionDuration2(goal.activeTransitionIndices, std::stoi(dep));
-          if (duration !=-1) {
-            maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1] + duration);
-            //if (RCPSPex.activities[depId].duration !=duration) {
-            //  std::cout<<name<<":"<<dep<<" "<<activityId<<" "<<RCPSPex.activities[depId].duration-duration<<std::endl;
-            //}
-          }
-          else {
-            maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1] + RCPSPex.activities[depId].duration);
-
-          }
-        }
-        else {
-          maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId+1]);
-        }
-      }
-
-      earlyfinishMap[activityId] = maxFinishTime;
-      //std::cout <<activityId<<":"<< earlyfinishMap[activityId]+RCPSPex.activities[activityId-1].duration << std::endl;
-      // For last element with duration 0, just use the max finish time of dependencies
-    }
-    if (earlyfinishMap.size()==0) {
-      h = 0;
-    }
-    else {
-      h = earlyfinishMap.rbegin()->second;;
-
-    }
-    return h;
+    return current.h_f;
   }
 };
 
 class BackwardRCPSPHeuristic : public Heuristic<RCPSPState_bi> {
 public:
   double HCost(const RCPSPState_bi &goal, const RCPSPState_bi &current) const override {
-    return current.h;
-    std::map<int, int> earlyfinishMap; // Store early finish times
-    double h = 0;
+    return goal.h_b;
 
-    // Iterate over unstarted activities in `state`
-    for (int activityId : current.unstartedTransitions) {
-      int maxFinishTime = 0;
-
-      for (const auto &dep : RCPSPex.backword_dependencies[activityId - 1]) {
-        int depId = std::stoi(dep) - 1;
-
-        // If dependency is also unstarted in `state`, account for its duration
-        if (std::find(current.unstartedTransitions.begin(), current.unstartedTransitions.end(), depId + 1) != current.unstartedTransitions.end()) {
-          //maby current or goal
-          int duration = getTransitionDuration2(goal.activeTransitionIndices, std::stoi(dep));
-          if (duration != -1) {
-            maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1] + duration);
-          } else {
-            maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1] + RCPSPex.activities[depId].duration);
-          }
-        } else {
-          // If dependency is already completed, take its earliest finish time
-          maxFinishTime = std::max(maxFinishTime, earlyfinishMap[depId + 1]);
-        }
-      }
-
-      earlyfinishMap[activityId] = maxFinishTime;
-    }
-
-    // The heuristic represents how much work has already been done from the start
-    if (!earlyfinishMap.empty()) {
-      h = earlyfinishMap.rbegin()->second;
-    }
-
-    return h;
   }
 };
 

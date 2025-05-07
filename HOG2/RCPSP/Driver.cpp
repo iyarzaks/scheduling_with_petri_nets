@@ -230,27 +230,27 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     std::chrono::duration<double> elapsed;
 
     auto start = std::chrono::high_resolution_clock::now();
-
+    astar.GetPath(&as1, first, last, path);
     // Use std::async to run A* in a separate thread with future
-    auto future = std::async(std::launch::async, [&]() {
-        astar.GetPath(&as1, first, last, path);
-    });
-
-    // Wait for up to 5 minutes
-    if (future.wait_for(std::chrono::minutes(10)) == std::future_status::timeout) {
-        timeout_occurred = true;
-        std::cout << "Timeout! A* took too long.\n";
-        finished = false;
-    } else {
-        finished = true;
-    }
+    // auto future = std::async(std::launch::async, [&]() {
+    //
+    // });
+    //
+    // // Wait for up to 5 minutes
+    // if (future.wait_for(std::chrono::minutes(10)) == std::future_status::timeout) {
+    //     timeout_occurred = true;
+    //     std::cout << "Timeout! A* took too long.\n";
+    //     finished = false;
+    // } else {
+    //     finished = true;
+    // }
 
     auto end = std::chrono::high_resolution_clock::now();
     elapsed = end - start;
 
     int makespan = 0;
 
-    if (finished && !path.empty()) {
+    if (!path.empty()) {
         std::cout << "Path found!" << std::endl;
         for (const auto& state : path) {
             std::cout << "g: " << state.g << std::endl;
@@ -276,7 +276,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
 
     std::ofstream file(filename, std::ios::app);
     file << group << "," << exam << "," << elapsed.count() << ","
-         << (finished ? "True" : "False") << ","
+         << (!path.empty() ? "True" : "False") << ","
          << makespan << ","
          << astar.GetNodesExpanded() << ","
          << astar.GetNodesTouched() << ","
@@ -455,9 +455,11 @@ int solveRCPSP_Bi(int group, int exam, const std::string& filename) {
     count=2;
     RCPSPState_bi last = first;
     last.direction=false;
-    last.h = 0;
+    last.h_b = first.h_f;
+    last.h_f = 0;
 last.name=1;
     for (auto& pair : last.marking) {
+        //set only to to 4 diffrent resources
         if (pair.first=="R1"){continue;}
         if (pair.first=="R2"){continue;}
         if (pair.first=="R3"){continue;}
@@ -467,7 +469,10 @@ last.name=1;
     }
     last.avilableDeTransitionIndices=getAvilableDetransitionIndices(last.marking);
     last.avilableTransitionIndices=getAvilableTransitionIndices(last.marking);
-
+    for (int i=1;i<petri.Transitions.size()+1;i++) {
+        last.finishedActivitiys.insert(i);
+        last.startedActivitiys.insert(i);
+    }
 
     std::vector<RCPSPState_bi> path;
     ForwardRCPSPHeuristic H_F;
@@ -549,7 +554,8 @@ last.name=1;
     if (finished && !path.empty()) {
         std::cout << "Path found!" << std::endl;
         for (const auto& state : path) {
-            std::cout << "g: " << state.g << std::endl;
+            std::cout << "g_f: " << state.g_f << std::endl;
+            std::cout << "g_b: " << state.g_b << std::endl;
 
             std::cout << "active: ";
             for (const auto& [transIdx, duration] : state.activeTransitionIndices)
@@ -561,13 +567,14 @@ last.name=1;
                 std::cout << " " << transIdx;
             std::cout << std::endl << std::endl;
 
-            makespan = state.g;
+            makespan = state.g_b+state.g_f;
         }
     } else {
         std::cout << "Path not found or timeout occurred.\n";
     }
 
     std::cout << "Nodes Expanded: " << Bi_RCPSP.GetNodesExpanded() << std::endl;
+    std::cout << "Nodes Touched: " << Bi_RCPSP.GetNodesTouched() << std::endl;
     // Save to file
     std::ofstream file(filename, std::ios::app);
     file << group << "," << exam << "," << elapsed.count() << ","
@@ -661,10 +668,20 @@ void runBenchmark() {
     // Write header
     file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
 //
-    //solveRCPSP(16,9,filename);
-    solveRCPSP(-1, -1, filename);
-//    solveRCPSP(1, 2, filename);
-// solveRCPSP(1, 7, filename);
+ /// solveRCPSP_Bi(8,9,filename);
+ // solveRCPSP_Bi(16, 9, filename);
+  //solveRCPSP(-1, -1, filename);
+
+   //solveRCPSP(1, 2, filename);
+   //solveRCPSP(8, 9, filename);
+//   solveRCPSP(-1,-1,filename);
+
+// for(int i=41;i<49;i++) {
+     for(int j=7;j<11;j++) {
+     solveRCPSP(47,j,filename);
+     }
+// }
+//solveRCPSP(1, 7, filename);
 // solveRCPSP(2, 3, filename);
 // solveRCPSP(2, 7, filename);
 // solveRCPSP(3, 1, filename);

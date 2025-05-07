@@ -59,9 +59,11 @@ struct AStarCompareWithF {
 	}
 };
 */
-std::chrono::steady_clock::time_point timeout = std::chrono::steady_clock::now() + std::chrono::minutes(1);
+std::chrono::steady_clock::time_point timeout = std::chrono::steady_clock::now() + std::chrono::minutes(10);
+//ido lublin 28.4 A*
 
 template <class state>
+
 struct AStarCompareWithF {
 
 
@@ -97,7 +99,46 @@ struct AStarCompareWithF {
 };
 
 
-
+/*
+struct AStarCompareWithF {
+	bool operator()(const AStarOpenClosedDataWithF<state> &i1, const AStarOpenClosedDataWithF<state> &i2) const
+	{
+		//auto startSCF = std::chrono::high_resolution_clock::now();
+		if (fequal(i1.f, i2.f)) {
+			// First check original g
+			if (fequal(i1.g, i2.g)) {
+				// Then check g_f
+				if (fequal(i1.g_f, i2.g_f)) {
+					// Then check g_b
+					if (fequal(i1.g_b, i2.g_b)) {
+						// If all g values are equal, check finished_activities count
+						if (i1.data.finishedActivitiys.size() != i2.data.finishedActivitiys.size()){
+							//auto endSCF = std::chrono::high_resolution_clock::now();
+							//comperTime += endSCF-startSCF;
+							return i1.data.finishedActivitiys.size() < i2.data.finishedActivitiys.size();//< or >
+						}
+						// Then check started_activities count
+						//auto endSCF = std::chrono::high_resolution_clock::now();
+						//comperTime += endSCF-startSCF;
+						return i1.data.startedActivitiys.size() < i2.data.startedActivitiys.size();
+					}
+					// Prefer higher g_b
+					return fless(i1.g_b, i2.g_b);
+				}
+				// Prefer higher g_f
+				return fless(i1.g_f, i2.g_f);
+			}
+			// Prefer higher original g
+			//auto endSCF = std::chrono::high_resolution_clock::now();
+			//comperTime += endSCF-startSCF;
+			return fless(i1.g, i2.g);
+		}
+		//auto endSCF = std::chrono::high_resolution_clock::now();
+		//comperTime += endSCF-startSCF;
+		return fgreater(i1.f, i2.f); // Prefer smaller f
+	}
+};
+*/
 
 template <class state>
 struct AStarCompare {

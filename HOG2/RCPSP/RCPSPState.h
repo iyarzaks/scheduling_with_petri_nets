@@ -13,6 +13,17 @@ class RCPSPState {
   public:
   RCPSPState();
   RCPSPState(RCPSPState predecessor,Transition newTransition,bool status,int location,uint64_t &count);
+    ~RCPSPState() {
+        // Clear STL containers explicitly (optional, as they would be destroyed automatically)
+        marking.clear();
+        unstartedTransitions.clear();
+        avilableTransitionIndices.clear();
+        activeTransitionIndices.clear();
+        startedActivitiys.clear();
+        finishedActivitiys.clear();
+
+        // Any additional custom cleanup logic can go here
+    }
   std::unordered_map<std::string, int> marking;
    std::vector<int> unstartedTransitions;
   //std::vector<Transition> avilableTransition;
@@ -42,6 +53,17 @@ class RCPSPState_bi {
 public:
     RCPSPState_bi();
     RCPSPState_bi(RCPSPState_bi predecessor,Transition newTransition,bool status,int location,uint64_t &count);
+    ~RCPSPState_bi() {
+        // Clear STL containers explicitly (optional, as they would be destroyed automatically)
+        marking.clear();
+        unstartedTransitions.clear();
+        avilableTransitionIndices.clear();
+        activeTransitionIndices.clear();
+        startedActivitiys.clear();
+        finishedActivitiys.clear();
+
+        // Any additional custom cleanup logic can go here
+    }
     std::unordered_map<std::string, int> marking;
     std::vector<int> unstartedTransitions;
     //std::vector<Transition> avilableTransition;
@@ -57,10 +79,15 @@ public:
     double name=0;
     int predecesorname=0;
 
-    std::map<int, int> startedActivitiys;
-    std::map<int, int> finishedActivitiys;
-    double g=0;
-    double h=0;
+    std::set<int> startedActivitiys;
+    std::set<int> finishedActivitiys;
+    double g_f=0;
+    double h_f=0;
+    double g_b=0;
+    double h_b=0;
+
+    double f=0;
+
 
     //int GetG();
     //int checkEnd();

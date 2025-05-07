@@ -174,97 +174,65 @@ double getForwardHcost(std::vector<int>unstartedTransitions, std::vector<std::pa
  return h;
 
 }
-double getBackwordsHcost(std::vector<int> completedActivities,
-                           std::vector<std::pair<int, int>> activeTransitionIndices,
-                           int active) {
-  auto startS3 = std::chrono::high_resolution_clock::now();
-return 0;
-  std::map<int, int> earlyStartMap; // Map to store activity IDs and their early start times
-  std::map<int, int> earlyFinishMap; // Map to store activity IDs and their early finish times
+double getBackwordsHcost(std::set<int>startedTransitions, std::vector<std::pair<int, int>>activeTransitionIndices) {
+ auto startS3 = std::chrono::high_resolution_clock::now();
 
-  // Initialize all activities with early start = 0
-  for (int i = 0; i < RCPSPex.activities.size(); i++) {
-    earlyStartMap[i + 1] = 0;
-    earlyFinishMap[i + 1] = 0;
-  }
+   std::map<int, int> earlyfinishMap2; // Map to store activity IDs and their early finish times
+  //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
+  double h;
+  std::set<int> processedDependencies;
+  // Iterate over unstarted activitiesint lastElementEarlyFinish = 0;
+  //int lastElementEarlyFinish = 0;
+  for (int activityId: startedTransitions) {
+    int maxFinishTime = 0;
+    std::set<int> processedDependencies;
 
-  // Process activities in topological order
-  std::vector<int> toProcess;
-  std::set<int> processed;
+    for (const auto &dep: RCPSPex.backword_dependencies[activityId - 1]) {
+      int depId = std::stoi(dep) - 1;
+      // if (processedDependencies.count(depId) > 0) continue;
+      // processedDependencies.insert(depId);
+      if (std::find(startedTransitions.begin(), startedTransitions.end(), depId + 1) != startedTransitions.end()) {
+        int duration = getTransitionDuration2(activeTransitionIndices, std::stoi(dep));
+        if (duration !=-1) {
+          maxFinishTime = std::max(maxFinishTime, earlyfinishMap2[depId+1] + duration);
+          //if (RCPSPex.activities[depId].duration !=duration) {
+          //  std::cout<<name<<":"<<dep<<" "<<activityId<<" "<<RCPSPex.activities[depId].duration-duration<<std::endl;
+          //}
+        }
+        else {
+          maxFinishTime = std::max(maxFinishTime, earlyfinishMap2[depId+1] + RCPSPex.activities[depId].duration);
 
-  // First, add activities with no dependencies (project start activities)
-  for (int i = 0; i < RCPSPex.activities.size(); i++) {
-    if (RCPSPex.dependencies[i].empty()) {
-      toProcess.push_back(i + 1);
-    }
-  }
-
-  // Process activities in topological order
-  while (!toProcess.empty()) {
-    int currentActivity = toProcess.front();
-    toProcess.erase(toProcess.begin());
-
-    if (processed.count(currentActivity) > 0) continue;
-
-    // Check if all predecessors have been processed
-    bool allPredecessorsProcessed = true;
-    for (const auto& pred : RCPSPex.backword_dependencies[currentActivity - 1]) {
-      int predId = std::stoi(pred);
-      if (processed.count(predId) == 0) {
-        allPredecessorsProcessed = false;
-        break;
+        }
+      }
+      else {
+        maxFinishTime = std::max(maxFinishTime, earlyfinishMap2[depId+1]);
       }
     }
 
-    if (!allPredecessorsProcessed) {
-      toProcess.push_back(currentActivity);
-      continue;
-    }
-
-    // Calculate early start time (maximum of all predecessors' early finish times)
-    int maxPredFinish = 0;
-    for (const auto& pred : RCPSPex.backword_dependencies[currentActivity - 1]) {
-      int predId = std::stoi(pred);
-      maxPredFinish = std::max(maxPredFinish, earlyFinishMap[predId]);
-    }
-
-    earlyStartMap[currentActivity] = maxPredFinish;
-
-    // Calculate early finish time
-    int duration;
-    // Check if this activity has a modified duration in activeTransitionIndices
-    auto it = std::find_if(activeTransitionIndices.begin(), activeTransitionIndices.end(),
-                        [currentActivity](const std::pair<int, int>& p) { return p.first == currentActivity; });
-
-    if (it != activeTransitionIndices.end()) {
-      // Use the remaining duration from activeTransitionIndices
-      duration = it->second;
-    } else {
-      // Use the full duration from activities list
-      duration = RCPSPex.activities[currentActivity - 1].duration;
-    }
-
-    earlyFinishMap[currentActivity] = earlyStartMap[currentActivity] + duration;
-
-    // Add successors to the processing queue
-    for (const auto& succ : RCPSPex.dependencies[currentActivity - 1]) {
-      int succId = std::stoi(succ);
-      toProcess.push_back(succId);
-    }
-
-    processed.insert(currentActivity);
-
-    // If we've processed the active activity, we can stop
-    if (currentActivity == active) {
-      break;
-    }
+    earlyfinishMap2[activityId] = maxFinishTime;
+    //std::cout <<activityId<<":"<< earlyfinishMap[activityId]+RCPSPex.activities[activityId-1].duration << std::endl;
+    // For last element with duration 0, just use the max finish time of dependencies
   }
+  h = 0;
+  if (earlyfinishMap2.size()==0) {
 
-  auto endS3 = std::chrono::high_resolution_clock::now();
-  HTIME += endS3 - startS3;
+  }
+  else {
+    // Find the maximum value in the map
+    h = std::max_element(
+      earlyfinishMap2.begin(),
+      earlyfinishMap2.end(),
+      [](const auto& p1, const auto& p2) { return p1.second < p2.second; }
+    )->second;
+  }
+  // if (h != newH) {
+  //   int asd;
+  //   asd++;
+  // }
+   auto endS3 = std::chrono::high_resolution_clock::now();
+   HTIME += endS3 - startS3;
+  return h;
 
-  // Return early finish time of active activity
-  return earlyFinishMap[active];
 }
 RCPSPState::RCPSPState(): nodestatus(false) {
   auto startS1 = std::chrono::high_resolution_clock::now();
@@ -308,9 +276,8 @@ RCPSPState::RCPSPState(): nodestatus(false) {
 
 RCPSPState_bi::RCPSPState_bi(): nodestatus(false) {
   auto startS1 = std::chrono::high_resolution_clock::now();
-
+  //startedActivitiys.insert(0);
   direction = true;
-  startedActivitiys[0] = 0;
 
   // Find initial and final places
   for (int i = 0; i < petri.places.size(); i++) {
@@ -343,9 +310,12 @@ RCPSPState_bi::RCPSPState_bi(): nodestatus(false) {
   avilableTransitionIndices = getAvilableTransitionIndices(marking);
 
   avilableDeTransitionIndices = getAvilableDetransitionIndices(marking);
-  g = 0;
+  g_b = 0;
+  g_f = 0;
   name = 0;
-  h=getForwardHcost(unstartedTransitions,activeTransitionIndices);
+  h_f=getForwardHcost(unstartedTransitions,activeTransitionIndices);
+  h_b=0;
+  f=h_f;
 }
 
 
@@ -418,6 +388,7 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, in
       h=getForwardHcost(unstartedTransitions,activeTransitionIndices);
 
     }
+
   }
   else {
     // Similar transformation for the backward direction
@@ -456,7 +427,6 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, in
       }
       auto endS1 = std::chrono::high_resolution_clock::now();
       generateTIME += endS1-startS4;
-      h=getBackwordsHcost(unstartedTransitions,activeTransitionIndices,active.name);
 
     }
   }
@@ -489,13 +459,17 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
   // Copy indices instead of full Transition objects
   activeTransitionIndices = predecesor.activeTransitionIndices;
   avilableTransitionIndices = predecesor.avilableTransitionIndices;
-  g = predecesor.g;
-
+  g_b = predecesor.g_b;
+  g_f = predecesor.g_f;
+  h_b = predecesor.h_b;
+  h_f = predecesor.h_f;
 
 
   if (direction) {
+    //g_f = predecesor.g_f;
+
     if (status) {
-      h = predecesor.h;
+      //h_f = predecesor.h_f;
 
       // Apply arcs_in from the transition
       for (const auto& arc : petri.Transitions[active.name-1].arcs_in) {
@@ -504,7 +478,7 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
 
       // Store index and duration instead of full Transition
       activeTransitionIndices.push_back({active.name, active.duration});
-      startedActivitiys[active.name] = g;
+      startedActivitiys.insert(active.name);
       if (active.duration==0) {
         status=0;
       }
@@ -512,8 +486,9 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
       generateTIME += endS1-startS4;
     }
     if (!status) {
-      g += active.duration;
-      finishedActivitiys[active.name] = g;
+      g_f += active.duration;
+      finishedActivitiys.insert(active.name);
+
 
       // Remove from unstarted
       unstartedTransitions.erase(
@@ -540,21 +515,31 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
       auto endS1 = std::chrono::high_resolution_clock::now();
       generateTIME += endS1-startS4;
 
-      h=getForwardHcost(unstartedTransitions,activeTransitionIndices);
+      h_f=getForwardHcost(unstartedTransitions,activeTransitionIndices);
 
     }
+    //f=g_f+h_f;
+    h_b=getBackwordsHcost(startedActivitiys,activeTransitionIndices);
+    f=2*g_f+h_f-h_b;
+
+    avilableTransitionIndices = getAvilableTransitionIndices(marking);
   }
   else {
+
+
     // Similar transformation for the backward direction
     if (status) {
-      h = predecesor.h;
+      //h_b = predecesor.h_b;
 
       for (const auto& arc : petri.Transitions[active.name-1].arcs_out) {
         marking[arc.first] -= arc.second;
       }
 
-      activeTransitionIndices.push_back({active.name, active.duration});
-      finishedActivitiys[active.name] = g;
+      activeTransitionIndices.push_back({active.name, 0});
+      auto it = std::find(finishedActivitiys.begin(), finishedActivitiys.end(), active.name);
+      if (it != finishedActivitiys.end()) {
+        finishedActivitiys.erase(it);
+      }
       if (active.duration==0) {
         status=0;
       }
@@ -562,17 +547,21 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
       generateTIME += endS1-startS4;
     }
     if (!status) {
-      g += active.duration;
-      startedActivitiys[active.name] = g;
+     g_b += (petri.Transitions[active.name-1].duration-active.duration);
 
+      auto it = std::find(startedActivitiys.begin(), startedActivitiys.end(), active.name);
+      if (it != startedActivitiys.end()) {
+        startedActivitiys.erase(it);
+
+      }
       unstartedTransitions.erase(
           std::remove(unstartedTransitions.begin(), unstartedTransitions.end(), active.name),
           unstartedTransitions.end());
 
       for (int i = activeTransitionIndices.size() - 1; i >= 0; --i) {
-        activeTransitionIndices[i].second -= active.duration;
-        if (activeTransitionIndices[i].second<0) {
-          activeTransitionIndices[i].second=0;
+        activeTransitionIndices[i].second += (petri.Transitions[active.name-1].duration-active.duration);
+        if (activeTransitionIndices[i].second>petri.Transitions[activeTransitionIndices[i].first-1].duration) {
+          activeTransitionIndices[i].second=petri.Transitions[activeTransitionIndices[i].first-1].duration;
         }
         if (activeTransitionIndices[i].first == active.name) {
           for (const auto& arc : petri.Transitions[active.name-1].arcs_in) {
@@ -583,15 +572,20 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
       }
       auto endS1 = std::chrono::high_resolution_clock::now();
       generateTIME += endS1-startS4;
-      h=getForwardHcost(unstartedTransitions,activeTransitionIndices);
+      h_b=getBackwordsHcost(startedActivitiys,activeTransitionIndices);
 
     }
+    h_f=getForwardHcost(unstartedTransitions,activeTransitionIndices);
+
+    avilableDeTransitionIndices = getAvilableDetransitionIndices(marking);
+    f=2*g_b+h_b-h_f;
+    //f=g_b;
+    //f=g_b+h_b;
   }
-  avilableTransitionIndices = getAvilableTransitionIndices(marking);
 
 
 
-  avilableDeTransitionIndices = getAvilableDetransitionIndices(marking);
+
   // You'll need to modify these functions to return indices instead of Transitions
 //   if (direction) {
 // }
@@ -683,10 +677,10 @@ bool RCPSPState_bi::operator==(const RCPSPState_bi &other) const {
   // if (this->expanded != other.expanded) {
   //   return false;
   // }
-  if (this->g != other.g) {
+  if (this->activeTransitionIndices!= other.activeTransitionIndices) {
     return false;
   }
-  if (this->h != other.h) {
+  if (this->startedActivitiys != other.startedActivitiys) {
     return false;
   }
   // if (this->avilableTransition != other.avilableTransition) {
@@ -695,11 +689,11 @@ bool RCPSPState_bi::operator==(const RCPSPState_bi &other) const {
   // if (this->activeTransitions != other.activeTransitions) {
   //   return false;
   // }
-  if (this->unstartedTransitions != other.unstartedTransitions) {
+  if (this->finishedActivitiys != other.finishedActivitiys) {
     return false;
   }
-  if (this->marking != other.marking) {
-    return false;
-  }
+  // if (this->marking != other.marking) {
+  //   return false;
+  // }
   return true;
 }
