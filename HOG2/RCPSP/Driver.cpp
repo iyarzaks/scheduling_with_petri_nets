@@ -201,9 +201,9 @@ int makespan;
 int solveRCPSP(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
 
-    generateTIME= std::chrono::duration<double>(0);
-    avelableTIME= std::chrono::duration<double>(0);
-    hashTIME= std::chrono::duration<double>(0);
+    //generateTIME= std::chrono::duration<double>(0);
+    //avelableTIME= std::chrono::duration<double>(0);
+    //hashTIME= std::chrono::duration<double>(0);
     //  comperTime= std::chrono::duration<double>(0);
     //secssesorTIME= std::chrono::duration<double>(0);
     count=0;
@@ -279,15 +279,16 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
          << (!path.empty() ? "True" : "False") << ","
          << makespan << ","
          << astar.GetNodesExpanded() << ","
-         << astar.GetNodesTouched() << ","
-         << 100 * generateTIME.count() / elapsed.count() << ","
-         << generateTIME.count() / astar.GetNodesTouched() << ","
-         << 100 * avelableTIME.count() / elapsed.count() << ","
-         << avelableTIME.count() / astar.GetNodesTouched() << ","
-         << 100 * hashTIME.count() / elapsed.count() << ","
-         << hashTIME.count() / astar.GetNodesTouched() << ","
-         << 100 * HTIME.count() / elapsed.count() << ","
-         << HTIME.count() / count << "\n";
+         << astar.GetNodesTouched()
+      //   << 100 * generateTIME.count() / elapsed.count() << ","
+        // << generateTIME.count() / astar.GetNodesTouched() << ","
+         //<< 100 * avelableTIME.count() / elapsed.count() << ","
+         //<< avelableTIME.count() / astar.GetNodesTouched() << ","
+         //<< 100 * hashTIME.count() / elapsed.count() << ","
+         //<< hashTIME.count() / astar.GetNodesTouched() << ","
+         //<< 100 * HTIME.count() / elapsed.count() << ","
+         //<< HTIME.count() / count
+         << "\n";
 
     return 0;
 }
@@ -440,9 +441,9 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
 int solveRCPSP_Bi(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
 
-    generateTIME= std::chrono::duration<double>(0);
-    avelableTIME= std::chrono::duration<double>(0);
-    hashTIME= std::chrono::duration<double>(0);
+  //  generateTIME= std::chrono::duration<double>(0);
+    //avelableTIME= std::chrono::duration<double>(0);
+   // hashTIME= std::chrono::duration<double>(0);
   //  comperTime= std::chrono::duration<double>(0);
     //secssesorTIME= std::chrono::duration<double>(0);
     count=0;
@@ -582,9 +583,9 @@ last.name=1;
          << (finished ? "True" : "False") << ","
          << makespan << ","
          << Bi_RCPSP.GetNodesExpanded() << ","
-          << ","<<100*generateTIME.count()/elapsed.count()<< ","<<generateTIME.count()
-             << ","<<100*avelableTIME.count()/elapsed.count()<< ","<<avelableTIME.count()
-                 << ","<<100*hashTIME.count()/elapsed.count()<< ","<<hashTIME.count()<<
+        //  << ","<<100*generateTIME.count()/elapsed.count()<< ","<<generateTIME.count()
+         //    << ","<<100*avelableTIME.count()/elapsed.count()<< ","<<avelableTIME.count()
+          //       << ","<<100*hashTIME.count()/elapsed.count()<< ","<<hashTIME.count()<<
                     // ","<<100*comperTime.count()/elapsed.count()<< ","<<comperTime.count()/astar.GetNodesTouched()<<
              "\n";
 
@@ -671,13 +672,14 @@ void runBenchmark() {
 
     // Write header
     //file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
-    file << "group,exam,initialHcost" << std::endl;
+    file << "group,exam,time,finished,makespan,expand number,generated number" << std::endl;
+    //file << "group,exam,initialHcost" << std::endl;
 //
   // getinitialHcost(-1, -1, filename);
  /// solveRCPSP_Bi(8,9,filename);
   //solveRCPSP_Bi(3, 6, filename);
- solveRCPSP_Bi(-1, -1, filename);
- solveRCPSP_Bi(16, 9, filename);
+ solveRCPSP(-1, -1, filename);
+ solveRCPSP(16, 9, filename);
   //solveRCPSP(-1, -1, filename);
     //solveRCPSP_Bi(44, 4, filename);
 

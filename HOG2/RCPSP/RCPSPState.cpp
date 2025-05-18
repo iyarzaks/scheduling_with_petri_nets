@@ -9,9 +9,9 @@
 #include <chrono>
 #include <atomic>
 #include <algorithm>
-std::chrono::duration<double> generateTIME;
-std::chrono::duration<double> avelableTIME;
-std::chrono::duration<double> HTIME;
+//std::chrono::duration<double> generateTIME;
+//std::chrono::duration<double> avelableTIME;
+//std::chrono::duration<double> HTIME;
 
 // std::atomic<bool> stop_printing(false); // Flag to stop the printing thread
 //
@@ -59,7 +59,7 @@ std::vector<Transition> getAvilableDetransitions(const std::unordered_map<std::s
 
  }
 std::vector<Transition> getAvilableTransitions(const std::unordered_map<std::string, int>& marking) {
-   auto startS1 = std::chrono::high_resolution_clock::now();
+   //auto startS1 = std::chrono::high_resolution_clock::now();
 
    std::vector<Transition> avilableTransitions;
    avilableTransitions.reserve(petri.Transitions.size());  // Reserve memory to avoid multiple reallocations
@@ -85,8 +85,8 @@ std::vector<Transition> getAvilableTransitions(const std::unordered_map<std::str
      }
    }
 
-   auto endS1 = std::chrono::high_resolution_clock::now();
-   avelableTIME += endS1 - startS1;
+   // auto endS1 = std::chrono::high_resolution_clock::now();
+   // avelableTIME += endS1 - startS1;
 
    return avilableTransitions;
  }
@@ -119,7 +119,7 @@ void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,uint64_t &count) 
 }
 */
 double getForwardHcost(std::set<int>unstartedTransitions, std::vector<std::pair<int, int>>activeTransitionIndices) {
-  auto startS3 = std::chrono::high_resolution_clock::now();
+ // auto startS3 = std::chrono::high_resolution_clock::now();
 
    std::map<int, int> earlyfinishMap2; // Map to store activity IDs and their early finish times
   //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
@@ -168,8 +168,8 @@ double getForwardHcost(std::set<int>unstartedTransitions, std::vector<std::pair<
   //   int asd;
   //   asd++;
   // }
-   auto endS3 = std::chrono::high_resolution_clock::now();
-   HTIME += endS3 - startS3;
+  // auto endS3 = std::chrono::high_resolution_clock::now();
+   //HTIME += endS3 - startS3;
 
  return h;
 
@@ -178,7 +178,7 @@ double getForwardHcost(std::set<int>unstartedTransitions, std::vector<std::pair<
 
 
 double getForwardHcost(std::vector<int>unstartedTransitions, std::vector<std::pair<int, int>>activeTransitionIndices) {
-  auto startS3 = std::chrono::high_resolution_clock::now();
+  //auto startS3 = std::chrono::high_resolution_clock::now();
 
    std::map<int, int> earlyfinishMap2; // Map to store activity IDs and their early finish times
   //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
@@ -227,14 +227,14 @@ double getForwardHcost(std::vector<int>unstartedTransitions, std::vector<std::pa
   //   int asd;
   //   asd++;
   // }
-   auto endS3 = std::chrono::high_resolution_clock::now();
-   HTIME += endS3 - startS3;
+  // auto endS3 = std::chrono::high_resolution_clock::now();
+   //HTIME += endS3 - startS3;
 
  return h;
 
 }
 double getBackwordsHcost(std::set<int>startedTransitions, std::vector<std::pair<int, int>>activeTransitionIndices) {
-  auto startS3 = std::chrono::high_resolution_clock::now();
+ // auto startS3 = std::chrono::high_resolution_clock::now();
 
   std::map<int, int> earlyfinishMap2; // Map to store activity IDs and their early finish times
   double h;
@@ -301,8 +301,8 @@ double getBackwordsHcost(std::set<int>startedTransitions, std::vector<std::pair<
     )->second;
   }
 
-  auto endS3 = std::chrono::high_resolution_clock::now();
-  HTIME += endS3 - startS3;
+//  auto endS3 = std::chrono::high_resolution_clock::now();
+  //HTIME += endS3 - startS3;
   return h;
 /*
 
@@ -366,7 +366,7 @@ double getBackwordsHcost(std::set<int>startedTransitions, std::vector<std::pair<
   */
 }
 RCPSPState::RCPSPState(): nodestatus(false) {
-  auto startS1 = std::chrono::high_resolution_clock::now();
+//  auto startS1 = std::chrono::high_resolution_clock::now();
 
   direction = true;
   startedActivitiys[0] = 0;
@@ -395,8 +395,8 @@ RCPSPState::RCPSPState(): nodestatus(false) {
     }
   }
 
-  auto endS1 = std::chrono::high_resolution_clock::now();
-  generateTIME += endS1 - startS1;
+ // auto endS1 = std::chrono::high_resolution_clock::now();
+  //generateTIME += endS1 - startS1;
 
   // Change: Get indices of available transitions instead of full Transition objects
   avilableTransitionIndices = getAvilableTransitionIndices(marking);
@@ -406,7 +406,7 @@ RCPSPState::RCPSPState(): nodestatus(false) {
 }
 
 RCPSPState_bi::RCPSPState_bi(): nodestatus(false) {
-  auto startS1 = std::chrono::high_resolution_clock::now();
+ // auto startS1 = std::chrono::high_resolution_clock::now();
   //startedActivitiys.insert(0);
   direction = true;
 
@@ -435,8 +435,8 @@ RCPSPState_bi::RCPSPState_bi(): nodestatus(false) {
     }
   }
 
-  auto endS1 = std::chrono::high_resolution_clock::now();
-  generateTIME += endS1 - startS1;
+ // auto endS1 = std::chrono::high_resolution_clock::now();
+  //generateTIME += endS1 - startS1;
 
   // Change: Get indices of available transitions instead of full Transition objects
   avilableTransitionIndices = getAvilableTransitionIndices(marking);
@@ -452,7 +452,7 @@ RCPSPState_bi::RCPSPState_bi(): nodestatus(false) {
 
 
 RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, int location, uint64_t &count) {
-  auto startS4 = std::chrono::high_resolution_clock::now();
+  //auto startS4 = std::chrono::high_resolution_clock::now();
 
   // Copy basic properties
   direction = predecesor.direction;
@@ -485,8 +485,8 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, in
       if (active.duration==0) {
         status=0;
       }
-      auto endS1 = std::chrono::high_resolution_clock::now();
-      generateTIME += endS1-startS4;
+     // auto endS1 = std::chrono::high_resolution_clock::now();
+      //generateTIME += endS1-startS4;
     }
     if (!status) {
       g += active.duration;
@@ -514,8 +514,8 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, in
 
       }
 
-      auto endS1 = std::chrono::high_resolution_clock::now();
-      generateTIME += endS1-startS4;
+      //auto endS1 = std::chrono::high_resolution_clock::now();
+      //generateTIME += endS1-startS4;
 
       h=getForwardHcost(unstartedTransitions,activeTransitionIndices);
 
@@ -534,8 +534,8 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, in
       activeTransitionIndices.push_back({active.name, active.duration});
       startedActivitiys[active.name] = g;
 
-      auto endS1 = std::chrono::high_resolution_clock::now();
-      generateTIME += endS1-startS4;
+      //auto endS1 = std::chrono::high_resolution_clock::now();
+      //generateTIME += endS1-startS4;
     }
     else {
       g += active.duration;
@@ -557,8 +557,8 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, in
           activeTransitionIndices.erase(activeTransitionIndices.begin() + i);
         }
       }
-      auto endS1 = std::chrono::high_resolution_clock::now();
-      generateTIME += endS1-startS4;
+    //  auto endS1 = std::chrono::high_resolution_clock::now();
+      //generateTIME += endS1-startS4;
 
     }
   }
@@ -577,7 +577,7 @@ int asdasd;
 
 
 RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool status, int location, uint64_t &count) {
-  auto startS4 = std::chrono::high_resolution_clock::now();
+ // auto startS4 = std::chrono::high_resolution_clock::now();
 
   // Copy basic properties
   direction = predecesor.direction;
@@ -614,8 +614,8 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
       if (active.duration==0) {
         status=0;
       }
-      auto endS1 = std::chrono::high_resolution_clock::now();
-      generateTIME += endS1-startS4;
+    //  auto endS1 = std::chrono::high_resolution_clock::now();
+   //   generateTIME += endS1-startS4;
     }
     if (!status) {
       g_f += active.duration;
@@ -642,8 +642,8 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
 
       }
 
-      auto endS1 = std::chrono::high_resolution_clock::now();
-      generateTIME += endS1-startS4;
+     // auto endS1 = std::chrono::high_resolution_clock::now();
+      //generateTIME += endS1-startS4;
 
       h_f=getForwardHcost(unstartedTransitions,activeTransitionIndices);
 
@@ -674,8 +674,8 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
       if (active.duration==0) {
         status=0;
       }
-      auto endS1 = std::chrono::high_resolution_clock::now();
-      generateTIME += endS1-startS4;
+     // auto endS1 = std::chrono::high_resolution_clock::now();
+      //generateTIME += endS1-startS4;
     }
     if (!status) {
      g_b += (petri.Transitions[active.name-1].duration-active.duration);
@@ -699,8 +699,8 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
           activeTransitionIndices.erase(activeTransitionIndices.begin() + i);
         }
       }
-      auto endS1 = std::chrono::high_resolution_clock::now();
-      generateTIME += endS1-startS4;
+      //auto endS1 = std::chrono::high_resolution_clock::now();
+     // generateTIME += endS1-startS4;
       h_b=getBackwordsHcost(startedActivitiys,activeTransitionIndices);
 
     }
@@ -746,8 +746,8 @@ std::vector<int> getAvilableTransitionIndices(const std::unordered_map<std::stri
        availableIndices.push_back(i + 1);  // +1 assuming your indices start from 1
      }
    }
-  auto endS1 = std::chrono::high_resolution_clock::now();
-  avelableTIME += endS1-startS4;
+//  auto endS1 = std::chrono::high_resolution_clock::now();
+  //avelableTIME += endS1-startS4;
    return availableIndices;
  }
 
