@@ -473,7 +473,7 @@ last.name=1;
         last.finishedActivitiys.insert(i);
         last.startedActivitiys.insert(i);
     }
-
+    last.unstartedTransitions.clear();
     std::vector<RCPSPState_bi> path;
     ForwardRCPSPHeuristic H_F;
     BackwardRCPSPHeuristic H_B;
@@ -484,6 +484,7 @@ last.name=1;
 
 
     Bi_RCPSP.GetPath(&bs1, first, last,&H_F,&H_B ,path);
+
     bool finished = false;
     bool timeout_occurred = false;
     std::chrono::duration<double> elapsed;
@@ -648,6 +649,9 @@ std::string getNextFilename(const std::string& folder, const std::string& baseNa
 
 
 }
+
+void getinitialHcost(int i, int i1, const std::string & string);
+
 void runBenchmark() {
     std::string folder = "results";
     std::string baseName = "output_";
@@ -666,21 +670,27 @@ void runBenchmark() {
     }
 
     // Write header
-    file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
+    //file << "group,exam,time,finished,makespan,expand number,generated number,generatedTime%,generatedTime(ave),avilableTime%,avilableTime(ave),hashTime%,hashTime(ave),HcostTime%,HcostTime(ave)" << std::endl;
+    file << "group,exam,initialHcost" << std::endl;
 //
+  // getinitialHcost(-1, -1, filename);
  /// solveRCPSP_Bi(8,9,filename);
- // solveRCPSP_Bi(16, 9, filename);
+  //solveRCPSP_Bi(3, 6, filename);
+ solveRCPSP_Bi(-1, -1, filename);
+ solveRCPSP_Bi(16, 9, filename);
   //solveRCPSP(-1, -1, filename);
+    //solveRCPSP_Bi(44, 4, filename);
 
-   //solveRCPSP(1, 2, filename);
+   //solveRCPSP(4, 7, filename);
    //solveRCPSP(8, 9, filename);
-//   solveRCPSP(-1,-1,filename);
+   //solveRCPSP_Bi(-1,-1,filename);
 
-// for(int i=41;i<49;i++) {
-     for(int j=7;j<11;j++) {
-     solveRCPSP(47,j,filename);
-     }
-// }
+ // for(int i=1;i<49;i++) {
+ //      for(int j=1;j<11;j++) {
+ //      //solveRCPSP(48,j,filename);
+ //      getinitialHcost(i,j,filename);
+ //      }
+ // }
 //solveRCPSP(1, 7, filename);
 // solveRCPSP(2, 3, filename);
 // solveRCPSP(2, 7, filename);
@@ -779,3 +789,23 @@ void runBenchmark() {
 return;;
 
 }
+
+void getinitialHcost(int group, int exam, const std::string &filename) {
+    std::cout << "started solving: " << group<<":"<<exam << std::endl;
+    count=0;
+    double initalHcost=0;
+    getPetri(petri, group, exam);
+    getRCPSP(RCPSPex, group, exam);
+
+    RCPSPState first;
+    initalHcost=getForwardHcost(first.unstartedTransitions,first.activeTransitionIndices);
+
+    std::cout << "initalHcost\n";
+
+
+
+    std::ofstream file(filename, std::ios::app);
+    file << group << "," << exam << "," << initalHcost<<std::endl;
+
+}
+

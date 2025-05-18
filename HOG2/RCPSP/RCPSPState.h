@@ -65,7 +65,7 @@ public:
         // Any additional custom cleanup logic can go here
     }
     std::unordered_map<std::string, int> marking;
-    std::vector<int> unstartedTransitions;
+    std::set<int> unstartedTransitions;
     //std::vector<Transition> avilableTransition;
     //std::vector<Transition> activeTransitions;
     std::vector<int> avilableTransitionIndices;  // Store transition IDs

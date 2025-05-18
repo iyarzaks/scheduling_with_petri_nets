@@ -427,7 +427,6 @@ else {
 
     }
   }
-
    inline bool GoalTest(const RCPSPState_bi &node, const RCPSPState_bi &goal) const override {
 return false;
     if (goal.marking.at(finalstatename) == 1) {
