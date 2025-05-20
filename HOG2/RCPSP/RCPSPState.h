@@ -66,16 +66,12 @@ public:
     }
     std::unordered_map<std::string, int> marking;
     std::set<int> unstartedTransitions;
-    //std::vector<Transition> avilableTransition;
-    //std::vector<Transition> activeTransitions;
     std::vector<int> avilableTransitionIndices;  // Store transition IDs
     std::vector<int> avilableDeTransitionIndices;  // Store transition IDs
     std::vector<std::pair<int, int>> activeTransitionIndices;  // Store transition ID and remaining duration
 
     bool direction;
     bool nodestatus;
-    //std::vector<RCPSPState> sons;
-    //std::vector<int> unstartedTransitions;
     double name=0;
     int predecesorname=0;
 
@@ -93,6 +89,51 @@ public:
     //int checkEnd();
     bool operator==(const RCPSPState_bi& other) const;
 };
+class RCPSPState_TT {
+public:
+    // --- Constructors ---
+    RCPSPState_TT();
+    RCPSPState_TT(const RCPSPState_TT& predecessor, int newTransitionId, bool applyTransition, int location, uint64_t& count);
+    ~RCPSPState_TT() {
+        marking.clear();
+        unstartedTransitions.clear();
+        activeTransitionIndices.clear();
+        startedActivitiys.clear();
+        finishedActivitiys.clear();
+    }
+
+    // --- Resource state ---
+    std::unordered_map<std::string, int> marking; // resourceName -> available amount
+
+    // --- Transition states ---
+    std::vector<int> unstartedTransitions;                         // transitions not yet started
+    std::vector<std::pair<int, int>> activeTransitionIndices;     // (transitionID, remaining time)
+    std::map<int, int> startedActivitiys;                          // activityID -> start time
+    std::map<int, int> finishedActivitiys;                         // activityID -> finish time
+
+    // --- Metadata for search ---
+    bool direction = true;  // true = forward, false = backward
+    bool nodestatus = false; // optional usage
+    double name = 0;         // for debugging
+    int predecesorname = 0;  // for debugging
+
+    // --- Cost fields ---
+    double g = 0;
+    double h = 0;
+    double f = 0;
+
+    // --- Comparison ---
+    bool operator==(const RCPSPState_TT& other) const;
+
+    // --- Logic (to be implemented) ---
+    std::vector<int> getAvailableTransitionIndices_TT() const;
+    void startTransition(int transitionId, int currentTime);
+    void advanceTime(int timeStep);
+};
+
+
+
+
 int computeEarlyFinishTime(int activityId);
 
 #endif // RCPSPSTATE_H

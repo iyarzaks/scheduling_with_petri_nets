@@ -4,6 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <unordered_set>
+
 #include "RCPSPState.h"
 #include <thread>
 #include <chrono>
@@ -24,6 +26,38 @@
 //std::vector<Transition> getAvilableTransitions(std::map<std::string, int> marking);
 
 std::vector<Transition> getAvilableTransitions(const std::unordered_map<std::string, int>& marking);
+double computeWorkloadLowerBoundWithMax(
+    const std::vector<int>& unfinishedTransitions,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices,
+    const std::map<int, int>& earlyStartTimes,
+    double criticalPathEstimate
+);
+
+double computeSequenceLowerBoundWithMax(
+    const std::vector<int>& unfinishedTransitions,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices,
+    const std::map<int, int>& earlyStartTimes,
+    double criticalPathEstimate
+);
+
+double computeCoreTimeLowerBoundWithMax(
+    const std::vector<int>& unfinishedTransitions,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices,
+    const std::map<int, int>& earlyStartTimes,
+    double criticalPathEstimate
+);
+double computeResourceCapacityLowerBound(
+    const std::vector<int>& unfinishedTransitions,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices,
+    double criticalPathEstimate
+);
+
+double getBackwardHcost2(
+    const std::set<int>& startedActivities,
+    const std::set<int>& finishedActivities,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices
+);
+
 
 void GetNabor(std::vector<RCPSPState> &NodeList,int chosenNode,int &count);
 //int ChooseExpansion(std::vector<RCPSPState> network);
@@ -223,16 +257,379 @@ double getForwardHcost(std::vector<int>unstartedTransitions, std::vector<std::pa
     h = earlyfinishMap2.rbegin()->second;;
 
   }
-  // if (h != newH) {
-  //   int asd;
-  //   asd++;
-  // }
-  // auto endS3 = std::chrono::high_resolution_clock::now();
-   //HTIME += endS3 - startS3;
-
+///
+// return h;
+ // return std::max(computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h), computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h));//BL_RC huristic
+  //return computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h);//BL_Cs huristic
+  return computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_Cs huristic
+  //return computeCoreTimeLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_CT huristic
+  //return computeWorkloadLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_CC huristic
+///
  return h;
 
 }
+
+double getBackwardHcost2(
+    const std::set<int>& startedActivities,
+    const std::set<int>& finishedActivities,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices
+) {
+  std::map<int, int> earlyFinishMap;
+  std::set<int> allRelevant;
+
+  for (int id : startedActivities)
+    allRelevant.insert(id);
+  for (const auto& [id, _] : activeTransitionIndices)
+    allRelevant.insert(id);
+
+  for (int actId : allRelevant) {
+    int maxDepFinish = 0;
+    for (const std::string& depStr : RCPSPex.backword_dependencies[actId - 1]) {
+      int depId = std::stoi(depStr);
+      if (earlyFinishMap.count(depId))
+        maxDepFinish = std::max(maxDepFinish, earlyFinishMap[depId]);
+    }
+
+    int duration = RCPSPex.activities[actId - 1].duration;
+    int remaining = 0;
+    for (const auto& [id, remain] : activeTransitionIndices) {
+      if (id == actId) {
+        remaining = remain;
+        break;
+      }
+    }
+
+    int effectiveDuration = duration - remaining;
+    earlyFinishMap[actId] = maxDepFinish + effectiveDuration;
+  }
+
+  int maxSoFar = 0;
+  for (const auto& [_, finishTime] : earlyFinishMap)
+    maxSoFar = std::max(maxSoFar, finishTime);
+
+  return static_cast<double>(maxSoFar);
+}
+
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <cmath>
+double computeCoreTimeLowerBoundWithMax(
+    const std::vector<int>& unfinishedTransitions,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices,
+    const std::map<int, int>& earlyStartTimes,
+    double criticalPathEstimate
+) {
+    // --- Step 1: filter active tasks out of unfinished
+    std::unordered_set<int> activeSet;
+    for (const auto& [id, _] : activeTransitionIndices)
+        activeSet.insert(id);
+
+    std::vector<int> unstartedTransitions;
+    for (int id : unfinishedTransitions) {
+        if (!activeSet.count(id))
+            unstartedTransitions.push_back(id);
+    }
+
+    // --- Step 2: build capacity map and compute total work
+    std::map<std::string, int> capacityMap;
+    double totalWork = 0.0;
+    int minCapacity = INT_MAX;
+
+    for (const auto& [res, cap] : RCPSPex.resources) {
+        capacityMap[res] = cap;
+        minCapacity = std::min(minCapacity, cap);
+    }
+
+    for (int id : unstartedTransitions) {
+        const auto& act = RCPSPex.activities[id - 1];
+        for (const auto& [res, demand] : act.resource_demands) {
+            totalWork += demand * act.duration;
+        }
+    }
+
+    // --- Step 3: active task demand into timeDemand
+    std::map<int, std::map<std::string, int>> timeDemand;
+    int activeMaxTime = 0;
+
+    for (const auto& [id, remaining] : activeTransitionIndices) {
+        const auto& act = RCPSPex.activities[id - 1];
+        for (int t = 0; t < remaining; ++t) {
+            for (const auto& [res, demand] : act.resource_demands) {
+                timeDemand[t][res] += demand;
+            }
+        }
+        activeMaxTime = std::max(activeMaxTime, remaining);
+    }
+
+    // --- Step 4: binary search range
+    int low = static_cast<int>(std::ceil(criticalPathEstimate));
+    int high = static_cast<int>(low + std::ceil(totalWork / std::max(1, minCapacity)));
+    int bestFeasible = high;
+
+    // --- Step 5: binary search
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        bool feasible = true;
+
+        std::map<int, std::map<std::string, int>> tempDemand = timeDemand;
+
+        for (int id : unstartedTransitions) {
+            const auto& act = RCPSPex.activities[id - 1];
+            int dur = act.duration;
+            int est = earlyStartTimes.at(id);
+            int lst = mid - dur;
+
+            if (lst < est) {
+                feasible = false;
+                break;
+            }
+
+            // Proper core interval: where the activity *must* overlap if makespan is mid
+            int coreStart = std::max(est, mid - dur);
+            int coreEnd = std::min(mid - 1, est + dur - 1);
+
+            for (int t = coreStart; t <= coreEnd; ++t) {
+                for (const auto& [res, demand] : act.resource_demands) {
+                    tempDemand[t][res] += demand;
+                    if (tempDemand[t][res] > capacityMap[res]) {
+                        feasible = false;
+                        break;
+                    }
+                }
+                if (!feasible) break;
+            }
+
+            if (!feasible) break;
+        }
+
+        if (feasible) {
+            bestFeasible = mid;
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+
+    return static_cast<double>(std::max(bestFeasible, activeMaxTime));
+}
+
+double computeSequenceLowerBoundWithMax(
+    const std::vector<int>& unfinishedTransitions,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices,
+    const std::map<int, int>& earlyStartTimes,
+    double criticalPathEstimate
+) {
+    // 1. Build active set
+    std::unordered_set<int> activeSet;
+    for (const auto& [id, _] : activeTransitionIndices)
+        activeSet.insert(id);
+
+    // 2. Build truly unstarted list
+    std::vector<int> unstartedTransitions;
+    for (int id : unfinishedTransitions) {
+        if (!activeSet.count(id))
+            unstartedTransitions.push_back(id);
+    }
+
+    // 3. Build capacity map
+    std::map<std::string, int> capacityMap;
+    for (const auto& [resName, cap] : RCPSPex.resources)
+        capacityMap[resName] = cap;
+
+    // 4. Simulated resource usage timeline
+    std::map<int, std::map<std::string, int>> resourceTimeline; // time -> resName -> usage
+
+    // 5. Schedule active tasks at [0, remainingTime)
+    for (const auto& [actId, remainingTime] : activeTransitionIndices) {
+        const auto& act = RCPSPex.activities[actId - 1];
+        for (int t = 0; t < remainingTime; ++t) {
+            for (const auto& [res, demand] : act.resource_demands) {
+                resourceTimeline[t][res] += demand;
+            }
+        }
+    }
+
+    // 6. Sort unstarted activities by descending duration
+    std::vector<std::pair<int, int>> unstartedSorted; // (actId, duration)
+    for (int id : unstartedTransitions) {
+        int dur = RCPSPex.activities[id - 1].duration;
+        unstartedSorted.emplace_back(id, dur);
+    }
+    std::sort(unstartedSorted.begin(), unstartedSorted.end(),
+              [](auto& a, auto& b) { return a.second > b.second; });
+
+    // 7. Schedule unstarted one by one
+    std::map<int, int> taskEndTimes;
+    for (const auto& [actId, duration] : unstartedSorted) {
+        const auto& act = RCPSPex.activities[actId - 1];
+        int est = earlyStartTimes.at(actId);
+        int startTime = est;
+
+        // Try to find first time slot where it can fit
+        while (true) {
+            bool fits = true;
+
+            for (int t = startTime; t < startTime + duration; ++t) {
+                for (const auto& [res, demand] : act.resource_demands) {
+                    int used = resourceTimeline[t][res];
+                    int available = capacityMap[res];
+                    if (used + demand > available) {
+                        fits = false;
+                        break;
+                    }
+                }
+                if (!fits) break;
+            }
+
+            if (fits) break;
+            startTime++;
+        }
+
+        // Schedule task at startTime
+        for (int t = startTime; t < startTime + duration; ++t) {
+            for (const auto& [res, demand] : act.resource_demands) {
+                resourceTimeline[t][res] += demand;
+            }
+        }
+
+        taskEndTimes[actId] = startTime + duration;
+    }
+
+    // 8. Determine last finish time
+    int simulatedEnd = 0;
+    for (const auto& [actId, end] : taskEndTimes)
+        simulatedEnd = std::max(simulatedEnd, end);
+    for (const auto& [actId, remainingTime] : activeTransitionIndices)
+        simulatedEnd = std::max(simulatedEnd, remainingTime);
+
+    return std::max(criticalPathEstimate, static_cast<double>(simulatedEnd));
+}
+
+double computeWorkloadLowerBoundWithMax(
+    const std::vector<int>& unfinishedTransitions,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices,
+    const std::map<int, int>& earlyStartTimes,
+    double criticalPathEstimate
+) {
+  // Build set of active IDs
+  std::unordered_set<int> activeSet;
+  for (const auto& [id, _] : activeTransitionIndices)
+    activeSet.insert(id);
+
+  // Filter out truly unstarted
+  std::vector<int> unstartedTransitions;
+  for (int id : unfinishedTransitions) {
+    if (activeSet.count(id) == 0)
+      unstartedTransitions.push_back(id);
+  }
+   // Step 1: Estimate total horizon needed
+    int project_end_est = 0;
+
+    for (const auto& [actId, est] : earlyStartTimes) {
+        int duration = RCPSPex.activities[actId - 1].duration;
+        project_end_est = std::max(project_end_est, est + duration);
+    }
+
+    for (const auto& [actId, startTime] : activeTransitionIndices) {
+        int duration = RCPSPex.activities[actId - 1].duration;
+        project_end_est = std::max(project_end_est, startTime + duration);
+    }
+
+    // Step 2: Aggregate workload across all time units
+    std::map<std::string, double> workloadPerResource;
+
+    for (int t = 0; t < project_end_est; ++t) {
+        // --- From unstarted transitions ---
+        for (int actId : unstartedTransitions) {
+            int est = earlyStartTimes.at(actId);
+            int duration = RCPSPex.activities[actId - 1].duration;
+
+            if (t >= est && t < est + duration) {
+                const auto& activity = RCPSPex.activities[actId - 1];
+                for (const auto& [resName, demand] : activity.resource_demands) {
+                    workloadPerResource[resName] += demand;
+                }
+            }
+        }
+
+        // --- From currently active transitions ---
+      for (const auto& [actId, remainingTime] : activeTransitionIndices) {
+        if (t < remainingTime) { // because they started at t = 0
+          const auto& activity = RCPSPex.activities[actId - 1];
+          for (const auto& [resName, demand] : activity.resource_demands) {
+            workloadPerResource[resName] += demand;
+          }
+        }
+      }
+    }
+
+    // Step 3: Get resource capacities
+    std::map<std::string, int> capacityMap;
+    for (const auto& [resName, capacity] : RCPSPex.resources) {
+        capacityMap[resName] = capacity;
+    }
+
+    // Step 4: Compute workload lower bound per resource
+    int workloadBound = 0;
+    for (const auto& [resName, totalWork] : workloadPerResource) {
+        int cap = capacityMap[resName];
+        int timeRequired = static_cast<int>(std::ceil(totalWork / cap));
+        workloadBound = std::max(workloadBound, timeRequired);
+    }
+
+    // Final result
+    return std::max(criticalPathEstimate, static_cast<double>(workloadBound));
+    //return static_cast<double>(workloadBound);
+}
+
+
+double computeResourceCapacityLowerBound(
+    const std::vector<int>& unfinishedTransitions,
+    const std::vector<std::pair<int, int>>& activeTransitionIndices,
+    double criticalPathEstimate
+) {
+  // Step 1: Build set of active IDs
+  std::unordered_set<int> activeSet;
+  for (const auto& [id, _] : activeTransitionIndices)
+    activeSet.insert(id);
+
+  // Step 2: Filter out active tasks → get truly unstarted
+  std::vector<int> unstartedTransitions;
+  for (int id : unfinishedTransitions) {
+    if (!activeSet.count(id))
+      unstartedTransitions.push_back(id);
+  }
+
+  // Step 3: Build capacity map
+  std::map<std::string, int> capacityMap;
+  for (const auto& [resName, cap] : RCPSPex.resources)
+    capacityMap[resName] = cap;
+
+  // Step 4: Accumulate workload for each resource
+  std::map<std::string, double> workloadPerResource;
+  for (int id : unstartedTransitions) {
+    const auto& act = RCPSPex.activities[id - 1];
+    for (const auto& [res, demand] : act.resource_demands) {
+      workloadPerResource[res] += demand * act.duration;
+    }
+  }
+
+  // Step 5: Compute LB per resource
+  double lb = 0.0;
+  for (const auto& [res, workload] : workloadPerResource) {
+    int cap = capacityMap[res];
+    if (cap > 0)
+      lb = std::max(lb, std::ceil(workload / cap));
+  }
+
+  return std::max(criticalPathEstimate, lb);
+}
+
+
 double getBackwordsHcost(std::set<int>startedTransitions, std::vector<std::pair<int, int>>activeTransitionIndices) {
  // auto startS3 = std::chrono::high_resolution_clock::now();
 
@@ -649,7 +1046,7 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
 
     }
     f=g_f+h_f;
-    //h_b=getBackwordsHcost(startedActivitiys,activeTransitionIndices);
+    //h_b=getBackwardHcost2(startedActivitiys,finishedActivitiys,activeTransitionIndices);
     //f=2*g_f+h_f-h_b;
     //f=2*g_f+h_f;
 
@@ -701,7 +1098,7 @@ RCPSPState_bi::RCPSPState_bi(RCPSPState_bi predecesor, Transition active, bool s
       }
       //auto endS1 = std::chrono::high_resolution_clock::now();
      // generateTIME += endS1-startS4;
-      h_b=getBackwordsHcost(startedActivitiys,activeTransitionIndices);
+      h_b=getBackwardHcost2(startedActivitiys,finishedActivitiys,activeTransitionIndices);
 
     }
     h_f=getForwardHcost(unstartedTransitions,activeTransitionIndices);
@@ -724,7 +1121,7 @@ int asdasd;
   asdasd++;
 }
 std::vector<int> getAvilableTransitionIndices(const std::unordered_map<std::string, int>& marking) {
-  auto startS4 = std::chrono::high_resolution_clock::now();
+  //auto startS4 = std::chrono::high_resolution_clock::now();
 
   std::vector<int> availableIndices;
 
@@ -826,3 +1223,40 @@ bool RCPSPState_bi::operator==(const RCPSPState_bi &other) const {
   // }
   return true;
 }
+
+std::vector<int> RCPSPState_TT::getAvailableTransitionIndices_TT() const {
+  std::vector<int> available;
+
+  for (int id : unstartedTransitions) {
+    const Activity& activity = RCPSPex.activities[id - 1];
+
+    // 1. קדימויות: כל הקודמים חייבים להיות ב-finished
+    bool depsMet = true;
+    for (const std::string& predStr : RCPSPex.backword_dependencies[id - 1]) {
+      int predId = std::stoi(predStr);
+      if (finishedActivitiys.count(predId) == 0) {
+        depsMet = false;
+        break;
+      }
+    }
+    if (!depsMet) continue;
+
+    // 2. משאבים זמינים
+    bool resourcesAvailable = true;
+    for (const auto& [resName, amount] : activity.resource_demands) {
+      auto it = marking.find(resName);
+      if (it == marking.end() || it->second < amount) {
+        resourcesAvailable = false;
+        break;
+      }
+    }
+    if (!resourcesAvailable) continue;
+
+    // אם עברנו את שני התנאים
+    available.push_back(id);
+  }
+
+  return available;
+}
+
+
