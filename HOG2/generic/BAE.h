@@ -33,6 +33,8 @@
 
 //              *****ido lublin 3.4.25*****
 bool GetExpandForward;
+std::chrono::steady_clock::time_point timeout2 = std::chrono::steady_clock::now() + std::chrono::minutes(1);
+
 //              ***************************
 
 
@@ -296,6 +298,7 @@ bool BAE<state, action, environment, priorityQueue>::InitializeSearch(environmen
 
     expandForward = true;
     //****
+    timeout2 = std::chrono::steady_clock::now() + std::chrono::minutes(1);
     GetExpandForward=expandForward;
     return true;
 }
@@ -311,7 +314,9 @@ bool BAE<state, action, environment, priorityQueue>::DoSingleSearchStep(std::vec
         std::cerr << " !! Problem with no solution?? Expanded: " << nodesExpanded << std::endl;
         exit(0);
     }
-
+    if (std::chrono::steady_clock::now() > timeout2) {
+        return true; // Exit early on timeout
+    }
     // This means that the best solution so far is better (or equal) than any solution we will be able to achieve from
     // this point forward, i.e., we are done
     if (currentCost <= getLowerBound()) {

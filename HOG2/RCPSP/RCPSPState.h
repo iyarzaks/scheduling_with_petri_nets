@@ -93,7 +93,8 @@ class RCPSPState_TT {
 public:
     // --- Constructors ---
     RCPSPState_TT();
-    RCPSPState_TT(const RCPSPState_TT& predecessor, int newTransitionId, bool applyTransition, int location, uint64_t& count);
+   // RCPSPState_TT(const RCPSPState_TT& predecessor, int newTransitionId, bool applyTransition, int location, uint64_t& count);
+    RCPSPState_TT(const RCPSPState_TT& prev, int ID, double firingTime,int count);
     ~RCPSPState_TT() {
         marking.clear();
         unstartedTransitions.clear();
@@ -103,13 +104,12 @@ public:
     }
 
     // --- Resource state ---
-    std::unordered_map<std::string, int> marking; // resourceName -> available amount
-
-    // --- Transition states ---
+    std::unordered_map<std::string, std::vector<std::pair<int, int>>> marking;
     std::vector<int> unstartedTransitions;                         // transitions not yet started
     std::vector<std::pair<int, int>> activeTransitionIndices;     // (transitionID, remaining time)
     std::map<int, int> startedActivitiys;                          // activityID -> start time
     std::map<int, int> finishedActivitiys;                         // activityID -> finish time
+    std::vector<std::pair<int, int>> avilableTransitionIndices;  // Store transition IDs
 
     // --- Metadata for search ---
     bool direction = true;  // true = forward, false = backward
@@ -127,8 +127,16 @@ public:
 
     // --- Logic (to be implemented) ---
     std::vector<int> getAvailableTransitionIndices_TT() const;
+    std::vector<std::pair<int, int>> getAvailableTransitionIndices_TT(
+        const std::vector<int> &unstartedTransitions,
+        const std::map<int, int> &finishedActivities,
+        const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking,
+        int currentTime) ;
+
     void startTransition(int transitionId, int currentTime);
     void advanceTime(int timeStep);
+    bool operator==(const RCPSPState& other) const;
+
 };
 
 

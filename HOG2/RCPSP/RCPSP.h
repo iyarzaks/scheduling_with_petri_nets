@@ -36,16 +36,13 @@ class RCPSP : public SearchEnvironment<RCPSPState,int>{
   std::vector<RCPSPState> GetSuccessors(const RCPSPState &nodeID) const;
   double GCost(const RCPSPState &node, const int &act) const override;
   };
-std::chrono::duration<double> hashTIME;
-std::chrono::duration<double> secssesorTIME;
-
 
 
 
 
 
 inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
-  auto startS1 = std::chrono::high_resolution_clock::now();
+  //auto startS1 = std::chrono::high_resolution_clock::now();
 
   std::size_t seed = 0;
 
@@ -58,9 +55,9 @@ inline uint64_t RCPSP::GetStateHash(const RCPSPState &node) const {
     seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
   }
-  auto endS1 = std::chrono::high_resolution_clock::now();
+  //auto endS1 = std::chrono::high_resolution_clock::now();
 
-  hashTIME += endS1-startS1;
+  //hashTIME += endS1-startS1;
   return seed;
 
 }
@@ -530,7 +527,7 @@ else {
   };
 
   uint64_t GetStateHash(const RCPSPState_bi &node) const {
-    auto startS1 = std::chrono::high_resolution_clock::now();
+    //auto startS1 = std::chrono::high_resolution_clock::now();
     std::size_t seed = 0;
     // Hash the marking (Petri net state)
     for (const auto& pair : node.activeTransitionIndices) {
@@ -548,8 +545,8 @@ else {
       seed ^= std::hash<int>{}(activity) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
-    auto endS1 = std::chrono::high_resolution_clock::now();
-    hashTIME += endS1 - startS1;
+    //auto endS1 = std::chrono::high_resolution_clock::now();
+    //hashTIME += endS1 - startS1;
 
     return seed;
 
@@ -580,6 +577,129 @@ public:
 
   }
 };
+
+
+class RCPSP_TT : public SearchEnvironment<RCPSPState_TT,int>{
+public:
+  RCPSP_TT();
+  void GetSuccessors(const RCPSPState_TT &nodeID, std::vector<RCPSPState_TT> &neighbors) const override;
+  bool GoalTest(const RCPSPState_TT &node, const RCPSPState_TT &goal) const override;
+  double HCost(const RCPSPState_TT &state1, const RCPSPState_TT &state2) const override;
+  double GCost(const RCPSPState_TT &state1, const RCPSPState_TT &state2) const override;
+
+  int GetAction(const RCPSPState_TT &nodeID, const RCPSPState_TT &nodeID2) const override;
+  int GetNumSuccessors(const RCPSPState_TT &stateID) const;
+  void GetActions(const RCPSPState_TT &nodeID, std::vector<int> &actions) const override;
+  void ApplyAction(RCPSPState_TT &s, int a) const override;
+  uint64_t GetActionHash(int act) const;
+  uint64_t GetStateHash(const RCPSPState_TT &node) const;
+  bool InvertAction(int &a) const;
+  std::vector<RCPSPState_TT> GetSuccessors(const RCPSPState_TT &nodeID) const;
+  double GCost(const RCPSPState_TT &node, const int &act) const override;
+};
+
+inline RCPSP_TT::RCPSP_TT() {
+}
+
+inline void RCPSP_TT::GetSuccessors(const RCPSPState_TT &nodeID, std::vector<RCPSPState_TT> &neighbors) const {
+  auto availableTransitions=nodeID.avilableTransitionIndices;
+  for (const auto& [transId, firingTime] : availableTransitions) {
+    neighbors.emplace_back(RCPSPState_TT(nodeID, transId, firingTime, count));
+  }
+}
+
+inline bool RCPSP_TT::GoalTest(const RCPSPState_TT &node, const RCPSPState_TT &goal) const {
+  if (node.finishedActivitiys.size() ==petri.Transitions.size())
+    return true;
+  else
+    return false;
+  // const auto& placeMarking = node.marking.at(finalstatename);
+  // if (placeMarking.at("count") == 1) {
+  //   return true;
+  // }
+  // else {
+  //   return false;
+  // }
+}
+inline double RCPSP_TT::HCost(const RCPSPState_TT &state1, const RCPSPState_TT &state2) const {
+  return state1.h;
+}
+inline double RCPSP_TT::GCost(const RCPSPState_TT &state1, const RCPSPState_TT &state2) const {
+  return state2.g-state1.g;//+state1.g
+}
+
+inline uint64_t RCPSP_TT::GetStateHash(const RCPSPState_TT &node) const {
+  //auto startS1 = std::chrono::high_resolution_clock::now();
+
+  std::size_t seed = 0;
+
+  for (const auto& pair : node.startedActivitiys) {
+    seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  }
+
+  for (const auto& pair : node.finishedActivitiys) {
+    seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  }
+  //auto endS1 = std::chrono::high_resolution_clock::now();
+
+  //hashTIME += endS1-startS1;
+  return seed;
+
+}
+
+
+
+
+
+inline uint64_t RCPSP_TT::GetActionHash(int act) const {
+  // Example hash for an action
+  return std::hash<int>()(act);
+}
+inline void RCPSP_TT::GetActions(const RCPSPState_TT &nodeID, std::vector<int> &actions) const {
+  // for (int i = 0; i < nodeID.sons.size(); ++i) {
+  //   actions.push_back(i); // Add the index of each available transition as an action.
+  // }
+}
+
+inline bool RCPSP_TT::InvertAction(int &a) const {
+  // Example logic to invert an action
+  return true;
+}
+
+inline std::vector<RCPSPState_TT> RCPSP_TT::GetSuccessors(const RCPSPState_TT &nodeID) const {
+
+  std::vector<RCPSPState_TT> neighbors;
+  // for (int i = 0; i < nodeID.sons.size(); ++i) {
+  //   neighbors.push_back(nodeID.sons[i]);
+  // }
+  return neighbors;
+}
+
+
+inline int RCPSP_TT::GetAction(const RCPSPState_TT &nodeID, const RCPSPState_TT &nodeID2) const {
+  return 0;
+}
+
+//inline uint64_t RCPSP::GetStateHash(const RCPSPState &s) const {
+// return s.name;
+//}
+inline int RCPSP_TT::GetNumSuccessors(const RCPSPState_TT &stateID) const {
+  // int i=0;
+  // if (stateID.activeTransitions.size() > 0){i=1;}
+  // return stateID.avilableTransition.size()+i;
+  return 0;
+}
+
+
+
+inline void RCPSP_TT::ApplyAction(RCPSPState_TT &s, int a) const {
+
+}
+inline double RCPSP_TT::GCost(const RCPSPState_TT &node, const int &act) const {
+  return node.g;
+}
 
 #endif //RCPSP_H
 //
