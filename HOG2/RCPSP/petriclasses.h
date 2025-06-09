@@ -34,6 +34,7 @@ class RCPSP_example{
     std::vector<std::vector<std::string>> backword_dependencies;
 
     std::vector<std::pair<std::string, int>> resources;
+    std::set<std::pair<std::string, std::string>> deep_dependencies;
 
     // Function to add a single resource to the vector
     void addResource(const std::string& name, int value) {
@@ -48,6 +49,52 @@ class RCPSP_example{
         backword_dependencies.clear();
         resources.clear();
         activity_len = 0;
+    }
+    void computeAndStoreDeepDependencies() {
+        deep_dependencies.clear();
+
+        // Map activity names to indices
+        std::unordered_map<std::string, int> name_to_index;
+        for (int i = 0; i < activities.size(); ++i) {
+            name_to_index[activities[i].name] = i;
+        }
+
+        for (const auto& activity : activities) {
+            for (const auto& target : activities) {
+                if (activity.name != target.name) {
+                    if (depends_on(activity.name, target.name, name_to_index)) {
+                        deep_dependencies.emplace(activity.name, target.name);
+                    }
+                }
+            }
+        }
+    }
+    bool depends_on(const std::string& a_name, const std::string& t_name,
+                   const std::unordered_map<std::string, int>& name_to_index) const {
+        std::unordered_set<std::string> visited;
+        return dfs(a_name, t_name, name_to_index, visited);
+    }
+
+    bool dfs(const std::string& current, const std::string& target,
+             const std::unordered_map<std::string, int>& name_to_index,
+             std::unordered_set<std::string>& visited) const {
+        if (current == target)
+            return true;
+        if (visited.count(current))
+            return false;
+
+        visited.insert(current);
+        auto it = name_to_index.find(current);
+        if (it == name_to_index.end())
+            return false;
+
+        int idx = it->second;
+        for (const std::string& dep : dependencies[idx]) {
+            if (dfs(dep, target, name_to_index, visited))
+                return true;
+        }
+
+        return false;
     }
     //didnt put activity_names_duration activity_names_set depenedncy_deep_set
 };

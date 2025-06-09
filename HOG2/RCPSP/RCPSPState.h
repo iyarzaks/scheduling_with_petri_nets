@@ -130,8 +130,7 @@ public:
     std::vector<std::pair<int, int>> getAvailableTransitionIndices_TT(
         const std::vector<int> &unstartedTransitions,
         const std::map<int, int> &finishedActivities,
-        const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking,
-        int currentTime) ;
+        const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking) ;
 
     void startTransition(int transitionId, int currentTime);
     void advanceTime(int timeStep);
