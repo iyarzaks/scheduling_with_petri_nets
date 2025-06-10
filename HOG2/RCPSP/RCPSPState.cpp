@@ -1943,16 +1943,15 @@ if (transitionId==11) {
   for (const auto& [name, time] : finishedActivitiys) {
     if (time > max_time) {
       max_time = time;
-      last_activity = std::to_string(name);  // Convert int to string
-    }
+last_activity = RCPSPex.activities[name].name;    }
   }
 
-  std::vector<int> indipendentTransitions;                         // transitions not yet started
   std::vector<int> independentSet;
+  std::vector<int> indipendentTransitions = unstartedTransitions; // Initialize with unstarted activities
 
   // Filter independent transitions (not dependent on last finished)
   for (int actIdx : indipendentTransitions) {
-    const std::string& actName = RCPSPex.activities[actIdx].name;
+    const std::string& actName = RCPSPex.activities[actIdx-1].name;
     if (RCPSPex.deep_dependencies.find({last_activity, actName}) == RCPSPex.deep_dependencies.end()) {
       independentSet.push_back(actIdx);
     }
@@ -1977,7 +1976,8 @@ if (transitionId==11) {
   double unk_time = g - latest_start;
 
       h=std::max(getForwardHcost_TT(unstartedTransitions,finishedActivitiys)-unk_time,getForwardHcost_TT(newUnstartedTransitions,finishedActivitiys));
-      predecesorname = prev.name;
+  //h=getForwardHcost_TT(unstartedTransitions,finishedActivitiys);
+  predecesorname = prev.name;
   }
 
 /*
