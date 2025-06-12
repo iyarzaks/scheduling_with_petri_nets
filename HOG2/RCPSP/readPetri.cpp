@@ -76,7 +76,7 @@ void getPetri(PetriExample& petriExample,int group,int exam) {
     }
 
 }
-void getRCPSP(RCPSP_example& rcpsp_example,int group,int exam) {
+void getRCPSP_new(RCPSP_example& rcpsp_example,int group,int exam) {
     // Open the file for reading
     rcpsp_example.reset();
     std::string folderName;
@@ -200,7 +200,7 @@ int size= j.size();
 }
 
 
-void getRCPSP_old(RCPSP_example& rcpsp_example,int group,int exam) {
+void getRCPSP(RCPSP_example& rcpsp_example,int group,int exam) {
     // Open the file for reading
     rcpsp_example.reset();
     std::string folderName;

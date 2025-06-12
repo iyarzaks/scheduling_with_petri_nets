@@ -274,7 +274,7 @@ double getForwardHcost(std::vector<int>unstartedTransitions,
     h = earlyfinishMap2.rbegin()->second;;
 
   }
-return h;
+//return h;
  // return std::max(computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h), computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h));//BL_RC huristic
   //return computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h);//BL_Cs huristic
   //return computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_Cs huristic
@@ -1287,16 +1287,6 @@ RCPSPState::RCPSPState(RCPSPState predecesor, Transition active, bool status, in
     }
   }
   avilableTransitionIndices = getAvilableTransitionIndices(marking);
-
-
-
-  // You'll need to modify these functions to return indices instead of Transitions
-//   if (direction) {
-// }
-// else {
-//   }
-int asdasd;
-  asdasd++;
 }
 
 
@@ -1943,14 +1933,14 @@ if (transitionId==11) {
   for (const auto& [name, time] : finishedActivitiys) {
     if (time > max_time) {
       max_time = time;
-last_activity = RCPSPex.activities[name].name;    }
+last_activity = RCPSPex.activities[name-1].name;    }
   }
 
   std::vector<int> independentSet;
-  std::vector<int> indipendentTransitions = unstartedTransitions; // Initialize with unstarted activities
+ // std::vector<int> indipendentTransitions = unstartedTransitions; // Initialize with unstarted activities
 
   // Filter independent transitions (not dependent on last finished)
-  for (int actIdx : indipendentTransitions) {
+  for (int actIdx : unstartedTransitions) {
     const std::string& actName = RCPSPex.activities[actIdx-1].name;
     if (RCPSPex.deep_dependencies.find({last_activity, actName}) == RCPSPex.deep_dependencies.end()) {
       independentSet.push_back(actIdx);
@@ -1974,9 +1964,9 @@ last_activity = RCPSPex.activities[name].name;    }
     }
   }
   double unk_time = g - latest_start;
-
-      h=std::max(getForwardHcost_TT(unstartedTransitions,finishedActivitiys)-unk_time,getForwardHcost_TT(newUnstartedTransitions,finishedActivitiys));
-  //h=getForwardHcost_TT(unstartedTransitions,finishedActivitiys);
+  h=getForwardHcost_TT(unstartedTransitions,finishedActivitiys)-unk_time;
+      //h=std::max(getForwardHcost_TT(unstartedTransitions,finishedActivitiys)-unk_time,getForwardHcost_TT(newUnstartedTransitions,finishedActivitiys));
+ // h=getForwardHcost_TT(unstartedTransitions,finishedActivitiys);
   predecesorname = prev.name;
   }
 
@@ -2035,7 +2025,6 @@ std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT
     const std::map<int, int> &finishedActivities,
     const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking
     ) {
-
  std::vector<std::pair<int, int>> available; // (transition ID, earliest firing time)
 
     for (int transId : unstartedTransitions) {
@@ -2043,30 +2032,25 @@ std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT
 
         // 1. Check precedence constraints
         bool allDependenciesFinished = true;
+        int maxPredFinishTime = 0;
+
         for (const std::string& predStr : RCPSPex.backword_dependencies[transId - 1]) {
             int predId = std::stoi(predStr);
-            if (finishedActivities.find(predId) == finishedActivities.end()) {
+            auto it = finishedActivities.find(predId);
+            if (it == finishedActivities.end()) {
                 allDependenciesFinished = false;
                 break;
+            } else {
+                maxPredFinishTime = std::max(maxPredFinishTime, it->second);
             }
         }
+
         if (!allDependenciesFinished)
             continue;
 
-        // 2. Find earliest time when ALL required backword_dependencies are available
-        int earliestFire = 0;
-      for (const std::string& predStr : RCPSPex.backword_dependencies[transId - 1]) {
-        int predId = std::stoi(predStr);
-        if (finishedActivities.find(predId) != finishedActivities.end()) {
-          earliestFire = std::max(earliestFire, finishedActivities.at(predId));
-        }
-      }
-
-
-
-
-
+        // 2. Check resource availability and find max resource ready time
         bool resourcesAvailable = true;
+        int maxResourceReadyTime = 0;
 
         for (const auto& [res, demand] : act.resource_demands) {
             auto it = marking.find(res);
@@ -2075,21 +2059,18 @@ std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT
                 break;
             }
 
-            // Sort tokens by time to process them in order
-            auto resourceTokens = it->second; // Make a copy to sort
+            // Sort tokens by time
+            auto resourceTokens = it->second; // Copy for sorting
             std::sort(resourceTokens.begin(), resourceTokens.end(),
-                     [](const auto& a, const auto& b) { return a.second < b.second; });
+                      [](const auto& a, const auto& b) { return a.second < b.second; });
 
-            // Find the earliest time when we have enough of THIS resource
             int totalAvailable = 0;
             int resourceReadyTime = -1;
 
             for (const auto& [amount, time] : resourceTokens) {
                 if (totalAvailable < demand) {
-                    // We still need more resources
                     totalAvailable += amount;
                     if (totalAvailable >= demand) {
-                        // This is the moment we first have enough - use this time
                         resourceReadyTime = time;
                         break;
                     }
@@ -2097,22 +2078,105 @@ std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT
             }
 
             if (resourceReadyTime == -1) {
-                // Not enough of this resource available
                 resourcesAvailable = false;
                 break;
             }
 
-            // The earliest firing time is when ALL resources are ready
-            // So we take the maximum (latest) time among all resource types
-            earliestFire = std::max(earliestFire, resourceReadyTime);
+            maxResourceReadyTime = std::max(maxResourceReadyTime, resourceReadyTime);
         }
 
-        if (resourcesAvailable)
-            available.emplace_back(transId, earliestFire);
+        if (resourcesAvailable) {
+            int finalEarliestFire = std::max(maxPredFinishTime, maxResourceReadyTime);
+            available.emplace_back(transId, finalEarliestFire);
+        }
     }
 
     return available;
 }
+// std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT_old(
+//     const std::vector<int> &unstartedTransitions,
+//     const std::map<int, int> &finishedActivities,
+//     const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking
+//     ) {
+//
+//  std::vector<std::pair<int, int>> available; // (transition ID, earliest firing time)
+//
+//     for (int transId : unstartedTransitions) {
+//         const Activity& act = RCPSPex.activities[transId - 1];
+//
+//         // 1. Check precedence constraints
+//         bool allDependenciesFinished = true;
+//         for (const std::string& predStr : RCPSPex.backword_dependencies[transId - 1]) {
+//             int predId = std::stoi(predStr);
+//             if (finishedActivities.find(predId) == finishedActivities.end()) {
+//                 allDependenciesFinished = false;
+//                 break;
+//             }
+//         }
+//         if (!allDependenciesFinished)
+//             continue;
+//
+//         // 2. Find earliest time when ALL required backword_dependencies are available
+//         int earliestFire = 0;
+//       for (const std::string& predStr : RCPSPex.backword_dependencies[transId - 1]) {
+//         int predId = std::stoi(predStr);
+//         if (finishedActivities.find(predId) != finishedActivities.end()) {
+//           earliestFire = std::max(earliestFire, finishedActivities.at(predId));
+//         }
+//       }
+//
+//
+//
+//
+//
+//         bool resourcesAvailable = true;
+//
+//         for (const auto& [res, demand] : act.resource_demands) {
+//             auto it = marking.find(res);
+//             if (it == marking.end()) {
+//                 resourcesAvailable = false;
+//                 break;
+//             }
+//
+//             // Sort tokens by time to process them in order
+//             auto resourceTokens = it->second; // Make a copy to sort
+//             std::sort(resourceTokens.begin(), resourceTokens.end(),
+//                      [](const auto& a, const auto& b) { return a.second < b.second; });
+//
+//             // Find the earliest time when we have enough of THIS resource
+//             int totalAvailable = 0;
+//             int resourceReadyTime = -1;
+//
+//             for (const auto& [amount, time] : resourceTokens) {
+//                 if (totalAvailable < demand) {
+//                     // We still need more resources
+//                     totalAvailable += amount;
+//                     if (totalAvailable >= demand) {
+//                         // This is the moment we first have enough - use this time
+//                         resourceReadyTime = time;
+//                         break;
+//                     }
+//                 }
+//             }
+//
+//             if (resourceReadyTime == -1) {
+//                 // Not enough of this resource available
+//                 resourcesAvailable = false;
+//                 break;
+//             }
+//
+//             // The earliest firing time is when ALL resources are ready
+//             // So we take the maximum (latest) time among all resource types
+//             earliestFire = std::max(earliestFire, resourceReadyTime);
+//         }
+//
+//         if (resourcesAvailable)
+//             available.emplace_back(transId, earliestFire);
+//     }
+//
+//     return available;
+//
+// }
 
 
 

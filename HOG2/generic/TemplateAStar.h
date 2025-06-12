@@ -88,7 +88,7 @@ struct AStarCompareWithF {
 			//auto endSCF = std::chrono::high_resolution_clock::now();
 
 			//comperTime += endSCF-startSCF;
-			return fless(i1.g, i2.g); // g גבוה יותר עדיף
+			return fless(i2.g, i1.g); // g גבוה יותר עדיף//change 10.6
 		}
 		//auto endSCF = std::chrono::high_resolution_clock::now();
 

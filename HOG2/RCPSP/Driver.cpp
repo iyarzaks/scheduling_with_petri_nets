@@ -314,7 +314,7 @@ int solveRCPSP_TT(int group, int exam, const std::string& filename) {
 
     getPetri(petri, group, exam);
     getRCPSP(RCPSPex, group, exam);
-    RCPSPex.computeAndStoreDeepDependencies();
+    //RCPSPex.computeAndStoreDeepDependencies();
 
     RCPSPState_TT first;
     RCPSPState_TT last = first;
@@ -977,7 +977,7 @@ void runBenchmark() {
     //solveRCPSP(13, 2, filename);
 
     //solveRCPSP_Bi(39, 4, filename);
-    solveRCPSP_TT(16, 9, filename);
+    //solveRCPSP_TT(1,1 , filename);
     //solveRCPSP(-1, -1, filename);
     //solveRCPSP(3, 2, filename);
     //solveRCPSP(4, 3, filename);
@@ -987,12 +987,12 @@ void runBenchmark() {
     //solveRCPSP_Bi(8, 9, filename);
    // solveRCPSP(,10,filename);
 
-  // for(int i=1;i<49;i++) {
-  //      for(int j=1;j<11;j++) {
-  //      solveRCPSP_Bi(i,j,filename);
-  //   //   getinitialHcost(i,j,filename);
-  //      }
-  //  }
+  for(int i=2;i<3;i++) {
+       for(int j=2;j<11;j++) {
+       solveRCPSP(i,j,filename);
+    //   getinitialHcost(i,j,filename);
+       }
+   }
 //     solveRCPSP(1, 2, filename);
 // solveRCPSP(1, 3, filename);
 // solveRCPSP(1, 4, filename);
