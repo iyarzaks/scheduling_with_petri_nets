@@ -1777,12 +1777,11 @@ double computeEarliestFinish(int activityId,
 //
 //     return maxEF; // or return something else if your `h` has a different meaning
 // }
-double getForwardHcost_TT(std::vector<int>unstartedTransitions,
-                      std::map<int, int> finishedActivities) {
+double getForwardHcost_TT(std::vector<int>unstartedTransitions) {
   //auto startS3 = std::chrono::high_resolution_clock::now();
 
    std::map<int, int> earlyfinishMap2; // Map to store activity IDs and their early finish times
-   std::map<int, int> earlyfinishMap3; // Map to store activity IDs and their early finish times
+   //std::map<int, int> earlyfinishMap3; // Map to store activity IDs and their early finish times
   //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
   double h;
   std::set<int> processedDependencies;
@@ -1799,19 +1798,19 @@ double getForwardHcost_TT(std::vector<int>unstartedTransitions,
       if (std::find(unstartedTransitions.begin(), unstartedTransitions.end(), depId + 1) != unstartedTransitions.end()) {
 
           maxFinishTime = std::max(maxFinishTime, earlyfinishMap2[depId+1] + RCPSPex.activities[depId].duration);
-          earlyfinishMap3[depId+1] = earlyfinishMap2[depId+1] + RCPSPex.activities[depId].duration;
+          //earlyfinishMap3[depId+1] = earlyfinishMap2[depId+1] + RCPSPex.activities[depId].duration;
 
       }
       else {
         // maxFinishTime = std::max(maxFinishTime, earlyfinishMap2[depId+1]);
         // earlyfinishMap3[depId+1] = earlyfinishMap2[depId+1];
         maxFinishTime = std::max(maxFinishTime, 0);
-        earlyfinishMap3[depId+1] = 0;
+        //earlyfinishMap3[depId+1] = 0;
       }
     }
 
     earlyfinishMap2[activityId] = maxFinishTime;
-    earlyfinishMap3[activityId] = maxFinishTime;
+    //earlyfinishMap3[activityId] = maxFinishTime;
     //std::cout <<activityId<<":"<< earlyfinishMap[activityId]+RCPSPex.activities[activityId-1].duration << std::endl;
     // For last element with duration 0, just use the max finish time of dependencies
   }
@@ -1836,13 +1835,7 @@ return h;
 
 
 
-RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, double firingTime2,int count) {
-  name = count++;
-
-
-  h = 0; // יתווסף מאוחר יותר
-  direction = true; // לדוגמה
-
+RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, int firingTime) {
   // העתקת מבנים מהמצב הקודם
   startedActivitiys = prev.startedActivitiys;
   finishedActivitiys = prev.finishedActivitiys;
@@ -1853,7 +1846,6 @@ RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, double 
   const Transition& transition = petri.Transitions[transitionId - 1];
 
   // Compute firing time (max of input places' times)
-  int firingTime =firingTime2;
 
   for (const auto& [place, outAmount] : transition.arcs_out) {
     // Add new tokens with updated time
@@ -1874,7 +1866,6 @@ RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, double 
       finishedActivitiys[transitionId] = firingTime + duration;
       //
       //  2. צריכת משאבים (marking)
-      std::vector<std::string> resourceNames = {"R1", "R2", "R3", "R4"};
 
       for (const std::string& res : resourceNames) {
         int demand = 0;
@@ -1918,22 +1909,19 @@ RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, double 
       // 5. hash/debug/etc.
 
 
-  std::vector<int> optionalTransitions = getOptionalTransitions_TT(
-      unstartedTransitions,
-      startedActivitiys  // Note: this should be started activities, not finished
-  );
-  avilableTransitionIndices = checkAvailableTransitions_TT(
-    optionalTransitions,
-    finishedActivitiys,
-    marking
-);
-      //avilableTransitionIndices = getAvailableTransitionIndices_TT(unstartedTransitions,finishedActivitiys,marking);
+//   std::vector<int> optionalTransitions = getOptionalTransitions_TT(
+//       unstartedTransitions,
+//       startedActivitiys  // Note: this should be started activities, not finished
+//   );
+//   avilableTransitionIndices = checkAvailableTransitions_TT(
+//     optionalTransitions,
+//     finishedActivitiys,
+//     marking
+// );
+      avilableTransitionIndices = getAvailableTransitionIndices_TT(unstartedTransitions,finishedActivitiys,marking);
 
 
-  if (transitionId==11) {
-  int asd;
-  asd++;
-}
+
   std::string last_activity;
   int max_time = -1;
 
@@ -1971,11 +1959,10 @@ last_activity = RCPSPex.activities[name-1].name;    }
       latest_start = start_time;
     }
   }
-  double unk_time = g - latest_start;
-  h=getForwardHcost_TT(unstartedTransitions,finishedActivitiys)-unk_time;
-      //h=std::max(getForwardHcost_TT(unstartedTransitions,finishedActivitiys)-unk_time,getForwardHcost_TT(newUnstartedTransitions,finishedActivitiys));
+  int unk_time = g - latest_start;
+  //h=getForwardHcost_TT(unstartedTransitions,finishedActivitiys)-unk_time;
+      h=std::max(getForwardHcost_TT(unstartedTransitions)-unk_time,getForwardHcost_TT(newUnstartedTransitions));
  // h=getForwardHcost_TT(unstartedTransitions,finishedActivitiys);
-  predecesorname = prev.name;
   }
 
 /*

@@ -94,7 +94,7 @@ public:
     // --- Constructors ---
     RCPSPState_TT();
    // RCPSPState_TT(const RCPSPState_TT& predecessor, int newTransitionId, bool applyTransition, int location, uint64_t& count);
-    RCPSPState_TT(const RCPSPState_TT& prev, int ID, double firingTime,int count);
+    RCPSPState_TT(const RCPSPState_TT& prev, int ID, int firingTime);
     ~RCPSPState_TT() {
         marking.clear();
         unstartedTransitions.clear();
@@ -110,6 +110,7 @@ public:
     std::map<int, int> startedActivitiys;                          // activityID -> start time
     std::map<int, int> finishedActivitiys;                         // activityID -> finish time
     std::vector<std::pair<int, int>> avilableTransitionIndices;  // Store transition IDs
+    std::vector<std::string> resourceNames = {"R1", "R2", "R3", "R4"};
 
     // --- Metadata for search ---
     bool direction = true;  // true = forward, false = backward

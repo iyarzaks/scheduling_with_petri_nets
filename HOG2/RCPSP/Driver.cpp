@@ -953,12 +953,13 @@ void runBenchmark() {
   //  solveRCPSP_TT(1, 1, filename);
 
     // for(int i=1;i<2;i++) {
-    //      for(int j=7;j<11;j++) {
+    //      for(int j=1;j<11;j++) {
     //      solveRCPSP_TT(i,j,filename);
     //   //   getinitialHcost(i,j,filename);
     //      }
     //  }
-    solveRCPSP_TT(16, 9, filename);
+    solveRCPSP_TT(1, 9, filename);
+    solveRCPSP_TT(1, 10, filename);
   //  solveRCPSP(8, 9,filename);
     //solveRCPSP_Bi(39, 4, filename);
     //solveRCPSP_TT(1,1 , filename);
