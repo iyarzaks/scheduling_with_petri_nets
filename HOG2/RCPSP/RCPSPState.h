@@ -131,7 +131,15 @@ public:
         const std::vector<int> &unstartedTransitions,
         const std::map<int, int> &finishedActivities,
         const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking) ;
-
+    std::vector<std::pair<int, int>> checkAvailableTransitions_TT(
+        const std::vector<int> &optionalTransitions,
+        const std::map<int, int> &finishedActivities,
+        const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking
+    );
+    std::vector<int> getOptionalTransitions_TT(
+    const std::vector<int> &unstartedTransitions,
+    const std::map<int, int> &startedActivities  // Note: started, not finished
+) ;
     void startTransition(int transitionId, int currentTime);
     void advanceTime(int timeStep);
     bool operator==(const RCPSPState& other) const;

@@ -274,7 +274,7 @@ double getForwardHcost(std::vector<int>unstartedTransitions,
     h = earlyfinishMap2.rbegin()->second;;
 
   }
-//return h;
+return h;
  // return std::max(computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h), computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h));//BL_RC huristic
   //return computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h);//BL_Cs huristic
   //return computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_Cs huristic
@@ -1625,39 +1625,72 @@ std::vector<std::pair<int, int>> consumeResourceList(
     int amount,
     int currentTime
 ) {
-  if (amount < 1)
-    return resource;
+    if (amount < 1)
+        return resource;
 
-  // Copy and sort ASCENDING by time (same as availability check)
-  std::vector<std::pair<int, int>> resourceCopy = resource;
-  std::sort(resourceCopy.begin(), resourceCopy.end(), [](const auto& a, const auto& b) {
-      return a.second < b.second; // ASCENDING by time - consume earliest first
-  });
+    // Copy and sort DESCENDING by time (following Python logic)
+    std::vector<std::pair<int, int>> resourceCopy = resource;
+    std::sort(resourceCopy.begin(), resourceCopy.end(), [](const auto& a, const auto& b) {
+        return a.second > b.second; // DESCENDING by time (reverse=True in Python)
+    });
 
-  for (auto& [qty, time] : resourceCopy) {
-    if (time == currentTime) {
-      if (qty >= amount) {
-        qty -= amount;
-        amount = 0;
-        break;
-      }
-      //else {
-      //   amount -= qty;
-      //   qty = 0;
-      // }
+    int remainingAmount = amount;
+
+    for (auto& [qty, time] : resourceCopy) {
+        // Consume from resources that are available by currentTime (time <= currentTime)
+        if (time <= currentTime && remainingAmount > 0) {
+            if (qty >= remainingAmount) {
+                // This resource has enough to satisfy remaining demand
+                qty -= remainingAmount;
+                remainingAmount = 0;
+                break;
+            } else {
+                // Consume all of this resource and continue
+                remainingAmount -= qty;
+                qty = 0;
+            }
+        }
     }
-  }
 
-  // Remove pairs with qty == 0
-  resourceCopy.erase(
-      std::remove_if(resourceCopy.begin(), resourceCopy.end(), [](const auto& p) {
-          return p.first <= 0;
-      }),
-      resourceCopy.end()
-  );
+    // Remove pairs with qty == 0
+    resourceCopy.erase(
+        std::remove_if(resourceCopy.begin(), resourceCopy.end(), [](const auto& p) {
+            return p.first <= 0;
+        }),
+        resourceCopy.end()
+    );
 
-  return resourceCopy;
+    return resourceCopy;
 }
+
+// Also add the return_resource function
+// std::vector<std::pair<int, int>> return_resource(
+//     const std::vector<std::pair<int, int>>& resource,
+//     int amount,
+//     int returnTime
+// ) {
+//     if (amount < 1)
+//         return resource;
+//
+//     std::vector<std::pair<int, int>> resourceCopy = resource;
+//
+//     // Check if there is already an entry with the returnTime
+//     bool found = false;
+//     for (auto& [qty, time] : resourceCopy) {
+//         if (time == returnTime) {
+//             qty += amount;
+//             found = true;
+//             break;
+//         }
+//     }
+//
+//     // If no entry with the returnTime was found, create a new one
+//     if (!found) {
+//         resourceCopy.push_back({amount, returnTime});
+//     }
+//
+//     return resourceCopy;
+// }
 
 std::vector<std::pair<int, int>> return_resource(
     const std::vector<std::pair<int, int>>& resource,
@@ -1821,16 +1854,7 @@ RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, double 
 
   // Compute firing time (max of input places' times)
   int firingTime =firingTime2;
-  // for (const auto& [place, _] : transition.arcs_in) {
-  //   if (prev.marking.count(place) && !prev.marking.at(place).empty()) {
-  //     // Iterate through all tokens in this place to find the latest one
-  //     for (const auto& [amount, time] : prev.marking.at(place)) {
-  //       firingTime = std::max(firingTime, time);
-  //     }
-  //   }
-  // }
 
-  // Apply effects on output places (arcs_out)
   for (const auto& [place, outAmount] : transition.arcs_out) {
     // Add new tokens with updated time
     if (marking.count(place) == 0) {
@@ -1841,32 +1865,6 @@ RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, double 
       marking[place].push_back({outAmount, firingTime + transition.duration});
     }
   }
-  //
-  // // Apply effects on input places (arcs_in)
-  // for (const auto& [place, inAmount] : transition.arcs_in) {
-  //   if (marking.count(place) && !marking.at(place).empty()) {
-  //     // Remove tokens from this place
-  //     int remainingToRemove = inAmount;
-  //
-  //     // Start with the earliest tokens (typically sorted by time)
-  //     auto& tokens = marking[place];
-  //
-  //     // Remove tokens until we've removed enough
-  //     for (auto it = tokens.begin(); it != tokens.end() && remainingToRemove > 0;) {
-  //       int tokenAmount = it->first;
-  //
-  //       if (tokenAmount <= remainingToRemove) {
-  //         // Remove entire token
-  //         remainingToRemove -= tokenAmount;
-  //         it = tokens.erase(it);
-  //       } else {
-  //         // Partially consume this token
-  //         it->first -= remainingToRemove;
-  //         remainingToRemove = 0;
-  //       }
-  //     }
-  //   }
-  // }
 
       const Activity& act = RCPSPex.activities[transitionId - 1];
 
@@ -1920,9 +1918,19 @@ RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, double 
       // 5. hash/debug/etc.
 
 
+  std::vector<int> optionalTransitions = getOptionalTransitions_TT(
+      unstartedTransitions,
+      startedActivitiys  // Note: this should be started activities, not finished
+  );
+  avilableTransitionIndices = checkAvailableTransitions_TT(
+    optionalTransitions,
+    finishedActivitiys,
+    marking
+);
+      //avilableTransitionIndices = getAvailableTransitionIndices_TT(unstartedTransitions,finishedActivitiys,marking);
 
-      avilableTransitionIndices = getAvailableTransitionIndices_TT(unstartedTransitions,finishedActivitiys,marking);
-if (transitionId==11) {
+
+  if (transitionId==11) {
   int asd;
   asd++;
 }
@@ -2020,6 +2028,7 @@ std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT
   return available;
 }
 */
+/*
 std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT(
     const std::vector<int> &unstartedTransitions,
     const std::map<int, int> &finishedActivities,
@@ -2050,7 +2059,7 @@ std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT
 
         // 2. Check resource availability and find max resource ready time
         bool resourcesAvailable = true;
-        int maxResourceReadyTime = 0;
+        int maxResourceReadyTime = maxPredFinishTime; // Start from earliest possible time
 
         for (const auto& [res, demand] : act.resource_demands) {
             auto it = marking.find(res);
@@ -2067,12 +2076,25 @@ std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT
             int totalAvailable = 0;
             int resourceReadyTime = -1;
 
+            // First, accumulate all resources available at or before maxPredFinishTime
             for (const auto& [amount, time] : resourceTokens) {
-                if (totalAvailable < demand) {
+                if (time <= maxPredFinishTime) {
                     totalAvailable += amount;
-                    if (totalAvailable >= demand) {
-                        resourceReadyTime = time;
-                        break;
+                }
+            }
+
+            // Check if we already have enough at maxPredFinishTime
+            if (totalAvailable >= demand) {
+                resourceReadyTime = maxPredFinishTime;
+            } else {
+                // Need to wait for more resources that become available after maxPredFinishTime
+                for (const auto& [amount, time] : resourceTokens) {
+                    if (time > maxPredFinishTime) {
+                        totalAvailable += amount;
+                        if (totalAvailable >= demand) {
+                            resourceReadyTime = time;
+                            break;
+                        }
                     }
                 }
             }
@@ -2093,6 +2115,216 @@ std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT
 
     return available;
 }
+*/
+
+std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT(
+    const std::vector<int> &unstartedTransitions,
+    const std::map<int, int> &finishedActivities,
+    const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking
+) {
+    std::vector<std::pair<int, int>> available;
+
+    for (int transId : unstartedTransitions) {
+        const Activity &act = RCPSPex.activities[transId - 1];
+
+        // 1. Precedence constraints
+        bool allPredsFinished = true;
+        int maxPredFinishTime = 0;
+
+        for (const std::string &predStr : RCPSPex.backword_dependencies[transId - 1]) {
+            int predId = std::stoi(predStr);
+            auto it = finishedActivities.find(predId);
+            if (it == finishedActivities.end()) {
+                allPredsFinished = false;
+                break;
+            } else {
+                maxPredFinishTime = std::max(maxPredFinishTime, it->second);
+            }
+        }
+
+        if (!allPredsFinished)
+            continue;
+
+        // 2. Resource availability
+        bool resourcesOK = true;
+        int maxResourceTime = maxPredFinishTime;
+
+        for (const auto &[res, demand] : act.resource_demands) {
+            auto it = marking.find(res);
+            if (it == marking.end()) {
+                resourcesOK = false;
+                break;
+            }
+
+            auto tokens = it->second;
+            std::sort(tokens.begin(), tokens.end(),
+                      [](auto &a, auto &b) { return a.second < b.second; });
+
+            int totalAvailable = 0;
+            int resourceReadyTime = -1;
+
+            for (const auto &[amt, time] : tokens) {
+                if (time <= maxPredFinishTime) {
+                    totalAvailable += amt;
+                }
+            }
+
+            if (totalAvailable >= demand) {
+                resourceReadyTime = maxPredFinishTime;
+            } else {
+                for (const auto &[amt, time] : tokens) {
+                    if (time > maxPredFinishTime) {
+                        totalAvailable += amt;
+                        if (totalAvailable >= demand) {
+                            resourceReadyTime = time;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (resourceReadyTime == -1) {
+                resourcesOK = false;
+                break;
+            }
+
+            maxResourceTime = std::max(maxResourceTime, resourceReadyTime);
+        }
+
+        if (resourcesOK) {
+            available.emplace_back(transId, maxResourceTime);
+        }
+    }
+
+    return available;
+}
+
+
+
+std::vector<int> RCPSPState_TT::getOptionalTransitions_TT(
+    const std::vector<int> &unstartedTransitions,
+    const std::map<int, int> &startedActivities  // Note: started, not finished
+) {
+    std::vector<int> optionalTransitions;
+
+    // Convert started activities keys to set for faster lookup
+    std::unordered_set<int> startedActivitiesKeys;
+    for (const auto &pair : startedActivities) {
+        startedActivitiesKeys.insert(pair.first);
+    }
+
+    for (int transId : unstartedTransitions) {
+        // Check if any of this transition's dependencies have been started
+        const std::vector<std::string> &dependencies = RCPSPex.backword_dependencies[transId - 1];
+
+        bool hasDependencyStarted = false;
+        for (const std::string &depStr : dependencies) {
+            int depId = std::stoi(depStr);
+            if (startedActivitiesKeys.find(depId) != startedActivitiesKeys.end()) {
+                hasDependencyStarted = true;
+                break;
+            }
+        }
+
+        if (hasDependencyStarted) {
+            optionalTransitions.push_back(transId);
+        }
+    }
+
+    return optionalTransitions;
+}
+
+// Second function: Check available transitions from the optional ones
+std::vector<std::pair<int, int>> RCPSPState_TT::checkAvailableTransitions_TT(
+    const std::vector<int> &optionalTransitions,
+    const std::map<int, int> &finishedActivities,
+    const std::unordered_map<std::string, std::vector<std::pair<int, int>>> &marking
+) {
+    std::vector<std::pair<int, int>> available;
+
+    for (int transId : optionalTransitions) {
+        const Activity &act = RCPSPex.activities[transId - 1];
+
+        // 1. Precedence constraints - check if ALL predecessors are finished
+        bool allPredsFinished = true;
+        int maxPredFinishTime = 0;
+
+        for (const std::string &predStr : RCPSPex.backword_dependencies[transId - 1]) {
+            int predId = std::stoi(predStr);
+            auto it = finishedActivities.find(predId);
+            if (it == finishedActivities.end()) {
+                allPredsFinished = false;
+                break;
+            } else {
+                maxPredFinishTime = std::max(maxPredFinishTime, it->second);
+            }
+        }
+
+        if (!allPredsFinished)
+            continue;
+
+        // 2. Resource availability
+        bool resourcesOK = true;
+        int maxResourceTime = maxPredFinishTime;
+
+        for (const auto &[res, demand] : act.resource_demands) {
+            auto it = marking.find(res);
+            if (it == marking.end()) {
+                resourcesOK = false;
+                break;
+            }
+
+            auto tokens = it->second;
+            std::sort(tokens.begin(), tokens.end(),
+                      [](const auto &a, const auto &b) { return a.second < b.second; });
+
+            int totalAvailable = 0;
+            int resourceReadyTime = -1;
+
+            // Count resources available at maxPredFinishTime
+            for (const auto &[amt, time] : tokens) {
+                if (time <= maxPredFinishTime) {
+                    totalAvailable += amt;
+                }
+            }
+
+            if (totalAvailable >= demand) {
+                resourceReadyTime = maxPredFinishTime;
+            } else {
+                // Look for future resource availability
+                for (const auto &[amt, time] : tokens) {
+                    if (time > maxPredFinishTime) {
+                        totalAvailable += amt;
+                        if (totalAvailable >= demand) {
+                            resourceReadyTime = time;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (resourceReadyTime == -1) {
+                resourcesOK = false;
+                break;
+            }
+
+            maxResourceTime = std::max(maxResourceTime, resourceReadyTime);
+        }
+
+        if (resourcesOK) {
+            available.emplace_back(transId, maxResourceTime);
+        }
+    }
+
+    return available;
+}
+
+
+
+
+
+
+
 // std::vector<std::pair<int, int>> RCPSPState_TT::getAvailableTransitionIndices_TT_old(
 //     const std::vector<int> &unstartedTransitions,
 //     const std::map<int, int> &finishedActivities,

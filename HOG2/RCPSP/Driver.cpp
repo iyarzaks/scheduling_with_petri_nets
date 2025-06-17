@@ -225,9 +225,9 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
         const std::string& name = pair.first;
         int value = pair.second;
 
-        if (name == "R1" || name == "R2" || name == "R3" || name == "R4") {
-            RCPSPex.addResource(name, value);
-        }
+        // if (name == "R1" || name == "R2" || name == "R3" || name == "R4") {
+        //     RCPSPex.addResource(name, value);
+        // }
     }
     RCPSP as1;
     TemplateAStar<RCPSPState, int, RCPSP> astar;
@@ -327,25 +327,10 @@ int solveRCPSP_TT(int group, int exam, const std::string& filename) {
     std::vector<RCPSPState_TT> path;
 
 
-    bool finished = false;
-    bool timeout_occurred = false;
     std::chrono::duration<double> elapsed;
 
     auto start = std::chrono::high_resolution_clock::now();
     astar.GetPath(&as1, first, last, path);
-    // Use std::async to run A* in a separate thread with future
-    // auto future = std::async(std::launch::async, [&]() {
-    //
-    // });
-    //
-    // // Wait for up to 5 minutes
-    // if (future.wait_for(std::chrono::minutes(10)) == std::future_status::timeout) {
-    //     timeout_occurred = true;
-    //     std::cout << "Timeout! A* took too long.\n";
-    //     finished = false;
-    // } else {
-    //     finished = true;
-    // }
 
     auto end = std::chrono::high_resolution_clock::now();
     elapsed = end - start;
@@ -383,14 +368,6 @@ int solveRCPSP_TT(int group, int exam, const std::string& filename) {
          << astar.GetNodesExpanded() << ","
          << astar.GetNodesTouched()<< ","
          << path.size()
-      //   << 100 * generateTIME.count() / elapsed.count() << ","
-        // << generateTIME.count() / astar.GetNodesTouched() << ","
-         //<< 100 * avelableTIME.count() / elapsed.count() << ","
-         //<< avelableTIME.count() / astar.GetNodesTouched() << ","
-         //<< 100 * hashTIME.count() / elapsed.count() << ","
-         //<< hashTIME.count() / astar.GetNodesTouched() << ","
-         //<< 100 * HTIME.count() / elapsed.count() << ","
-         //<< HTIME.count() / count
          << "\n";
 
     return 0;
@@ -970,12 +947,19 @@ void runBenchmark() {
   // getinitialHcost(-1, -1, filename);
   //solveRCPSP(-1,-1,filename);
   //solveRCPSP_Bi(3, 6, filename);
- //solveRCPSP(-1, -1, filename);
-// solveRCPSP_Bi(39, 4, filename);
- //solveRCPSP(39, 4, filename);
-  //solveRCPSP(-1, -1, filename);
-    //solveRCPSP(13, 2, filename);
+ //solveRCPSP(-1, 1, filename);
+// // solveRCPSP_Bi(39, 4, filename);
+  // solveRCPSP_TT(16, 9, filename);
+  //  solveRCPSP_TT(1, 1, filename);
 
+    // for(int i=1;i<2;i++) {
+    //      for(int j=7;j<11;j++) {
+    //      solveRCPSP_TT(i,j,filename);
+    //   //   getinitialHcost(i,j,filename);
+    //      }
+    //  }
+    solveRCPSP_TT(16, 9, filename);
+  //  solveRCPSP(8, 9,filename);
     //solveRCPSP_Bi(39, 4, filename);
     //solveRCPSP_TT(1,1 , filename);
     //solveRCPSP(-1, -1, filename);
@@ -986,13 +970,15 @@ void runBenchmark() {
    //solveRCPSP(4, 7, filename);
     //solveRCPSP_Bi(8, 9, filename);
    // solveRCPSP(,10,filename);
-
-  for(int i=2;i<3;i++) {
-       for(int j=2;j<11;j++) {
-       solveRCPSP(i,j,filename);
-    //   getinitialHcost(i,j,filename);
-       }
-   }
+  //
+  //   solveRCPSP(34, 9, filename);
+  //   solveRCPSP(34, 10, filename);
+  // for(int i=35;i<49;i++) {
+  //      for(int j=1;j<11;j++) {
+  //      solveRCPSP(i,j,filename);
+  //   //   getinitialHcost(i,j,filename);
+  //      }
+  //  }
 //     solveRCPSP(1, 2, filename);
 // solveRCPSP(1, 3, filename);
 // solveRCPSP(1, 4, filename);
