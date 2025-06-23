@@ -97,6 +97,7 @@ struct AStarCompareWithF {
 // 	}
 //
 // };
+
 bool operator()(const AStarOpenClosedDataWithF<state> &i1, const AStarOpenClosedDataWithF<state> &i2) const
 	{
 		// Primary: f_score (lower f = higher priority, so i1 should come BEFORE i2 if i1.f < i2.f)

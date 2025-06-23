@@ -302,7 +302,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
 
     return 0;
 }
-int solveRCPSP_TT(int group, int exam, const std::string& filename) {
+    int solveRCPSP_TT(int group, int exam, const std::string& filename) {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
 
     //generateTIME= std::chrono::duration<double>(0);
@@ -311,10 +311,8 @@ int solveRCPSP_TT(int group, int exam, const std::string& filename) {
     //  comperTime= std::chrono::duration<double>(0);
     //secssesorTIME= std::chrono::duration<double>(0);
     count=0;
-
     getPetri(petri, group, exam);
     getRCPSP(RCPSPex, group, exam);
-    //RCPSPex.computeAndStoreDeepDependencies();
 
     RCPSPState_TT first;
     RCPSPState_TT last = first;
@@ -323,6 +321,7 @@ int solveRCPSP_TT(int group, int exam, const std::string& filename) {
 
 
     RCPSP_TT as1;
+
     TemplateAStar<RCPSPState_TT, int, RCPSP_TT> astar;
     std::vector<RCPSPState_TT> path;
 
@@ -958,11 +957,99 @@ void runBenchmark() {
     //   //   getinitialHcost(i,j,filename);
     //      }
     //  }
-    solveRCPSP_TT(1, 9, filename);
-    solveRCPSP_TT(1, 10, filename);
+    //solveRCPSP_TT(1, 9, filename);
+    // solveRCPSP_TT(1, 10, filename);
   //  solveRCPSP(8, 9,filename);
     //solveRCPSP_Bi(39, 4, filename);
-    //solveRCPSP_TT(1,1 , filename);
+ // solveRCPSP_TT(6,7,filename);
+//     solveRCPSP_TT(1, 9, filename);
+// solveRCPSP_TT(1, 10, filename);
+// solveRCPSP_TT(2, 3, filename);
+// solveRCPSP_TT(2, 8, filename);
+// solveRCPSP_TT(2, 10, filename);
+// solveRCPSP_TT(6, 3, filename);
+// solveRCPSP_TT(6, 7, filename);
+// solveRCPSP_TT(6, 10, filename);
+// solveRCPSP_TT(7, 4, filename);
+// solveRCPSP_TT(7, 5, filename);
+// solveRCPSP_TT(7, 7, filename);
+// solveRCPSP_TT(10, 2, filename);
+// solveRCPSP_TT(10, 4, filename);
+// solveRCPSP_TT(10, 5, filename);
+// solveRCPSP_TT(10, 7, filename);
+// solveRCPSP_TT(10, 10, filename);
+// solveRCPSP_TT(11, 1, filename);
+// solveRCPSP_TT(11, 2, filename);
+// solveRCPSP_TT(11, 5, filename);
+// solveRCPSP_TT(11, 7, filename);
+// solveRCPSP_TT(11, 10, filename);
+// solveRCPSP_TT(12, 1, filename);
+// solveRCPSP_TT(14, 1, filename);
+// solveRCPSP_TT(14, 3, filename);
+// solveRCPSP_TT(14, 5, filename);
+// solveRCPSP_TT(14, 6, filename);
+// solveRCPSP_TT(14, 10, filename);
+// solveRCPSP_TT(17, 2, filename);
+// solveRCPSP_TT(17, 7, filename);
+// solveRCPSP_TT(17, 8, filename);
+// solveRCPSP_TT(17, 9, filename);
+// solveRCPSP_TT(19, 9, filename);
+// solveRCPSP_TT(22, 1, filename);
+// solveRCPSP_TT(22, 4, filename);
+// solveRCPSP_TT(22, 7, filename);
+// solveRCPSP_TT(23, 1, filename);
+// solveRCPSP_TT(23, 4, filename);
+// solveRCPSP_TT(26, 1, filename);
+// solveRCPSP_TT(26, 4, filename);
+// solveRCPSP_TT(26, 6, filename);
+// solveRCPSP_TT(26, 7, filename);
+// solveRCPSP_TT(26, 9, filename);
+// solveRCPSP_TT(26, 10, filename);
+// solveRCPSP_TT(27, 8, filename);
+// solveRCPSP_TT(30, 2, filename);
+// solveRCPSP_TT(30, 3, filename);
+// solveRCPSP_TT(30, 4, filename);
+// solveRCPSP_TT(30, 5, filename);
+// solveRCPSP_TT(30, 8, filename);
+// solveRCPSP_TT(30, 9, filename);
+// solveRCPSP_TT(30, 10, filename);
+// solveRCPSP_TT(31, 5, filename);
+// solveRCPSP_TT(31, 7, filename);
+// solveRCPSP_TT(32, 3, filename);
+// solveRCPSP_TT(33, 3, filename);
+// solveRCPSP_TT(33, 7, filename);
+// solveRCPSP_TT(34, 8, filename);
+// solveRCPSP_TT(37, 5, filename);
+// solveRCPSP_TT(37, 8, filename);
+// solveRCPSP_TT(37, 9, filename);
+// solveRCPSP_TT(38, 1, filename);
+// solveRCPSP_TT(38, 6, filename);
+// solveRCPSP_TT(38, 7, filename);
+// solveRCPSP_TT(38, 10, filename);
+// solveRCPSP_TT(42, 2, filename);
+// solveRCPSP_TT(42, 3, filename);
+// solveRCPSP_TT(42, 6, filename);
+// solveRCPSP_TT(42, 9, filename);
+// solveRCPSP_TT(43, 2, filename);
+// solveRCPSP_TT(43, 3, filename);
+// solveRCPSP_TT(43, 5, filename);
+// solveRCPSP_TT(43, 6, filename);
+// solveRCPSP_TT(43, 8, filename);
+// solveRCPSP_TT(43, 9, filename);
+// solveRCPSP_TT(43, 10, filename);
+// solveRCPSP_TT(44, 8, filename);
+// solveRCPSP_TT(46, 2, filename);
+// solveRCPSP_TT(46, 4, filename);
+// solveRCPSP_TT(46, 5, filename);
+// solveRCPSP_TT(46, 8, filename);
+// solveRCPSP_TT(46, 9, filename);
+// solveRCPSP_TT(46, 10, filename);
+// solveRCPSP_TT(47, 1, filename);
+// solveRCPSP_TT(47, 4, filename);
+// solveRCPSP_TT(47, 5, filename);
+// solveRCPSP_TT(47, 6, filename);
+// solveRCPSP_TT(47, 10, filename);
+
     //solveRCPSP(-1, -1, filename);
     //solveRCPSP(3, 2, filename);
     //solveRCPSP(4, 3, filename);
@@ -980,6 +1067,15 @@ void runBenchmark() {
   //   //   getinitialHcost(i,j,filename);
   //      }
   //  }
+
+
+    for(int i=1;i<49;i++) {
+         for(int j=1;j<11;j++) {
+         solveRCPSP_TT(i,j,filename);
+      //   getinitialHcost(i,j,filename);
+         }
+     }
+
 //     solveRCPSP(1, 2, filename);
 // solveRCPSP(1, 3, filename);
 // solveRCPSP(1, 4, filename);
