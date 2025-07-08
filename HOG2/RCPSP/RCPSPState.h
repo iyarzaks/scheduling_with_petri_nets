@@ -89,6 +89,8 @@ public:
     //int checkEnd();
     bool operator==(const RCPSPState_bi& other) const;
 };
+std::vector<std::string> resourceNames = {"R1", "R2", "R3", "R4"};
+
 class RCPSPState_TT {
 public:
     // --- Constructors ---
@@ -108,10 +110,9 @@ public:
     std::map<int, int> startedActivitiys;                          // activityID -> start time
     std::map<int, int> finishedActivitiys;                         // activityID -> finish time
     std::vector<std::pair<int, int>> avilableTransitionIndices;  // Store transition IDs
-    std::vector<std::string> resourceNames = {"R1", "R2", "R3", "R4"};
 
     double g = 0;
-    double h = 0;
+    //double h = 0;
 
     // --- Comparison ---
     bool operator==(const RCPSPState_TT& other) const;

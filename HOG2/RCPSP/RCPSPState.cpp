@@ -278,7 +278,7 @@ double getForwardHcost(std::vector<int>unstartedTransitions,
     h = earlyfinishMap2.rbegin()->second;;
 
   }
-return h;
+//return h;
  // return std::max(computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h), computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h));//BL_RC huristic
   //return computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h);//BL_Cs huristic
   //return computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_Cs huristic
@@ -1753,12 +1753,14 @@ double computeEarliestFinish(int activityId,
     return maxFinish;
 }
 
-
-double getForwardHcost_TT(std::vector<int>unstartedTransitions) {
+//maby finsihed activity is diffrent with indipendent
+double getForwardHcost_TT(std::vector<int>unstartedTransitions, std::map<int, int> finishedActivitiys                       // activityID -> finish time
+) {
   //auto startS3 = std::chrono::high_resolution_clock::now();
+  std::vector<std::pair<int, int>> activeTransitionIndices;
 
    std::map<int, int> earlyfinishMap2; // Map to store activity IDs and their early finish times
-   //std::map<int, int> earlyfinishMap3; // Map to store activity IDs and their early finish times
+   std::map<int, int> earlyfinishMap3; // Map to store activity IDs and their early finish times
   //std::map<int, int> visitmap; // Map to store activity IDs and their early finish times
   double h;
   std::set<int> processedDependencies;
@@ -1775,19 +1777,19 @@ double getForwardHcost_TT(std::vector<int>unstartedTransitions) {
       if (std::find(unstartedTransitions.begin(), unstartedTransitions.end(), depId + 1) != unstartedTransitions.end()) {
 
           maxFinishTime = std::max(maxFinishTime, earlyfinishMap2[depId+1] + RCPSPex.activities[depId].duration);
-          //earlyfinishMap3[depId+1] = earlyfinishMap2[depId+1] + RCPSPex.activities[depId].duration;
+          earlyfinishMap3[depId+1] = earlyfinishMap2[depId+1] + RCPSPex.activities[depId].duration;
 
       }
       else {
         // maxFinishTime = std::max(maxFinishTime, earlyfinishMap2[depId+1]);
-        // earlyfinishMap3[depId+1] = earlyfinishMap2[depId+1];
+         earlyfinishMap3[depId+1] = earlyfinishMap2[depId+1];
         maxFinishTime = std::max(maxFinishTime, 0);
         //earlyfinishMap3[depId+1] = 0;
       }
     }
 
     earlyfinishMap2[activityId] = maxFinishTime;
-    //earlyfinishMap3[activityId] = maxFinishTime;
+    earlyfinishMap3[activityId] = maxFinishTime;
     //std::cout <<activityId<<":"<< earlyfinishMap[activityId]+RCPSPex.activities[activityId-1].duration << std::endl;
     // For last element with duration 0, just use the max finish time of dependencies
   }
@@ -1798,11 +1800,11 @@ double getForwardHcost_TT(std::vector<int>unstartedTransitions) {
     h = earlyfinishMap2.rbegin()->second;;
 
   }
-return h;
+  //return h;
  // return std::max(computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h), computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h));//BL_RC huristic
   //return computeResourceCapacityLowerBound(unstartedTransitions,activeTransitionIndices,h);//BL_Cs huristic
   //return computeSequenceLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_Cs huristic
-  //return computeSequenceLowerBoundWithMax2(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,earlyfinishMap3,h,finishedActivities);//BL_Cs huristic
+  return computeSequenceLowerBoundWithMax2(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,earlyfinishMap3,h,finishedActivitiys);//BL_Cs huristic
   //return computeCoreTimeLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_CT huristic
   //return computeWorkloadLowerBoundWithMax(unstartedTransitions,activeTransitionIndices,earlyfinishMap2,h);//BL_CC huristic
 ///
@@ -1866,59 +1868,7 @@ RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev, int transitionId, int fi
     // 8. REQUIRED: Calculate available transitions
     avilableTransitionIndices = getAvailableTransitionIndices_TT(unstartedTransitions, finishedActivitiys, marking);
 
-    // 9. Optimized independent set calculation
-    int lastActivityId = -1;
-    int maxTime = -1;
 
-    // Find last finished activity by ID instead of name
-    for (const auto& [id, time] : finishedActivitiys) {
-        if (time > maxTime) {
-            maxTime = time;
-            lastActivityId = id;
-        }
-    }
-
-    if (lastActivityId != -1) {
-        const std::string& lastActivityName = RCPSPex.activities[lastActivityId - 1].name;
-
-        // Pre-reserve vectors
-        std::vector<int> independentSet;
-        independentSet.reserve(unstartedTransitions.size());
-
-        // Filter independent transitions
-        for (int actIdx : unstartedTransitions) {
-            const std::string& actName = RCPSPex.activities[actIdx - 1].name;
-            if (RCPSPex.deep_dependencies.find({lastActivityName, actName}) == RCPSPex.deep_dependencies.end()) {
-                independentSet.push_back(actIdx);
-            }
-        }
-
-        // Create lookup set for efficient filtering
-        std::unordered_set<int> independentLookup(independentSet.begin(), independentSet.end());
-        std::vector<int> newUnstartedTransitions;
-        newUnstartedTransitions.reserve(unstartedTransitions.size());
-
-        for (int id : unstartedTransitions) {
-            if (independentLookup.find(id) == independentLookup.end()) {
-                newUnstartedTransitions.push_back(id);
-            }
-        }
-
-        // 10. Calculate heuristic efficiently
-        int latestStart = 0;
-        for (const auto& [id, startTime] : startedActivitiys) {
-            if (startTime > latestStart) {
-                latestStart = startTime;
-            }
-        }
-
-        int unkTime = g - latestStart;
-        h = std::max(getForwardHcost_TT(unstartedTransitions) - unkTime,
-                     getForwardHcost_TT(newUnstartedTransitions));
-    } else {
-        // Fallback if no finished activities
-        h = getForwardHcost_TT(unstartedTransitions);
-    }
 }
 //
 // RCPSPState_TT::RCPSPState_TT(const RCPSPState_TT &prev,int transitionId, int firingTime) {

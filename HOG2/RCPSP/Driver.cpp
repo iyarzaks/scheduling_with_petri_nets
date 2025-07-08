@@ -316,7 +316,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
 
     RCPSPState_TT first;
     RCPSPState_TT last = first;
-    last.h = 0;
+    //last.h = 0;
 
 
 
@@ -949,15 +949,17 @@ void runBenchmark() {
  //solveRCPSP(-1, 1, filename);
 // // solveRCPSP_Bi(39, 4, filename);
   // solveRCPSP_TT(16, 9, filename);
-  //  solveRCPSP_TT(1, 1, filename);
-
-    // for(int i=1;i<2;i++) {
+    // solveRCPSP_TT(33, 5, filename);
+    // solveRCPSP_TT(19, 4, filename);
+     solveRCPSP_TT(17, 6, filename);
+     //solveRCPSP(17, 6, filename);
+    //
+    // for(int i=13;i<49;i++) {
     //      for(int j=1;j<11;j++) {
-    //      solveRCPSP_TT(i,j,filename);
+    //      solveRCPSP(i,j,filename);
     //   //   getinitialHcost(i,j,filename);
     //      }
     //  }
-    //solveRCPSP_TT(1, 9, filename);
     // solveRCPSP_TT(1, 10, filename);
   //  solveRCPSP(8, 9,filename);
     //solveRCPSP_Bi(39, 4, filename);
@@ -1069,12 +1071,12 @@ void runBenchmark() {
   //  }
 
 
-    for(int i=1;i<49;i++) {
-         for(int j=1;j<11;j++) {
-         solveRCPSP_TT(i,j,filename);
-      //   getinitialHcost(i,j,filename);
-         }
-     }
+    // for(int i=1;i<49;i++) {
+    //      for(int j=1;j<11;j++) {
+    //      solveRCPSP_TT(i,j,filename);
+    //   //   getinitialHcost(i,j,filename);
+    //      }
+    //  }
 
 //     solveRCPSP(1, 2, filename);
 // solveRCPSP(1, 3, filename);
