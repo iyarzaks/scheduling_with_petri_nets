@@ -599,12 +599,15 @@ public:
 };
 
 inline RCPSP_TT::RCPSP_TT() {
+
+
+  //RCPSPex.computeAndStoreDeepDependencies();
+
 }
 
 inline void RCPSP_TT::GetSuccessors(const RCPSPState_TT &nodeID, std::vector<RCPSPState_TT> &neighbors) const {
-  auto availableTransitions=nodeID.avilableTransitionIndices;
-  for (const auto& [transId, firingTime] : availableTransitions) {
-    neighbors.emplace_back(RCPSPState_TT(nodeID, transId, firingTime, count));
+  for (const auto& [transId, firingTime] : nodeID.avilableTransitionIndices) {
+    neighbors.emplace_back(RCPSPState_TT(nodeID, transId, firingTime));
   }
 }
 
@@ -622,7 +625,68 @@ inline bool RCPSP_TT::GoalTest(const RCPSPState_TT &node, const RCPSPState_TT &g
   // }
 }
 inline double RCPSP_TT::HCost(const RCPSPState_TT &state1, const RCPSPState_TT &state2) const {
-  return state1.h;
+  // 9. Optimized independent set calculation
+  int lastActivityId = -1;
+  int maxTime = -1;
+
+  // Find last finished activity by ID instead of name
+  for (const auto& [id, time] : state1.finishedActivitiys) {
+    if (time > maxTime) {
+      maxTime = time;
+      lastActivityId = id;
+    }
+  }
+
+  if (lastActivityId != -1) {
+    const std::string& lastActivityName = RCPSPex.activities[lastActivityId - 1].name;
+
+    // Pre-reserve vectors
+    std::vector<int> independentSet;
+    independentSet.reserve(state1.unstartedTransitions.size());
+
+    // Filter independent transitions
+    for (int actIdx : state1.unstartedTransitions) {
+      const std::string& actName = RCPSPex.activities[actIdx - 1].name;
+      if (RCPSPex.deep_dependencies.find({lastActivityName, actName}) == RCPSPex.deep_dependencies.end()) {
+        independentSet.push_back(actIdx);
+      }
+    }
+
+    // Create lookup set for efficient filtering
+    std::unordered_set<int> independentLookup(independentSet.begin(), independentSet.end());
+    std::vector<int> newUnstartedTransitions;
+    newUnstartedTransitions.reserve(state1.unstartedTransitions.size());
+
+    for (int id : state1.unstartedTransitions) {
+      if (independentLookup.find(id) == independentLookup.end()) {
+        newUnstartedTransitions.push_back(id);
+      }
+    }
+
+    // 10. Calculate heuristic efficiently
+    int latestStart = 0;
+    for (const auto& [id, startTime] : state1.startedActivitiys) {
+      if (startTime > latestStart) {
+        latestStart = startTime;
+      }
+    }
+
+    int unkTime = state1.g - latestStart;
+    std::map<int, int> finishedActivitiysnew=state1.finishedActivitiys;                         // activityID -> finish time
+    for (int actIdx : independentSet) {
+      finishedActivitiysnew[actIdx] = 0;
+    }
+    return getForwardHcost_TT(state1.unstartedTransitions,state1.finishedActivitiys) - unkTime;
+      return std::max(getForwardHcost_TT(state1.unstartedTransitions,state1.finishedActivitiys) - unkTime,
+                 getForwardHcost_TT(newUnstartedTransitions,finishedActivitiysnew));
+  } else {
+    // Fallback if no finished activities
+    return getForwardHcost_TT(state1.unstartedTransitions,state1.finishedActivitiys);
+  }
+
+
+
+  //return state1.h;
 }
 inline double RCPSP_TT::GCost(const RCPSPState_TT &state1, const RCPSPState_TT &state2) const {
   return state2.g-state1.g;//+state1.g
@@ -633,10 +697,10 @@ inline uint64_t RCPSP_TT::GetStateHash(const RCPSPState_TT &node) const {
 
   std::size_t seed = 0;
 
-  for (const auto& pair : node.startedActivitiys) {
-    seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-  }
+  // for (const auto& pair : node.startedActivitiys) {
+  //   seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  //   seed ^= std::hash<int>{}(pair.second) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+  // }
 
   for (const auto& pair : node.finishedActivitiys) {
     seed ^= std::hash<int>{}(pair.first) + 0x9e3779b9 + (seed << 6) + (seed >> 2);

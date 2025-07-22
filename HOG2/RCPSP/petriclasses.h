@@ -49,6 +49,8 @@ class RCPSP_example{
         backword_dependencies.clear();
         resources.clear();
         activity_len = 0;
+        deep_dependencies.clear();  // Add this line!
+
     }
     void computeAndStoreDeepDependencies() {
         deep_dependencies.clear();

@@ -949,12 +949,25 @@ void runBenchmark() {
  //solveRCPSP(-1, 1, filename);
 // // solveRCPSP_Bi(39, 4, filename);
   // solveRCPSP_TT(16, 9, filename);
-    // solveRCPSP_TT(33, 5, filename);
-    // solveRCPSP_TT(19, 4, filename);
-     solveRCPSP_TT(17, 6, filename);
-     //solveRCPSP(17, 6, filename);
+     // solveRCPSP_TT(33, 5, filename);
+     // solveRCPSP_TT(19, 4, filename);
+     // // solveRCPSP_TT(17, 6, filename);
+     // solveRCPSP(19, 7, filename);
+
+     solveRCPSP_TT(26, 6, filename);
+
+
+     // solveRCPSP(19, 9, filename);
+     // solveRCPSP(19, 10, filename);
+
     //
-    // for(int i=13;i<49;i++) {
+
+        // for(int j=4;j<11;j++) {
+        //     solveRCPSP(25,j,filename);
+        //     //   getinitialHcost(i,j,filename);
+        // }
+
+    // for(int i=1;i<12;i++) {
     //      for(int j=1;j<11;j++) {
     //      solveRCPSP(i,j,filename);
     //   //   getinitialHcost(i,j,filename);
