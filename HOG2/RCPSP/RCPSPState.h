@@ -112,7 +112,7 @@ public:
     std::vector<std::pair<int, int>> avilableTransitionIndices;  // Store transition IDs
 
     double g = 0;
-    //double h = 0;
+    double h = 0;
 
     // --- Comparison ---
     bool operator==(const RCPSPState_TT& other) const;

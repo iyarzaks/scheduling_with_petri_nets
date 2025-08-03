@@ -626,6 +626,9 @@ inline bool RCPSP_TT::GoalTest(const RCPSPState_TT &node, const RCPSPState_TT &g
 }
 inline double RCPSP_TT::HCost(const RCPSPState_TT &state1, const RCPSPState_TT &state2) const {
   // 9. Optimized independent set calculation
+  return state1.h;
+
+
   int lastActivityId = -1;
   int maxTime = -1;
 
@@ -676,7 +679,8 @@ inline double RCPSP_TT::HCost(const RCPSPState_TT &state1, const RCPSPState_TT &
     for (int actIdx : independentSet) {
       finishedActivitiysnew[actIdx] = 0;
     }
-    return getForwardHcost_TT(state1.unstartedTransitions,state1.finishedActivitiys) - unkTime;
+
+   getForwardHcost_TT(state1.unstartedTransitions,state1.finishedActivitiys) - unkTime;
       return std::max(getForwardHcost_TT(state1.unstartedTransitions,state1.finishedActivitiys) - unkTime,
                  getForwardHcost_TT(newUnstartedTransitions,finishedActivitiysnew));
   } else {
@@ -686,7 +690,7 @@ inline double RCPSP_TT::HCost(const RCPSPState_TT &state1, const RCPSPState_TT &
 
 
 
-  //return state1.h;
+
 }
 inline double RCPSP_TT::GCost(const RCPSPState_TT &state1, const RCPSPState_TT &state2) const {
   return state2.g-state1.g;//+state1.g

@@ -449,9 +449,7 @@ bool TemplateAStar<state,action,environment,openList>::DoSingleSearchStep(std::v
 	}
 
 	//****idolublin 10.4 timeout exit*******
-	if (std::chrono::steady_clock::now() > timeout) {
-		return true; // Exit early on timeout
-	}
+
 
 
 	uint64_t nodeid = openClosedList.Close();
@@ -486,6 +484,11 @@ bool TemplateAStar<state,action,environment,openList>::DoSingleSearchStep(std::v
 	// 1. load all the children
 	for (unsigned int x = 0; x < neighbors.size(); x++)
 	{
+
+		if (std::chrono::steady_clock::now() > timeout) {
+			return true; // Exit early on timeout
+		}
+
 		uint64_t theID;
 		neighborLoc.push_back(openClosedList.Lookup(env->GetStateHash(neighbors[x]), theID));
 		neighborID.push_back(theID);
