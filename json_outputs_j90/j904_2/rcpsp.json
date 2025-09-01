@@ -1,0 +1,6271 @@
+[
+    {
+        "name": "1",
+        "duration": 0,
+        "resource_demands": {},
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "2",
+        "duration": 3,
+        "resource_demands": {
+            "R1": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "3",
+        "duration": 2,
+        "resource_demands": {
+            "R1": 9
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "4",
+        "duration": 10,
+        "resource_demands": {
+            "R2": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "5",
+        "duration": 8,
+        "resource_demands": {
+            "R1": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "6",
+        "duration": 1,
+        "resource_demands": {
+            "R4": 3
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "7",
+        "duration": 10,
+        "resource_demands": {
+            "R3": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "8",
+        "duration": 1,
+        "resource_demands": {
+            "R4": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "9",
+        "duration": 9,
+        "resource_demands": {
+            "R2": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "10",
+        "duration": 6,
+        "resource_demands": {
+            "R1": 1
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "11",
+        "duration": 5,
+        "resource_demands": {
+            "R3": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "12",
+        "duration": 4,
+        "resource_demands": {
+            "R2": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "13",
+        "duration": 1,
+        "resource_demands": {
+            "R1": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "14",
+        "duration": 1,
+        "resource_demands": {
+            "R4": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "15",
+        "duration": 8,
+        "resource_demands": {
+            "R4": 1
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "16",
+        "duration": 6,
+        "resource_demands": {
+            "R4": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "17",
+        "duration": 8,
+        "resource_demands": {
+            "R4": 3
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "18",
+        "duration": 6,
+        "resource_demands": {
+            "R2": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "19",
+        "duration": 10,
+        "resource_demands": {
+            "R3": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "20",
+        "duration": 3,
+        "resource_demands": {
+            "R4": 5
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "21",
+        "duration": 1,
+        "resource_demands": {
+            "R4": 9
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "22",
+        "duration": 8,
+        "resource_demands": {
+            "R2": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "23",
+        "duration": 2,
+        "resource_demands": {
+            "R4": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "24",
+        "duration": 2,
+        "resource_demands": {
+            "R4": 3
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "25",
+        "duration": 7,
+        "resource_demands": {
+            "R1": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "26",
+        "duration": 5,
+        "resource_demands": {
+            "R1": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "27",
+        "duration": 5,
+        "resource_demands": {
+            "R1": 1
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "28",
+        "duration": 2,
+        "resource_demands": {
+            "R3": 1
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "29",
+        "duration": 9,
+        "resource_demands": {
+            "R3": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "30",
+        "duration": 9,
+        "resource_demands": {
+            "R1": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "31",
+        "duration": 7,
+        "resource_demands": {
+            "R2": 4
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "32",
+        "duration": 6,
+        "resource_demands": {
+            "R2": 5
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "33",
+        "duration": 5,
+        "resource_demands": {
+            "R2": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "34",
+        "duration": 10,
+        "resource_demands": {
+            "R2": 4
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "35",
+        "duration": 6,
+        "resource_demands": {
+            "R2": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "36",
+        "duration": 6,
+        "resource_demands": {
+            "R1": 4
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "37",
+        "duration": 4,
+        "resource_demands": {
+            "R1": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "38",
+        "duration": 10,
+        "resource_demands": {
+            "R3": 3
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "39",
+        "duration": 9,
+        "resource_demands": {
+            "R3": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "40",
+        "duration": 10,
+        "resource_demands": {
+            "R1": 9
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "41",
+        "duration": 4,
+        "resource_demands": {
+            "R1": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "42",
+        "duration": 7,
+        "resource_demands": {
+            "R2": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "43",
+        "duration": 6,
+        "resource_demands": {
+            "R3": 9
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "44",
+        "duration": 6,
+        "resource_demands": {
+            "R2": 5
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "45",
+        "duration": 2,
+        "resource_demands": {
+            "R4": 9
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "46",
+        "duration": 3,
+        "resource_demands": {
+            "R4": 5
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "47",
+        "duration": 1,
+        "resource_demands": {
+            "R4": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "48",
+        "duration": 10,
+        "resource_demands": {
+            "R1": 4
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "49",
+        "duration": 2,
+        "resource_demands": {
+            "R2": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "50",
+        "duration": 9,
+        "resource_demands": {
+            "R1": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "51",
+        "duration": 2,
+        "resource_demands": {
+            "R1": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "52",
+        "duration": 6,
+        "resource_demands": {
+            "R4": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "53",
+        "duration": 10,
+        "resource_demands": {
+            "R4": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "54",
+        "duration": 2,
+        "resource_demands": {
+            "R3": 5
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "55",
+        "duration": 6,
+        "resource_demands": {
+            "R1": 3
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "56",
+        "duration": 1,
+        "resource_demands": {
+            "R1": 1
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "57",
+        "duration": 4,
+        "resource_demands": {
+            "R4": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "58",
+        "duration": 1,
+        "resource_demands": {
+            "R4": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "59",
+        "duration": 9,
+        "resource_demands": {
+            "R1": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "60",
+        "duration": 4,
+        "resource_demands": {
+            "R1": 5
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "61",
+        "duration": 5,
+        "resource_demands": {
+            "R4": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "62",
+        "duration": 3,
+        "resource_demands": {
+            "R1": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "63",
+        "duration": 7,
+        "resource_demands": {
+            "R4": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "64",
+        "duration": 7,
+        "resource_demands": {
+            "R3": 4
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "65",
+        "duration": 2,
+        "resource_demands": {
+            "R4": 10
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "66",
+        "duration": 4,
+        "resource_demands": {
+            "R3": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "67",
+        "duration": 3,
+        "resource_demands": {
+            "R3": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "68",
+        "duration": 6,
+        "resource_demands": {
+            "R3": 3
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "69",
+        "duration": 8,
+        "resource_demands": {
+            "R3": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "70",
+        "duration": 4,
+        "resource_demands": {
+            "R4": 5
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "71",
+        "duration": 4,
+        "resource_demands": {
+            "R3": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "72",
+        "duration": 5,
+        "resource_demands": {
+            "R2": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "73",
+        "duration": 3,
+        "resource_demands": {
+            "R1": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "74",
+        "duration": 4,
+        "resource_demands": {
+            "R4": 1
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "75",
+        "duration": 10,
+        "resource_demands": {
+            "R1": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "76",
+        "duration": 3,
+        "resource_demands": {
+            "R4": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "77",
+        "duration": 10,
+        "resource_demands": {
+            "R2": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "78",
+        "duration": 8,
+        "resource_demands": {
+            "R2": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "79",
+        "duration": 7,
+        "resource_demands": {
+            "R1": 5
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "80",
+        "duration": 7,
+        "resource_demands": {
+            "R3": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "81",
+        "duration": 3,
+        "resource_demands": {
+            "R1": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "82",
+        "duration": 9,
+        "resource_demands": {
+            "R2": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "83",
+        "duration": 9,
+        "resource_demands": {
+            "R4": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "84",
+        "duration": 5,
+        "resource_demands": {
+            "R2": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "85",
+        "duration": 9,
+        "resource_demands": {
+            "R4": 7
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "86",
+        "duration": 5,
+        "resource_demands": {
+            "R1": 9
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "87",
+        "duration": 3,
+        "resource_demands": {
+            "R4": 2
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "88",
+        "duration": 10,
+        "resource_demands": {
+            "R3": 4
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "89",
+        "duration": 4,
+        "resource_demands": {
+            "R1": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "90",
+        "duration": 5,
+        "resource_demands": {
+            "R1": 6
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "91",
+        "duration": 8,
+        "resource_demands": {
+            "R3": 8
+        },
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "name": "92",
+        "duration": 0,
+        "resource_demands": {},
+        "early_start": 0,
+        "early_finish": 0,
+        "late_start": 0,
+        "late_finish": 0
+    },
+    {
+        "2": [
+            "1"
+        ],
+        "3": [
+            "1"
+        ],
+        "4": [
+            "1"
+        ],
+        "11": [
+            "2"
+        ],
+        "15": [
+            "2"
+        ],
+        "32": [
+            "2"
+        ],
+        "5": [
+            "3"
+        ],
+        "6": [
+            "3"
+        ],
+        "14": [
+            "3"
+        ],
+        "7": [
+            "4"
+        ],
+        "10": [
+            "4"
+        ],
+        "19": [
+            "4"
+        ],
+        "9": [
+            "5"
+        ],
+        "17": [
+            "5"
+        ],
+        "21": [
+            "5"
+        ],
+        "8": [
+            "6"
+        ],
+        "71": [
+            "6"
+        ],
+        "12": [
+            "7"
+        ],
+        "35": [
+            "7"
+        ],
+        "81": [
+            "7",
+            "63"
+        ],
+        "16": [
+            "8"
+        ],
+        "41": [
+            "8"
+        ],
+        "23": [
+            "9",
+            "14"
+        ],
+        "22": [
+            "10"
+        ],
+        "25": [
+            "10"
+        ],
+        "42": [
+            "10"
+        ],
+        "20": [
+            "11"
+        ],
+        "27": [
+            "11"
+        ],
+        "13": [
+            "12"
+        ],
+        "47": [
+            "12"
+        ],
+        "18": [
+            "13"
+        ],
+        "43": [
+            "14"
+        ],
+        "44": [
+            "14"
+        ],
+        "79": [
+            "15",
+            "78"
+        ],
+        "29": [
+            "16"
+        ],
+        "56": [
+            "16",
+            "48"
+        ],
+        "37": [
+            "17"
+        ],
+        "36": [
+            "18",
+            "20",
+            "29"
+        ],
+        "51": [
+            "19",
+            "47"
+        ],
+        "40": [
+            "21",
+            "38"
+        ],
+        "90": [
+            "22",
+            "84",
+            "88"
+        ],
+        "24": [
+            "23"
+        ],
+        "28": [
+            "23"
+        ],
+        "65": [
+            "23"
+        ],
+        "26": [
+            "24"
+        ],
+        "39": [
+            "24"
+        ],
+        "48": [
+            "24"
+        ],
+        "30": [
+            "25"
+        ],
+        "83": [
+            "25",
+            "67",
+            "76"
+        ],
+        "84": [
+            "25",
+            "77"
+        ],
+        "54": [
+            "26",
+            "33"
+        ],
+        "49": [
+            "27",
+            "36"
+        ],
+        "61": [
+            "27"
+        ],
+        "33": [
+            "28"
+        ],
+        "46": [
+            "29"
+        ],
+        "31": [
+            "30"
+        ],
+        "38": [
+            "30"
+        ],
+        "50": [
+            "30",
+            "45"
+        ],
+        "34": [
+            "31",
+            "32"
+        ],
+        "91": [
+            "33",
+            "85"
+        ],
+        "53": [
+            "34",
+            "45",
+            "49"
+        ],
+        "60": [
+            "35",
+            "39"
+        ],
+        "70": [
+            "36",
+            "55",
+            "57"
+        ],
+        "64": [
+            "37",
+            "49",
+            "60"
+        ],
+        "78": [
+            "38"
+        ],
+        "45": [
+            "39"
+        ],
+        "52": [
+            "39"
+        ],
+        "63": [
+            "40",
+            "61"
+        ],
+        "69": [
+            "41",
+            "65"
+        ],
+        "72": [
+            "42",
+            "58",
+            "71"
+        ],
+        "76": [
+            "43",
+            "59",
+            "75"
+        ],
+        "62": [
+            "44",
+            "56",
+            "60"
+        ],
+        "85": [
+            "44",
+            "82"
+        ],
+        "55": [
+            "46"
+        ],
+        "58": [
+            "46"
+        ],
+        "59": [
+            "46"
+        ],
+        "74": [
+            "47",
+            "53"
+        ],
+        "67": [
+            "49"
+        ],
+        "88": [
+            "50",
+            "83"
+        ],
+        "87": [
+            "51",
+            "80",
+            "81"
+        ],
+        "57": [
+            "52"
+        ],
+        "68": [
+            "54",
+            "66"
+        ],
+        "66": [
+            "61"
+        ],
+        "86": [
+            "61"
+        ],
+        "73": [
+            "62"
+        ],
+        "77": [
+            "62"
+        ],
+        "89": [
+            "64",
+            "86",
+            "87"
+        ],
+        "75": [
+            "68",
+            "69"
+        ],
+        "82": [
+            "70",
+            "74"
+        ],
+        "80": [
+            "72",
+            "73",
+            "79"
+        ],
+        "92": [
+            "89",
+            "90",
+            "91"
+        ]
+    },
+    {
+        "1": [
+            "2",
+            "3",
+            "4"
+        ],
+        "2": [
+            "11",
+            "15",
+            "32"
+        ],
+        "3": [
+            "5",
+            "6",
+            "14"
+        ],
+        "4": [
+            "7",
+            "10",
+            "19"
+        ],
+        "5": [
+            "9",
+            "17",
+            "21"
+        ],
+        "6": [
+            "8",
+            "71"
+        ],
+        "7": [
+            "12",
+            "35",
+            "81"
+        ],
+        "8": [
+            "16",
+            "41"
+        ],
+        "9": [
+            "23"
+        ],
+        "10": [
+            "22",
+            "25",
+            "42"
+        ],
+        "11": [
+            "20",
+            "27"
+        ],
+        "12": [
+            "13",
+            "47"
+        ],
+        "13": [
+            "18"
+        ],
+        "14": [
+            "23",
+            "43",
+            "44"
+        ],
+        "15": [
+            "79"
+        ],
+        "16": [
+            "29",
+            "56"
+        ],
+        "17": [
+            "37"
+        ],
+        "18": [
+            "36"
+        ],
+        "19": [
+            "51"
+        ],
+        "20": [
+            "36"
+        ],
+        "21": [
+            "40"
+        ],
+        "22": [
+            "90"
+        ],
+        "23": [
+            "24",
+            "28",
+            "65"
+        ],
+        "24": [
+            "26",
+            "39",
+            "48"
+        ],
+        "25": [
+            "30",
+            "83",
+            "84"
+        ],
+        "26": [
+            "54"
+        ],
+        "27": [
+            "49",
+            "61"
+        ],
+        "28": [
+            "33"
+        ],
+        "29": [
+            "36",
+            "46"
+        ],
+        "30": [
+            "31",
+            "38",
+            "50"
+        ],
+        "31": [
+            "34"
+        ],
+        "32": [
+            "34"
+        ],
+        "33": [
+            "54",
+            "91"
+        ],
+        "34": [
+            "53"
+        ],
+        "35": [
+            "60"
+        ],
+        "36": [
+            "49",
+            "70"
+        ],
+        "37": [
+            "64"
+        ],
+        "38": [
+            "40",
+            "78"
+        ],
+        "39": [
+            "45",
+            "52",
+            "60"
+        ],
+        "40": [
+            "63"
+        ],
+        "41": [
+            "69"
+        ],
+        "42": [
+            "72"
+        ],
+        "43": [
+            "76"
+        ],
+        "44": [
+            "62",
+            "85"
+        ],
+        "45": [
+            "50",
+            "53"
+        ],
+        "46": [
+            "55",
+            "58",
+            "59"
+        ],
+        "47": [
+            "51",
+            "74"
+        ],
+        "48": [
+            "56"
+        ],
+        "49": [
+            "53",
+            "64",
+            "67"
+        ],
+        "50": [
+            "88"
+        ],
+        "51": [
+            "87"
+        ],
+        "52": [
+            "57"
+        ],
+        "53": [
+            "74"
+        ],
+        "54": [
+            "68"
+        ],
+        "55": [
+            "70"
+        ],
+        "56": [
+            "62"
+        ],
+        "57": [
+            "70"
+        ],
+        "58": [
+            "72"
+        ],
+        "59": [
+            "76"
+        ],
+        "60": [
+            "62",
+            "64"
+        ],
+        "61": [
+            "63",
+            "66",
+            "86"
+        ],
+        "62": [
+            "73",
+            "77"
+        ],
+        "63": [
+            "81"
+        ],
+        "64": [
+            "89"
+        ],
+        "65": [
+            "69"
+        ],
+        "66": [
+            "68"
+        ],
+        "67": [
+            "83"
+        ],
+        "68": [
+            "75"
+        ],
+        "69": [
+            "75"
+        ],
+        "70": [
+            "82"
+        ],
+        "71": [
+            "72"
+        ],
+        "72": [
+            "80"
+        ],
+        "73": [
+            "80"
+        ],
+        "74": [
+            "82"
+        ],
+        "75": [
+            "76"
+        ],
+        "76": [
+            "83"
+        ],
+        "77": [
+            "84"
+        ],
+        "78": [
+            "79"
+        ],
+        "79": [
+            "80"
+        ],
+        "80": [
+            "87"
+        ],
+        "81": [
+            "87"
+        ],
+        "82": [
+            "85"
+        ],
+        "83": [
+            "88"
+        ],
+        "84": [
+            "90"
+        ],
+        "85": [
+            "91"
+        ],
+        "86": [
+            "89"
+        ],
+        "87": [
+            "89"
+        ],
+        "88": [
+            "90"
+        ],
+        "89": [
+            "92"
+        ],
+        "90": [
+            "92"
+        ],
+        "91": [
+            "92"
+        ],
+        "92": []
+    },
+    [
+        [
+            "61",
+            "76"
+        ],
+        [
+            "4",
+            "22"
+        ],
+        [
+            "7",
+            "13"
+        ],
+        [
+            "65",
+            "83"
+        ],
+        [
+            "8",
+            "62"
+        ],
+        [
+            "5",
+            "57"
+        ],
+        [
+            "78",
+            "92"
+        ],
+        [
+            "4",
+            "25"
+        ],
+        [
+            "27",
+            "76"
+        ],
+        [
+            "1",
+            "43"
+        ],
+        [
+            "43",
+            "90"
+        ],
+        [
+            "44",
+            "73"
+        ],
+        [
+            "31",
+            "53"
+        ],
+        [
+            "26",
+            "83"
+        ],
+        [
+            "9",
+            "45"
+        ],
+        [
+            "67",
+            "88"
+        ],
+        [
+            "5",
+            "87"
+        ],
+        [
+            "1",
+            "16"
+        ],
+        [
+            "36",
+            "49"
+        ],
+        [
+            "39",
+            "85"
+        ],
+        [
+            "57",
+            "85"
+        ],
+        [
+            "13",
+            "82"
+        ],
+        [
+            "16",
+            "77"
+        ],
+        [
+            "75",
+            "83"
+        ],
+        [
+            "25",
+            "40"
+        ],
+        [
+            "29",
+            "49"
+        ],
+        [
+            "13",
+            "88"
+        ],
+        [
+            "56",
+            "80"
+        ],
+        [
+            "61",
+            "81"
+        ],
+        [
+            "83",
+            "90"
+        ],
+        [
+            "52",
+            "82"
+        ],
+        [
+            "25",
+            "80"
+        ],
+        [
+            "2",
+            "88"
+        ],
+        [
+            "71",
+            "87"
+        ],
+        [
+            "2",
+            "15"
+        ],
+        [
+            "25",
+            "79"
+        ],
+        [
+            "4",
+            "7"
+        ],
+        [
+            "30",
+            "87"
+        ],
+        [
+            "24",
+            "56"
+        ],
+        [
+            "13",
+            "36"
+        ],
+        [
+            "17",
+            "89"
+        ],
+        [
+            "2",
+            "89"
+        ],
+        [
+            "16",
+            "85"
+        ],
+        [
+            "8",
+            "58"
+        ],
+        [
+            "20",
+            "67"
+        ],
+        [
+            "24",
+            "54"
+        ],
+        [
+            "45",
+            "91"
+        ],
+        [
+            "9",
+            "56"
+        ],
+        [
+            "23",
+            "60"
+        ],
+        [
+            "3",
+            "88"
+        ],
+        [
+            "8",
+            "74"
+        ],
+        [
+            "12",
+            "88"
+        ],
+        [
+            "26",
+            "90"
+        ],
+        [
+            "14",
+            "50"
+        ],
+        [
+            "40",
+            "63"
+        ],
+        [
+            "23",
+            "88"
+        ],
+        [
+            "38",
+            "63"
+        ],
+        [
+            "55",
+            "85"
+        ],
+        [
+            "9",
+            "54"
+        ],
+        [
+            "75",
+            "90"
+        ],
+        [
+            "1",
+            "9"
+        ],
+        [
+            "43",
+            "76"
+        ],
+        [
+            "69",
+            "75"
+        ],
+        [
+            "20",
+            "83"
+        ],
+        [
+            "25",
+            "84"
+        ],
+        [
+            "5",
+            "68"
+        ],
+        [
+            "3",
+            "45"
+        ],
+        [
+            "23",
+            "89"
+        ],
+        [
+            "62",
+            "84"
+        ],
+        [
+            "3",
+            "72"
+        ],
+        [
+            "6",
+            "58"
+        ],
+        [
+            "1",
+            "81"
+        ],
+        [
+            "23",
+            "45"
+        ],
+        [
+            "4",
+            "78"
+        ],
+        [
+            "11",
+            "75"
+        ],
+        [
+            "11",
+            "20"
+        ],
+        [
+            "84",
+            "92"
+        ],
+        [
+            "10",
+            "82"
+        ],
+        [
+            "14",
+            "57"
+        ],
+        [
+            "10",
+            "88"
+        ],
+        [
+            "36",
+            "53"
+        ],
+        [
+            "18",
+            "74"
+        ],
+        [
+            "2",
+            "63"
+        ],
+        [
+            "4",
+            "50"
+        ],
+        [
+            "29",
+            "88"
+        ],
+        [
+            "30",
+            "53"
+        ],
+        [
+            "56",
+            "92"
+        ],
+        [
+            "1",
+            "77"
+        ],
+        [
+            "14",
+            "87"
+        ],
+        [
+            "57",
+            "91"
+        ],
+        [
+            "79",
+            "87"
+        ],
+        [
+            "61",
+            "75"
+        ],
+        [
+            "53",
+            "74"
+        ],
+        [
+            "4",
+            "47"
+        ],
+        [
+            "20",
+            "90"
+        ],
+        [
+            "29",
+            "89"
+        ],
+        [
+            "3",
+            "56"
+        ],
+        [
+            "27",
+            "75"
+        ],
+        [
+            "10",
+            "72"
+        ],
+        [
+            "44",
+            "84"
+        ],
+        [
+            "27",
+            "61"
+        ],
+        [
+            "48",
+            "80"
+        ],
+        [
+            "57",
+            "92"
+        ],
+        [
+            "82",
+            "85"
+        ],
+        [
+            "9",
+            "74"
+        ],
+        [
+            "13",
+            "67"
+        ],
+        [
+            "58",
+            "80"
+        ],
+        [
+            "3",
+            "63"
+        ],
+        [
+            "59",
+            "76"
+        ],
+        [
+            "5",
+            "83"
+        ],
+        [
+            "3",
+            "54"
+        ],
+        [
+            "4",
+            "82"
+        ],
+        [
+            "3",
+            "62"
+        ],
+        [
+            "24",
+            "39"
+        ],
+        [
+            "51",
+            "92"
+        ],
+        [
+            "1",
+            "85"
+        ],
+        [
+            "24",
+            "70"
+        ],
+        [
+            "11",
+            "66"
+        ],
+        [
+            "23",
+            "62"
+        ],
+        [
+            "81",
+            "92"
+        ],
+        [
+            "31",
+            "74"
+        ],
+        [
+            "9",
+            "39"
+        ],
+        [
+            "60",
+            "87"
+        ],
+        [
+            "9",
+            "70"
+        ],
+        [
+            "36",
+            "83"
+        ],
+        [
+            "24",
+            "90"
+        ],
+        [
+            "91",
+            "92"
+        ],
+        [
+            "4",
+            "36"
+        ],
+        [
+            "3",
+            "71"
+        ],
+        [
+            "10",
+            "31"
+        ],
+        [
+            "30",
+            "38"
+        ],
+        [
+            "39",
+            "57"
+        ],
+        [
+            "73",
+            "80"
+        ],
+        [
+            "3",
+            "46"
+        ],
+        [
+            "7",
+            "91"
+        ],
+        [
+            "61",
+            "66"
+        ],
+        [
+            "2",
+            "74"
+        ],
+        [
+            "9",
+            "64"
+        ],
+        [
+            "14",
+            "68"
+        ],
+        [
+            "24",
+            "73"
+        ],
+        [
+            "10",
+            "63"
+        ],
+        [
+            "14",
+            "53"
+        ],
+        [
+            "39",
+            "87"
+        ],
+        [
+            "76",
+            "90"
+        ],
+        [
+            "27",
+            "66"
+        ],
+        [
+            "1",
+            "61"
+        ],
+        [
+            "2",
+            "32"
+        ],
+        [
+            "21",
+            "89"
+        ],
+        [
+            "25",
+            "78"
+        ],
+        [
+            "7",
+            "92"
+        ],
+        [
+            "13",
+            "70"
+        ],
+        [
+            "16",
+            "49"
+        ],
+        [
+            "35",
+            "80"
+        ],
+        [
+            "45",
+            "53"
+        ],
+        [
+            "9",
+            "48"
+        ],
+        [
+            "9",
+            "73"
+        ],
+        [
+            "30",
+            "34"
+        ],
+        [
+            "8",
+            "80"
+        ],
+        [
+            "4",
+            "30"
+        ],
+        [
+            "11",
+            "82"
+        ],
+        [
+            "52",
+            "70"
+        ],
+        [
+            "3",
+            "74"
+        ],
+        [
+            "4",
+            "18"
+        ],
+        [
+            "12",
+            "74"
+        ],
+        [
+            "19",
+            "92"
+        ],
+        [
+            "46",
+            "91"
+        ],
+        [
+            "2",
+            "27"
+        ],
+        [
+            "1",
+            "21"
+        ],
+        [
+            "2",
+            "86"
+        ],
+        [
+            "13",
+            "64"
+        ],
+        [
+            "13",
+            "90"
+        ],
+        [
+            "23",
+            "74"
+        ],
+        [
+            "16",
+            "87"
+        ],
+        [
+            "70",
+            "82"
+        ],
+        [
+            "2",
+            "64"
+        ],
+        [
+            "48",
+            "92"
+        ],
+        [
+            "7",
+            "51"
+        ],
+        [
+            "46",
+            "92"
+        ],
+        [
+            "58",
+            "92"
+        ],
+        [
+            "11",
+            "36"
+        ],
+        [
+            "3",
+            "39"
+        ],
+        [
+            "1",
+            "44"
+        ],
+        [
+            "24",
+            "76"
+        ],
+        [
+            "42",
+            "87"
+        ],
+        [
+            "25",
+            "82"
+        ],
+        [
+            "9",
+            "26"
+        ],
+        [
+            "19",
+            "51"
+        ],
+        [
+            "14",
+            "83"
+        ],
+        [
+            "33",
+            "83"
+        ],
+        [
+            "37",
+            "89"
+        ],
+        [
+            "41",
+            "90"
+        ],
+        [
+            "39",
+            "60"
+        ],
+        [
+            "29",
+            "58"
+        ],
+        [
+            "3",
+            "64"
+        ],
+        [
+            "12",
+            "64"
+        ],
+        [
+            "9",
+            "76"
+        ],
+        [
+            "61",
+            "87"
+        ],
+        [
+            "39",
+            "53"
+        ],
+        [
+            "23",
+            "64"
+        ],
+        [
+            "29",
+            "74"
+        ],
+        [
+            "4",
+            "67"
+        ],
+        [
+            "73",
+            "92"
+        ],
+        [
+            "39",
+            "89"
+        ],
+        [
+            "62",
+            "87"
+        ],
+        [
+            "3",
+            "48"
+        ],
+        [
+            "3",
+            "73"
+        ],
+        [
+            "38",
+            "40"
+        ],
+        [
+            "49",
+            "53"
+        ],
+        [
+            "63",
+            "81"
+        ],
+        [
+            "23",
+            "48"
+        ],
+        [
+            "38",
+            "80"
+        ],
+        [
+            "28",
+            "68"
+        ],
+        [
+            "20",
+            "85"
+        ],
+        [
+            "68",
+            "88"
+        ],
+        [
+            "35",
+            "92"
+        ],
+        [
+            "11",
+            "68"
+        ],
+        [
+            "4",
+            "83"
+        ],
+        [
+            "16",
+            "53"
+        ],
+        [
+            "33",
+            "90"
+        ],
+        [
+            "8",
+            "92"
+        ],
+        [
+            "2",
+            "76"
+        ],
+        [
+            "1",
+            "49"
+        ],
+        [
+            "10",
+            "90"
+        ],
+        [
+            "16",
+            "89"
+        ],
+        [
+            "47",
+            "87"
+        ],
+        [
+            "50",
+            "92"
+        ],
+        [
+            "1",
+            "57"
+        ],
+        [
+            "25",
+            "31"
+        ],
+        [
+            "24",
+            "84"
+        ],
+        [
+            "34",
+            "85"
+        ],
+        [
+            "3",
+            "26"
+        ],
+        [
+            "41",
+            "76"
+        ],
+        [
+            "44",
+            "87"
+        ],
+        [
+            "1",
+            "12"
+        ],
+        [
+            "5",
+            "77"
+        ],
+        [
+            "6",
+            "91"
+        ],
+        [
+            "7",
+            "88"
+        ],
+        [
+            "1",
+            "87"
+        ],
+        [
+            "23",
+            "26"
+        ],
+        [
+            "42",
+            "89"
+        ],
+        [
+            "2",
+            "80"
+        ],
+        [
+            "61",
+            "68"
+        ],
+        [
+            "3",
+            "76"
+        ],
+        [
+            "8",
+            "69"
+        ],
+        [
+            "4",
+            "34"
+        ],
+        [
+            "11",
+            "67"
+        ],
+        [
+            "9",
+            "84"
+        ],
+        [
+            "2",
+            "79"
+        ],
+        [
+            "1",
+            "35"
+        ],
+        [
+            "27",
+            "68"
+        ],
+        [
+            "6",
+            "92"
+        ],
+        [
+            "49",
+            "83"
+        ],
+        [
+            "69",
+            "83"
+        ],
+        [
+            "4",
+            "90"
+        ],
+        [
+            "3",
+            "40"
+        ],
+        [
+            "5",
+            "24"
+        ],
+        [
+            "18",
+            "92"
+        ],
+        [
+            "45",
+            "74"
+        ],
+        [
+            "5",
+            "85"
+        ],
+        [
+            "8",
+            "29"
+        ],
+        [
+            "3",
+            "80"
+        ],
+        [
+            "11",
+            "83"
+        ],
+        [
+            "46",
+            "88"
+        ],
+        [
+            "53",
+            "92"
+        ],
+        [
+            "74",
+            "91"
+        ],
+        [
+            "23",
+            "80"
+        ],
+        [
+            "32",
+            "53"
+        ],
+        [
+            "3",
+            "55"
+        ],
+        [
+            "6",
+            "69"
+        ],
+        [
+            "27",
+            "67"
+        ],
+        [
+            "24",
+            "75"
+        ],
+        [
+            "36",
+            "85"
+        ],
+        [
+            "17",
+            "37"
+        ],
+        [
+            "16",
+            "62"
+        ],
+        [
+            "30",
+            "85"
+        ],
+        [
+            "74",
+            "92"
+        ],
+        [
+            "6",
+            "8"
+        ],
+        [
+            "1",
+            "60"
+        ],
+        [
+            "9",
+            "75"
+        ],
+        [
+            "46",
+            "72"
+        ],
+        [
+            "58",
+            "72"
+        ],
+        [
+            "61",
+            "83"
+        ],
+        [
+            "20",
+            "91"
+        ],
+        [
+            "69",
+            "90"
+        ],
+        [
+            "6",
+            "29"
+        ],
+        [
+            "25",
+            "83"
+        ],
+        [
+            "10",
+            "40"
+        ],
+        [
+            "1",
+            "53"
+        ],
+        [
+            "1",
+            "15"
+        ],
+        [
+            "27",
+            "83"
+        ],
+        [
+            "31",
+            "92"
+        ],
+        [
+            "3",
+            "84"
+        ],
+        [
+            "1",
+            "17"
+        ],
+        [
+            "1",
+            "89"
+        ],
+        [
+            "7",
+            "62"
+        ],
+        [
+            "11",
+            "90"
+        ],
+        [
+            "29",
+            "80"
+        ],
+        [
+            "66",
+            "88"
+        ],
+        [
+            "1",
+            "45"
+        ],
+        [
+            "17",
+            "92"
+        ],
+        [
+            "34",
+            "91"
+        ],
+        [
+            "5",
+            "21"
+        ],
+        [
+            "8",
+            "82"
+        ],
+        [
+            "84",
+            "90"
+        ],
+        [
+            "48",
+            "56"
+        ],
+        [
+            "8",
+            "88"
+        ],
+        [
+            "14",
+            "77"
+        ],
+        [
+            "16",
+            "58"
+        ],
+        [
+            "2",
+            "20"
+        ],
+        [
+            "50",
+            "88"
+        ],
+        [
+            "56",
+            "90"
+        ],
+        [
+            "20",
+            "49"
+        ],
+        [
+            "25",
+            "90"
+        ],
+        [
+            "41",
+            "75"
+        ],
+        [
+            "5",
+            "28"
+        ],
+        [
+            "4",
+            "81"
+        ],
+        [
+            "8",
+            "36"
+        ],
+        [
+            "24",
+            "50"
+        ],
+        [
+            "27",
+            "90"
+        ],
+        [
+            "10",
+            "84"
+        ],
+        [
+            "8",
+            "72"
+        ],
+        [
+            "14",
+            "24"
+        ],
+        [
+            "38",
+            "78"
+        ],
+        [
+            "5",
+            "91"
+        ],
+        [
+            "65",
+            "88"
+        ],
+        [
+            "1",
+            "38"
+        ],
+        [
+            "1",
+            "5"
+        ],
+        [
+            "3",
+            "75"
+        ],
+        [
+            "14",
+            "85"
+        ],
+        [
+            "5",
+            "33"
+        ],
+        [
+            "23",
+            "92"
+        ],
+        [
+            "32",
+            "34"
+        ],
+        [
+            "56",
+            "73"
+        ],
+        [
+            "3",
+            "59"
+        ],
+        [
+            "6",
+            "88"
+        ],
+        [
+            "9",
+            "50"
+        ],
+        [
+            "10",
+            "22"
+        ],
+        [
+            "21",
+            "40"
+        ],
+        [
+            "43",
+            "83"
+        ],
+        [
+            "18",
+            "82"
+        ],
+        [
+            "2",
+            "11"
+        ],
+        [
+            "7",
+            "74"
+        ],
+        [
+            "4",
+            "77"
+        ],
+        [
+            "10",
+            "25"
+        ],
+        [
+            "3",
+            "14"
+        ],
+        [
+            "18",
+            "88"
+        ],
+        [
+            "1",
+            "62"
+        ],
+        [
+            "36",
+            "91"
+        ],
+        [
+            "30",
+            "91"
+        ],
+        [
+            "53",
+            "82"
+        ],
+        [
+            "3",
+            "52"
+        ],
+        [
+            "23",
+            "69"
+        ],
+        [
+            "24",
+            "57"
+        ],
+        [
+            "6",
+            "72"
+        ],
+        [
+            "23",
+            "52"
+        ],
+        [
+            "71",
+            "92"
+        ],
+        [
+            "36",
+            "92"
+        ],
+        [
+            "5",
+            "65"
+        ],
+        [
+            "8",
+            "56"
+        ],
+        [
+            "18",
+            "36"
+        ],
+        [
+            "9",
+            "82"
+        ],
+        [
+            "30",
+            "92"
+        ],
+        [
+            "74",
+            "82"
+        ],
+        [
+            "29",
+            "92"
+        ],
+        [
+            "24",
+            "87"
+        ],
+        [
+            "4",
+            "85"
+        ],
+        [
+            "11",
+            "81"
+        ],
+        [
+            "63",
+            "87"
+        ],
+        [
+            "7",
+            "64"
+        ],
+        [
+            "31",
+            "82"
+        ],
+        [
+            "72",
+            "87"
+        ],
+        [
+            "54",
+            "92"
+        ],
+        [
+            "1",
+            "58"
+        ],
+        [
+            "59",
+            "83"
+        ],
+        [
+            "20",
+            "53"
+        ],
+        [
+            "6",
+            "56"
+        ],
+        [
+            "87",
+            "92"
+        ],
+        [
+            "3",
+            "50"
+        ],
+        [
+            "7",
+            "73"
+        ],
+        [
+            "2",
+            "82"
+        ],
+        [
+            "8",
+            "67"
+        ],
+        [
+            "8",
+            "46"
+        ],
+        [
+            "14",
+            "44"
+        ],
+        [
+            "25",
+            "81"
+        ],
+        [
+            "20",
+            "89"
+        ],
+        [
+            "27",
+            "81"
+        ],
+        [
+            "49",
+            "85"
+        ],
+        [
+            "6",
+            "62"
+        ],
+        [
+            "52",
+            "57"
+        ],
+        [
+            "14",
+            "28"
+        ],
+        [
+            "12",
+            "47"
+        ],
+        [
+            "1",
+            "32"
+        ],
+        [
+            "14",
+            "91"
+        ],
+        [
+            "14",
+            "33"
+        ],
+        [
+            "34",
+            "53"
+        ],
+        [
+            "3",
+            "41"
+        ],
+        [
+            "10",
+            "78"
+        ],
+        [
+            "21",
+            "92"
+        ],
+        [
+            "2",
+            "36"
+        ],
+        [
+            "11",
+            "85"
+        ],
+        [
+            "24",
+            "68"
+        ],
+        [
+            "3",
+            "82"
+        ],
+        [
+            "12",
+            "82"
+        ],
+        [
+            "48",
+            "73"
+        ],
+        [
+            "24",
+            "53"
+        ],
+        [
+            "1",
+            "10"
+        ],
+        [
+            "6",
+            "71"
+        ],
+        [
+            "23",
+            "82"
+        ],
+        [
+            "1",
+            "13"
+        ],
+        [
+            "6",
+            "46"
+        ],
+        [
+            "62",
+            "77"
+        ],
+        [
+            "59",
+            "90"
+        ],
+        [
+            "10",
+            "50"
+        ],
+        [
+            "9",
+            "68"
+        ],
+        [
+            "45",
+            "92"
+        ],
+        [
+            "56",
+            "84"
+        ],
+        [
+            "5",
+            "60"
+        ],
+        [
+            "16",
+            "80"
+        ],
+        [
+            "18",
+            "67"
+        ],
+        [
+            "3",
+            "36"
+        ],
+        [
+            "5",
+            "88"
+        ],
+        [
+            "12",
+            "36"
+        ],
+        [
+            "5",
+            "53"
+        ],
+        [
+            "13",
+            "18"
+        ],
+        [
+            "14",
+            "65"
+        ],
+        [
+            "63",
+            "89"
+        ],
+        [
+            "8",
+            "70"
+        ],
+        [
+            "25",
+            "85"
+        ],
+        [
+            "42",
+            "80"
+        ],
+        [
+            "27",
+            "85"
+        ],
+        [
+            "1",
+            "19"
+        ],
+        [
+            "72",
+            "89"
+        ],
+        [
+            "5",
+            "17"
+        ],
+        [
+            "5",
+            "89"
+        ],
+        [
+            "11",
+            "61"
+        ],
+        [
+            "35",
+            "64"
+        ],
+        [
+            "6",
+            "74"
+        ],
+        [
+            "35",
+            "90"
+        ],
+        [
+            "7",
+            "80"
+        ],
+        [
+            "5",
+            "45"
+        ],
+        [
+            "8",
+            "64"
+        ],
+        [
+            "36",
+            "88"
+        ],
+        [
+            "8",
+            "90"
+        ],
+        [
+            "37",
+            "92"
+        ],
+        [
+            "29",
+            "82"
+        ],
+        [
+            "30",
+            "88"
+        ],
+        [
+            "60",
+            "92"
+        ],
+        [
+            "46",
+            "76"
+        ],
+        [
+            "44",
+            "77"
+        ],
+        [
+            "39",
+            "91"
+        ],
+        [
+            "24",
+            "83"
+        ],
+        [
+            "32",
+            "85"
+        ],
+        [
+            "71",
+            "89"
+        ],
+        [
+            "35",
+            "73"
+        ],
+        [
+            "12",
+            "18"
+        ],
+        [
+            "36",
+            "89"
+        ],
+        [
+            "30",
+            "89"
+        ],
+        [
+            "8",
+            "73"
+        ],
+        [
+            "71",
+            "72"
+        ],
+        [
+            "39",
+            "92"
+        ],
+        [
+            "47",
+            "85"
+        ],
+        [
+            "9",
+            "83"
+        ],
+        [
+            "29",
+            "36"
+        ],
+        [
+            "49",
+            "91"
+        ],
+        [
+            "22",
+            "90"
+        ],
+        [
+            "18",
+            "70"
+        ],
+        [
+            "23",
+            "56"
+        ],
+        [
+            "29",
+            "72"
+        ],
+        [
+            "46",
+            "80"
+        ],
+        [
+            "54",
+            "88"
+        ],
+        [
+            "76",
+            "83"
+        ],
+        [
+            "3",
+            "68"
+        ],
+        [
+            "1",
+            "24"
+        ],
+        [
+            "4",
+            "49"
+        ],
+        [
+            "6",
+            "64"
+        ],
+        [
+            "1",
+            "2"
+        ],
+        [
+            "28",
+            "91"
+        ],
+        [
+            "44",
+            "85"
+        ],
+        [
+            "2",
+            "67"
+        ],
+        [
+            "46",
+            "55"
+        ],
+        [
+            "16",
+            "91"
+        ],
+        [
+            "7",
+            "84"
+        ],
+        [
+            "9",
+            "23"
+        ],
+        [
+            "23",
+            "54"
+        ],
+        [
+            "3",
+            "6"
+        ],
+        [
+            "28",
+            "33"
+        ],
+        [
+            "18",
+            "64"
+        ],
+        [
+            "67",
+            "83"
+        ],
+        [
+            "18",
+            "90"
+        ],
+        [
+            "87",
+            "89"
+        ],
+        [
+            "28",
+            "92"
+        ],
+        [
+            "68",
+            "92"
+        ],
+        [
+            "4",
+            "12"
+        ],
+        [
+            "6",
+            "73"
+        ],
+        [
+            "10",
+            "30"
+        ],
+        [
+            "16",
+            "92"
+        ],
+        [
+            "4",
+            "87"
+        ],
+        [
+            "5",
+            "62"
+        ],
+        [
+            "13",
+            "83"
+        ],
+        [
+            "20",
+            "74"
+        ],
+        [
+            "39",
+            "52"
+        ],
+        [
+            "55",
+            "91"
+        ],
+        [
+            "1",
+            "80"
+        ],
+        [
+            "4",
+            "35"
+        ],
+        [
+            "3",
+            "67"
+        ],
+        [
+            "12",
+            "67"
+        ],
+        [
+            "8",
+            "76"
+        ],
+        [
+            "1",
+            "79"
+        ],
+        [
+            "14",
+            "60"
+        ],
+        [
+            "77",
+            "92"
+        ],
+        [
+            "33",
+            "68"
+        ],
+        [
+            "42",
+            "92"
+        ],
+        [
+            "9",
+            "90"
+        ],
+        [
+            "48",
+            "84"
+        ],
+        [
+            "14",
+            "88"
+        ],
+        [
+            "55",
+            "92"
+        ],
+        [
+            "30",
+            "63"
+        ],
+        [
+            "27",
+            "91"
+        ],
+        [
+            "41",
+            "83"
+        ],
+        [
+            "45",
+            "82"
+        ],
+        [
+            "34",
+            "74"
+        ],
+        [
+            "45",
+            "88"
+        ],
+        [
+            "89",
+            "92"
+        ],
+        [
+            "14",
+            "89"
+        ],
+        [
+            "79",
+            "89"
+        ],
+        [
+            "11",
+            "49"
+        ],
+        [
+            "3",
+            "83"
+        ],
+        [
+            "12",
+            "83"
+        ],
+        [
+            "67",
+            "90"
+        ],
+        [
+            "90",
+            "92"
+        ],
+        [
+            "2",
+            "70"
+        ],
+        [
+            "14",
+            "45"
+        ],
+        [
+            "25",
+            "50"
+        ],
+        [
+            "80",
+            "87"
+        ],
+        [
+            "8",
+            "55"
+        ],
+        [
+            "85",
+            "91"
+        ],
+        [
+            "6",
+            "76"
+        ],
+        [
+            "32",
+            "91"
+        ],
+        [
+            "16",
+            "29"
+        ],
+        [
+            "17",
+            "64"
+        ],
+        [
+            "3",
+            "23"
+        ],
+        [
+            "4",
+            "60"
+        ],
+        [
+            "1",
+            "37"
+        ],
+        [
+            "2",
+            "90"
+        ],
+        [
+            "11",
+            "87"
+        ],
+        [
+            "29",
+            "67"
+        ],
+        [
+            "29",
+            "46"
+        ],
+        [
+            "5",
+            "74"
+        ],
+        [
+            "85",
+            "92"
+        ],
+        [
+            "32",
+            "92"
+        ],
+        [
+            "47",
+            "91"
+        ],
+        [
+            "3",
+            "70"
+        ],
+        [
+            "4",
+            "53"
+        ],
+        [
+            "12",
+            "70"
+        ],
+        [
+            "82",
+            "91"
+        ],
+        [
+            "23",
+            "39"
+        ],
+        [
+            "1",
+            "28"
+        ],
+        [
+            "6",
+            "80"
+        ],
+        [
+            "27",
+            "49"
+        ],
+        [
+            "23",
+            "70"
+        ],
+        [
+            "44",
+            "91"
+        ],
+        [
+            "46",
+            "59"
+        ],
+        [
+            "35",
+            "84"
+        ],
+        [
+            "60",
+            "89"
+        ],
+        [
+            "1",
+            "91"
+        ],
+        [
+            "4",
+            "89"
+        ],
+        [
+            "1",
+            "42"
+        ],
+        [
+            "10",
+            "83"
+        ],
+        [
+            "6",
+            "55"
+        ],
+        [
+            "8",
+            "84"
+        ],
+        [
+            "1",
+            "33"
+        ],
+        [
+            "47",
+            "92"
+        ],
+        [
+            "3",
+            "90"
+        ],
+        [
+            "12",
+            "90"
+        ],
+        [
+            "36",
+            "74"
+        ],
+        [
+            "21",
+            "63"
+        ],
+        [
+            "30",
+            "74"
+        ],
+        [
+            "39",
+            "88"
+        ],
+        [
+            "57",
+            "82"
+        ],
+        [
+            "23",
+            "90"
+        ],
+        [
+            "15",
+            "87"
+        ],
+        [
+            "1",
+            "92"
+        ],
+        [
+            "25",
+            "87"
+        ],
+        [
+            "27",
+            "87"
+        ],
+        [
+            "14",
+            "62"
+        ],
+        [
+            "3",
+            "43"
+        ],
+        [
+            "40",
+            "81"
+        ],
+        [
+            "49",
+            "88"
+        ],
+        [
+            "3",
+            "16"
+        ],
+        [
+            "39",
+            "45"
+        ],
+        [
+            "66",
+            "92"
+        ],
+        [
+            "23",
+            "73"
+        ],
+        [
+            "47",
+            "51"
+        ],
+        [
+            "38",
+            "81"
+        ],
+        [
+            "10",
+            "34"
+        ],
+        [
+            "28",
+            "88"
+        ],
+        [
+            "29",
+            "70"
+        ],
+        [
+            "1",
+            "65"
+        ],
+        [
+            "6",
+            "84"
+        ],
+        [
+            "16",
+            "88"
+        ],
+        [
+            "49",
+            "89"
+        ],
+        [
+            "80",
+            "89"
+        ],
+        [
+            "1",
+            "69"
+        ],
+        [
+            "24",
+            "77"
+        ],
+        [
+            "4",
+            "38"
+        ],
+        [
+            "7",
+            "47"
+        ],
+        [
+            "1",
+            "51"
+        ],
+        [
+            "1",
+            "52"
+        ],
+        [
+            "11",
+            "53"
+        ],
+        [
+            "36",
+            "64"
+        ],
+        [
+            "25",
+            "30"
+        ],
+        [
+            "8",
+            "75"
+        ],
+        [
+            "29",
+            "64"
+        ],
+        [
+            "1",
+            "8"
+        ],
+        [
+            "29",
+            "90"
+        ],
+        [
+            "9",
+            "77"
+        ],
+        [
+            "11",
+            "89"
+        ],
+        [
+            "8",
+            "59"
+        ],
+        [
+            "7",
+            "82"
+        ],
+        [
+            "16",
+            "72"
+        ],
+        [
+            "60",
+            "62"
+        ],
+        [
+            "1",
+            "29"
+        ],
+        [
+            "65",
+            "92"
+        ],
+        [
+            "61",
+            "88"
+        ],
+        [
+            "24",
+            "85"
+        ],
+        [
+            "2",
+            "81"
+        ],
+        [
+            "25",
+            "53"
+        ],
+        [
+            "14",
+            "74"
+        ],
+        [
+            "23",
+            "76"
+        ],
+        [
+            "26",
+            "92"
+        ],
+        [
+            "5",
+            "26"
+        ],
+        [
+            "27",
+            "53"
+        ],
+        [
+            "42",
+            "72"
+        ],
+        [
+            "54",
+            "90"
+        ],
+        [
+            "3",
+            "9"
+        ],
+        [
+            "61",
+            "89"
+        ],
+        [
+            "7",
+            "36"
+        ],
+        [
+            "9",
+            "85"
+        ],
+        [
+            "39",
+            "62"
+        ],
+        [
+            "6",
+            "75"
+        ],
+        [
+            "75",
+            "92"
+        ],
+        [
+            "15",
+            "89"
+        ],
+        [
+            "27",
+            "89"
+        ],
+        [
+            "65",
+            "69"
+        ],
+        [
+            "6",
+            "59"
+        ],
+        [
+            "46",
+            "82"
+        ],
+        [
+            "62",
+            "89"
+        ],
+        [
+            "3",
+            "81"
+        ],
+        [
+            "16",
+            "56"
+        ],
+        [
+            "28",
+            "54"
+        ],
+        [
+            "72",
+            "80"
+        ],
+        [
+            "58",
+            "87"
+        ],
+        [
+            "5",
+            "80"
+        ],
+        [
+            "13",
+            "85"
+        ],
+        [
+            "29",
+            "76"
+        ],
+        [
+            "7",
+            "18"
+        ],
+        [
+            "3",
+            "77"
+        ],
+        [
+            "52",
+            "85"
+        ],
+        [
+            "47",
+            "89"
+        ],
+        [
+            "1",
+            "88"
+        ],
+        [
+            "45",
+            "90"
+        ],
+        [
+            "25",
+            "38"
+        ],
+        [
+            "30",
+            "40"
+        ],
+        [
+            "71",
+            "80"
+        ],
+        [
+            "30",
+            "80"
+        ],
+        [
+            "10",
+            "81"
+        ],
+        [
+            "20",
+            "92"
+        ],
+        [
+            "44",
+            "89"
+        ],
+        [
+            "43",
+            "88"
+        ],
+        [
+            "54",
+            "76"
+        ],
+        [
+            "39",
+            "74"
+        ],
+        [
+            "16",
+            "46"
+        ],
+        [
+            "30",
+            "79"
+        ],
+        [
+            "23",
+            "84"
+        ],
+        [
+            "73",
+            "87"
+        ],
+        [
+            "1",
+            "36"
+        ],
+        [
+            "3",
+            "85"
+        ],
+        [
+            "8",
+            "41"
+        ],
+        [
+            "4",
+            "10"
+        ],
+        [
+            "12",
+            "85"
+        ],
+        [
+            "1",
+            "72"
+        ],
+        [
+            "29",
+            "55"
+        ],
+        [
+            "4",
+            "13"
+        ],
+        [
+            "83",
+            "88"
+        ],
+        [
+            "37",
+            "64"
+        ],
+        [
+            "60",
+            "64"
+        ],
+        [
+            "25",
+            "34"
+        ],
+        [
+            "2",
+            "75"
+        ],
+        [
+            "24",
+            "91"
+        ],
+        [
+            "49",
+            "74"
+        ],
+        [
+            "2",
+            "61"
+        ],
+        [
+            "5",
+            "37"
+        ],
+        [
+            "64",
+            "89"
+        ],
+        [
+            "34",
+            "92"
+        ],
+        [
+            "57",
+            "70"
+        ],
+        [
+            "7",
+            "67"
+        ],
+        [
+            "14",
+            "26"
+        ],
+        [
+            "16",
+            "74"
+        ],
+        [
+            "4",
+            "19"
+        ],
+        [
+            "39",
+            "64"
+        ],
+        [
+            "6",
+            "41"
+        ],
+        [
+            "63",
+            "92"
+        ],
+        [
+            "1",
+            "31"
+        ],
+        [
+            "6",
+            "82"
+        ],
+        [
+            "10",
+            "85"
+        ],
+        [
+            "1",
+            "56"
+        ],
+        [
+            "26",
+            "88"
+        ],
+        [
+            "23",
+            "75"
+        ],
+        [
+            "72",
+            "92"
+        ],
+        [
+            "7",
+            "83"
+        ],
+        [
+            "5",
+            "92"
+        ],
+        [
+            "16",
+            "70"
+        ],
+        [
+            "49",
+            "64"
+        ],
+        [
+            "1",
+            "63"
+        ],
+        [
+            "39",
+            "73"
+        ],
+        [
+            "44",
+            "62"
+        ],
+        [
+            "1",
+            "54"
+        ],
+        [
+            "21",
+            "81"
+        ],
+        [
+            "75",
+            "88"
+        ],
+        [
+            "13",
+            "91"
+        ],
+        [
+            "14",
+            "80"
+        ],
+        [
+            "79",
+            "80"
+        ],
+        [
+            "3",
+            "21"
+        ],
+        [
+            "6",
+            "36"
+        ],
+        [
+            "27",
+            "74"
+        ],
+        [
+            "16",
+            "64"
+        ],
+        [
+            "2",
+            "66"
+        ],
+        [
+            "52",
+            "91"
+        ],
+        [
+            "68",
+            "90"
+        ],
+        [
+            "5",
+            "69"
+        ],
+        [
+            "7",
+            "70"
+        ],
+        [
+            "46",
+            "83"
+        ],
+        [
+            "3",
+            "44"
+        ],
+        [
+            "1",
+            "71"
+        ],
+        [
+            "5",
+            "52"
+        ],
+        [
+            "9",
+            "57"
+        ],
+        [
+            "52",
+            "92"
+        ],
+        [
+            "16",
+            "73"
+        ],
+        [
+            "61",
+            "86"
+        ],
+        [
+            "1",
+            "46"
+        ],
+        [
+            "32",
+            "74"
+        ],
+        [
+            "40",
+            "87"
+        ],
+        [
+            "29",
+            "59"
+        ],
+        [
+            "7",
+            "90"
+        ],
+        [
+            "9",
+            "87"
+        ],
+        [
+            "27",
+            "86"
+        ],
+        [
+            "38",
+            "87"
+        ],
+        [
+            "20",
+            "82"
+        ],
+        [
+            "47",
+            "74"
+        ],
+        [
+            "60",
+            "80"
+        ],
+        [
+            "13",
+            "49"
+        ],
+        [
+            "4",
+            "80"
+        ],
+        [
+            "20",
+            "88"
+        ],
+        [
+            "46",
+            "70"
+        ],
+        [
+            "4",
+            "79"
+        ],
+        [
+            "54",
+            "75"
+        ],
+        [
+            "2",
+            "49"
+        ],
+        [
+            "1",
+            "74"
+        ],
+        [
+            "23",
+            "50"
+        ],
+        [
+            "26",
+            "54"
+        ],
+        [
+            "48",
+            "90"
+        ],
+        [
+            "20",
+            "36"
+        ],
+        [
+            "39",
+            "80"
+        ],
+        [
+            "46",
+            "90"
+        ],
+        [
+            "34",
+            "82"
+        ],
+        [
+            "28",
+            "76"
+        ],
+        [
+            "33",
+            "91"
+        ],
+        [
+            "68",
+            "76"
+        ],
+        [
+            "16",
+            "76"
+        ],
+        [
+            "24",
+            "60"
+        ],
+        [
+            "2",
+            "87"
+        ],
+        [
+            "10",
+            "91"
+        ],
+        [
+            "10",
+            "42"
+        ],
+        [
+            "1",
+            "39"
+        ],
+        [
+            "3",
+            "49"
+        ],
+        [
+            "12",
+            "49"
+        ],
+        [
+            "30",
+            "78"
+        ],
+        [
+            "1",
+            "70"
+        ],
+        [
+            "8",
+            "83"
+        ],
+        [
+            "24",
+            "88"
+        ],
+        [
+            "56",
+            "77"
+        ],
+        [
+            "33",
+            "92"
+        ],
+        [
+            "14",
+            "92"
+        ],
+        [
+            "79",
+            "92"
+        ],
+        [
+            "60",
+            "84"
+        ],
+        [
+            "1",
+            "27"
+        ],
+        [
+            "1",
+            "86"
+        ],
+        [
+            "3",
+            "57"
+        ],
+        [
+            "9",
+            "60"
+        ],
+        [
+            "6",
+            "67"
+        ],
+        [
+            "1",
+            "4"
+        ],
+        [
+            "70",
+            "85"
+        ],
+        [
+            "23",
+            "57"
+        ],
+        [
+            "1",
+            "64"
+        ],
+        [
+            "24",
+            "89"
+        ],
+        [
+            "9",
+            "53"
+        ],
+        [
+            "3",
+            "87"
+        ],
+        [
+            "5",
+            "82"
+        ],
+        [
+            "12",
+            "87"
+        ],
+        [
+            "24",
+            "45"
+        ],
+        [
+            "40",
+            "89"
+        ],
+        [
+            "76",
+            "88"
+        ],
+        [
+            "16",
+            "55"
+        ],
+        [
+            "23",
+            "87"
+        ],
+        [
+            "39",
+            "84"
+        ],
+        [
+            "9",
+            "89"
+        ],
+        [
+            "14",
+            "69"
+        ],
+        [
+            "38",
+            "89"
+        ],
+        [
+            "66",
+            "90"
+        ],
+        [
+            "1",
+            "48"
+        ],
+        [
+            "1",
+            "73"
+        ],
+        [
+            "4",
+            "42"
+        ],
+        [
+            "4",
+            "91"
+        ],
+        [
+            "6",
+            "83"
+        ],
+        [
+            "14",
+            "52"
+        ],
+        [
+            "36",
+            "82"
+        ],
+        [
+            "30",
+            "82"
+        ],
+        [
+            "7",
+            "81"
+        ],
+        [
+            "18",
+            "83"
+        ],
+        [
+            "4",
+            "92"
+        ],
+        [
+            "13",
+            "53"
+        ],
+        [
+            "2",
+            "68"
+        ],
+        [
+            "15",
+            "80"
+        ],
+        [
+            "50",
+            "90"
+        ],
+        [
+            "2",
+            "53"
+        ],
+        [
+            "15",
+            "79"
+        ],
+        [
+            "16",
+            "84"
+        ],
+        [
+            "13",
+            "89"
+        ],
+        [
+            "62",
+            "80"
+        ],
+        [
+            "10",
+            "87"
+        ],
+        [
+            "6",
+            "70"
+        ],
+        [
+            "29",
+            "87"
+        ],
+        [
+            "65",
+            "90"
+        ],
+        [
+            "7",
+            "77"
+        ],
+        [
+            "8",
+            "16"
+        ],
+        [
+            "41",
+            "88"
+        ],
+        [
+            "77",
+            "84"
+        ],
+        [
+            "1",
+            "26"
+        ],
+        [
+            "3",
+            "60"
+        ],
+        [
+            "1",
+            "3"
+        ],
+        [
+            "24",
+            "62"
+        ],
+        [
+            "4",
+            "51"
+        ],
+        [
+            "6",
+            "90"
+        ],
+        [
+            "1",
+            "76"
+        ],
+        [
+            "3",
+            "53"
+        ],
+        [
+            "12",
+            "53"
+        ],
+        [
+            "23",
+            "68"
+        ],
+        [
+            "49",
+            "92"
+        ],
+        [
+            "5",
+            "56"
+        ],
+        [
+            "69",
+            "92"
+        ],
+        [
+            "80",
+            "92"
+        ],
+        [
+            "11",
+            "91"
+        ],
+        [
+            "23",
+            "53"
+        ],
+        [
+            "3",
+            "17"
+        ],
+        [
+            "9",
+            "62"
+        ],
+        [
+            "3",
+            "89"
+        ],
+        [
+            "12",
+            "89"
+        ],
+        [
+            "5",
+            "63"
+        ],
+        [
+            "7",
+            "85"
+        ],
+        [
+            "45",
+            "50"
+        ],
+        [
+            "5",
+            "54"
+        ],
+        [
+            "1",
+            "40"
+        ],
+        [
+            "48",
+            "77"
+        ],
+        [
+            "66",
+            "76"
+        ],
+        [
+            "44",
+            "80"
+        ],
+        [
+            "6",
+            "16"
+        ],
+        [
+            "11",
+            "92"
+        ],
+        [
+            "28",
+            "75"
+        ],
+        [
+            "68",
+            "75"
+        ],
+        [
+            "70",
+            "91"
+        ],
+        [
+            "30",
+            "31"
+        ],
+        [
+            "82",
+            "92"
+        ],
+        [
+            "2",
+            "83"
+        ],
+        [
+            "86",
+            "92"
+        ],
+        [
+            "14",
+            "82"
+        ],
+        [
+            "16",
+            "59"
+        ],
+        [
+            "1",
+            "55"
+        ],
+        [
+            "33",
+            "88"
+        ],
+        [
+            "31",
+            "34"
+        ],
+        [
+            "70",
+            "92"
+        ],
+        [
+            "25",
+            "91"
+        ],
+        [
+            "20",
+            "70"
+        ],
+        [
+            "10",
+            "53"
+        ],
+        [
+            "21",
+            "87"
+        ],
+        [
+            "61",
+            "92"
+        ],
+        [
+            "46",
+            "85"
+        ],
+        [
+            "29",
+            "53"
+        ],
+        [
+            "65",
+            "76"
+        ],
+        [
+            "24",
+            "74"
+        ],
+        [
+            "10",
+            "89"
+        ],
+        [
+            "15",
+            "92"
+        ],
+        [
+            "3",
+            "5"
+        ],
+        [
+            "25",
+            "92"
+        ],
+        [
+            "20",
+            "64"
+        ],
+        [
+            "2",
+            "34"
+        ],
+        [
+            "27",
+            "92"
+        ],
+        [
+            "23",
+            "83"
+        ],
+        [
+            "62",
+            "92"
+        ],
+        [
+            "26",
+            "76"
+        ],
+        [
+            "39",
+            "50"
+        ],
+        [
+            "1",
+            "84"
+        ],
+        [
+            "54",
+            "68"
+        ],
+        [
+            "36",
+            "67"
+        ],
+        [
+            "75",
+            "76"
+        ],
+        [
+            "78",
+            "89"
+        ],
+        [
+            "35",
+            "77"
+        ],
+        [
+            "4",
+            "88"
+        ],
+        [
+            "8",
+            "77"
+        ],
+        [
+            "1",
+            "22"
+        ],
+        [
+            "5",
+            "23"
+        ],
+        [
+            "1",
+            "25"
+        ],
+        [
+            "24",
+            "64"
+        ],
+        [
+            "39",
+            "82"
+        ],
+        [
+            "10",
+            "38"
+        ],
+        [
+            "5",
+            "39"
+        ],
+        [
+            "14",
+            "56"
+        ],
+        [
+            "13",
+            "74"
+        ],
+        [
+            "56",
+            "87"
+        ],
+        [
+            "5",
+            "70"
+        ],
+        [
+            "29",
+            "83"
+        ],
+        [
+            "88",
+            "92"
+        ],
+        [
+            "4",
+            "72"
+        ],
+        [
+            "44",
+            "92"
+        ],
+        [
+            "8",
+            "85"
+        ],
+        [
+            "33",
+            "54"
+        ],
+        [
+            "14",
+            "54"
+        ],
+        [
+            "24",
+            "48"
+        ],
+        [
+            "49",
+            "82"
+        ],
+        [
+            "6",
+            "77"
+        ],
+        [
+            "1",
+            "75"
+        ],
+        [
+            "5",
+            "64"
+        ],
+        [
+            "5",
+            "90"
+        ],
+        [
+            "69",
+            "88"
+        ],
+        [
+            "1",
+            "20"
+        ],
+        [
+            "1",
+            "59"
+        ],
+        [
+            "43",
+            "92"
+        ],
+        [
+            "1",
+            "7"
+        ],
+        [
+            "3",
+            "58"
+        ],
+        [
+            "36",
+            "70"
+        ],
+        [
+            "54",
+            "83"
+        ],
+        [
+            "78",
+            "87"
+        ],
+        [
+            "16",
+            "82"
+        ],
+        [
+            "51",
+            "87"
+        ],
+        [
+            "64",
+            "92"
+        ],
+        [
+            "66",
+            "75"
+        ],
+        [
+            "1",
+            "14"
+        ],
+        [
+            "5",
+            "48"
+        ],
+        [
+            "5",
+            "73"
+        ],
+        [
+            "11",
+            "88"
+        ],
+        [
+            "81",
+            "87"
+        ],
+        [
+            "83",
+            "92"
+        ],
+        [
+            "4",
+            "31"
+        ],
+        [
+            "36",
+            "90"
+        ],
+        [
+            "6",
+            "85"
+        ],
+        [
+            "30",
+            "90"
+        ],
+        [
+            "55",
+            "82"
+        ],
+        [
+            "24",
+            "26"
+        ],
+        [
+            "16",
+            "36"
+        ],
+        [
+            "7",
+            "49"
+        ],
+        [
+            "4",
+            "63"
+        ],
+        [
+            "18",
+            "85"
+        ],
+        [
+            "1",
+            "11"
+        ],
+        [
+            "4",
+            "62"
+        ],
+        [
+            "86",
+            "89"
+        ],
+        [
+            "53",
+            "85"
+        ],
+        [
+            "27",
+            "82"
+        ],
+        [
+            "65",
+            "75"
+        ],
+        [
+            "12",
+            "13"
+        ],
+        [
+            "25",
+            "88"
+        ],
+        [
+            "1",
+            "66"
+        ],
+        [
+            "7",
+            "12"
+        ],
+        [
+            "27",
+            "88"
+        ],
+        [
+            "1",
+            "78"
+        ],
+        [
+            "7",
+            "87"
+        ],
+        [
+            "9",
+            "24"
+        ],
+        [
+            "56",
+            "89"
+        ],
+        [
+            "10",
+            "74"
+        ],
+        [
+            "59",
+            "92"
+        ],
+        [
+            "74",
+            "85"
+        ],
+        [
+            "26",
+            "75"
+        ],
+        [
+            "7",
+            "35"
+        ],
+        [
+            "14",
+            "23"
+        ],
+        [
+            "5",
+            "76"
+        ],
+        [
+            "25",
+            "89"
+        ],
+        [
+            "24",
+            "80"
+        ],
+        [
+            "19",
+            "87"
+        ],
+        [
+            "1",
+            "50"
+        ],
+        [
+            "32",
+            "82"
+        ],
+        [
+            "14",
+            "39"
+        ],
+        [
+            "31",
+            "85"
+        ],
+        [
+            "5",
+            "9"
+        ],
+        [
+            "14",
+            "70"
+        ],
+        [
+            "8",
+            "91"
+        ],
+        [
+            "5",
+            "40"
+        ],
+        [
+            "9",
+            "80"
+        ],
+        [
+            "1",
+            "47"
+        ],
+        [
+            "48",
+            "87"
+        ],
+        [
+            "47",
+            "82"
+        ],
+        [
+            "51",
+            "89"
+        ],
+        [
+            "46",
+            "87"
+        ],
+        [
+            "38",
+            "79"
+        ],
+        [
+            "11",
+            "63"
+        ],
+        [
+            "5",
+            "81"
+        ],
+        [
+            "14",
+            "64"
+        ],
+        [
+            "81",
+            "89"
+        ],
+        [
+            "14",
+            "90"
+        ],
+        [
+            "1",
+            "41"
+        ],
+        [
+            "4",
+            "74"
+        ],
+        [
+            "2",
+            "85"
+        ],
+        [
+            "1",
+            "82"
+        ],
+        [
+            "23",
+            "77"
+        ],
+        [
+            "49",
+            "67"
+        ],
+        [
+            "7",
+            "60"
+        ],
+        [
+            "14",
+            "43"
+        ],
+        [
+            "14",
+            "48"
+        ],
+        [
+            "14",
+            "73"
+        ],
+        [
+            "61",
+            "63"
+        ],
+        [
+            "30",
+            "81"
+        ],
+        [
+            "7",
+            "53"
+        ],
+        [
+            "16",
+            "67"
+        ],
+        [
+            "3",
+            "24"
+        ],
+        [
+            "4",
+            "70"
+        ],
+        [
+            "22",
+            "92"
+        ],
+        [
+            "25",
+            "63"
+        ],
+        [
+            "56",
+            "62"
+        ],
+        [
+            "27",
+            "63"
+        ],
+        [
+            "8",
+            "49"
+        ],
+        [
+            "18",
+            "91"
+        ],
+        [
+            "23",
+            "24"
+        ],
+        [
+            "7",
+            "89"
+        ],
+        [
+            "23",
+            "85"
+        ],
+        [
+            "5",
+            "84"
+        ],
+        [
+            "4",
+            "64"
+        ],
+        [
+            "53",
+            "91"
+        ],
+        [
+            "60",
+            "90"
+        ],
+        [
+            "28",
+            "83"
+        ],
+        [
+            "68",
+            "83"
+        ],
+        [
+            "35",
+            "87"
+        ],
+        [
+            "39",
+            "70"
+        ],
+        [
+            "19",
+            "89"
+        ],
+        [
+            "9",
+            "28"
+        ],
+        [
+            "16",
+            "83"
+        ],
+        [
+            "8",
+            "87"
+        ],
+        [
+            "24",
+            "92"
+        ],
+        [
+            "9",
+            "91"
+        ],
+        [
+            "11",
+            "74"
+        ],
+        [
+            "60",
+            "73"
+        ],
+        [
+            "1",
+            "30"
+        ],
+        [
+            "4",
+            "73"
+        ],
+        [
+            "9",
+            "33"
+        ],
+        [
+            "40",
+            "92"
+        ],
+        [
+            "1",
+            "18"
+        ],
+        [
+            "14",
+            "76"
+        ],
+        [
+            "33",
+            "76"
+        ],
+        [
+            "39",
+            "90"
+        ],
+        [
+            "6",
+            "49"
+        ],
+        [
+            "48",
+            "89"
+        ],
+        [
+            "46",
+            "89"
+        ],
+        [
+            "58",
+            "89"
+        ],
+        [
+            "9",
+            "92"
+        ],
+        [
+            "38",
+            "92"
+        ],
+        [
+            "31",
+            "91"
+        ],
+        [
+            "76",
+            "92"
+        ],
+        [
+            "18",
+            "49"
+        ],
+        [
+            "29",
+            "85"
+        ],
+        [
+            "59",
+            "88"
+        ],
+        [
+            "49",
+            "90"
+        ],
+        [
+            "11",
+            "70"
+        ],
+        [
+            "1",
+            "68"
+        ],
+        [
+            "5",
+            "75"
+        ],
+        [
+            "24",
+            "52"
+        ],
+        [
+            "6",
+            "87"
+        ],
+        [
+            "11",
+            "27"
+        ],
+        [
+            "11",
+            "86"
+        ],
+        [
+            "25",
+            "74"
+        ],
+        [
+            "67",
+            "92"
+        ],
+        [
+            "28",
+            "90"
+        ],
+        [
+            "1",
+            "6"
+        ],
+        [
+            "9",
+            "65"
+        ],
+        [
+            "10",
+            "80"
+        ],
+        [
+            "2",
+            "91"
+        ],
+        [
+            "16",
+            "90"
+        ],
+        [
+            "9",
+            "69"
+        ],
+        [
+            "11",
+            "64"
+        ],
+        [
+            "55",
+            "70"
+        ],
+        [
+            "66",
+            "68"
+        ],
+        [
+            "10",
+            "79"
+        ],
+        [
+            "3",
+            "37"
+        ],
+        [
+            "9",
+            "52"
+        ],
+        [
+            "13",
+            "92"
+        ],
+        [
+            "35",
+            "60"
+        ],
+        [
+            "73",
+            "89"
+        ],
+        [
+            "77",
+            "90"
+        ],
+        [
+            "2",
+            "92"
+        ],
+        [
+            "78",
+            "80"
+        ],
+        [
+            "1",
+            "67"
+        ],
+        [
+            "3",
+            "28"
+        ],
+        [
+            "8",
+            "53"
+        ],
+        [
+            "78",
+            "79"
+        ],
+        [
+            "3",
+            "91"
+        ],
+        [
+            "12",
+            "91"
+        ],
+        [
+            "23",
+            "28"
+        ],
+        [
+            "35",
+            "89"
+        ],
+        [
+            "61",
+            "90"
+        ],
+        [
+            "41",
+            "92"
+        ],
+        [
+            "3",
+            "33"
+        ],
+        [
+            "4",
+            "40"
+        ],
+        [
+            "48",
+            "62"
+        ],
+        [
+            "8",
+            "89"
+        ],
+        [
+            "23",
+            "91"
+        ],
+        [
+            "14",
+            "84"
+        ],
+        [
+            "23",
+            "33"
+        ],
+        [
+            "27",
+            "64"
+        ],
+        [
+            "3",
+            "92"
+        ],
+        [
+            "12",
+            "92"
+        ],
+        [
+            "1",
+            "83"
+        ],
+        [
+            "62",
+            "90"
+        ],
+        [
+            "69",
+            "76"
+        ],
+        [
+            "26",
+            "68"
+        ],
+        [
+            "6",
+            "53"
+        ],
+        [
+            "41",
+            "69"
+        ],
+        [
+            "45",
+            "85"
+        ],
+        [
+            "66",
+            "83"
+        ],
+        [
+            "1",
+            "23"
+        ],
+        [
+            "60",
+            "77"
+        ],
+        [
+            "62",
+            "73"
+        ],
+        [
+            "3",
+            "65"
+        ],
+        [
+            "5",
+            "50"
+        ],
+        [
+            "3",
+            "69"
+        ],
+        [
+            "6",
+            "89"
+        ],
+        [
+            "18",
+            "53"
+        ],
+        [
+            "11",
+            "76"
+        ],
+        [
+            "24",
+            "82"
+        ],
+        [
+            "23",
+            "65"
+        ],
+        [
+            "12",
+            "51"
+        ],
+        [
+            "29",
+            "91"
+        ],
+        [
+            "1",
+            "34"
+        ],
+        [
+            "18",
+            "89"
+        ],
+        [
+            "3",
+            "8"
+        ],
+        [
+            "88",
+            "90"
+        ],
+        [
+            "4",
+            "84"
+        ],
+        [
+            "10",
+            "92"
+        ],
+        [
+            "46",
+            "58"
+        ],
+        [
+            "33",
+            "75"
+        ],
+        [
+            "14",
+            "75"
+        ],
+        [
+            "39",
+            "77"
+        ],
+        [
+            "44",
+            "90"
+        ],
+        [
+            "30",
+            "50"
+        ],
+        [
+            "9",
+            "88"
+        ],
+        [
+            "3",
+            "29"
+        ],
+        [
+            "1",
+            "90"
+        ],
+        [
+            "35",
+            "62"
+        ]
+    ],
+    {
+        "R1": 45,
+        "R2": 25,
+        "R3": 20,
+        "R4": 22
+    }
+]
