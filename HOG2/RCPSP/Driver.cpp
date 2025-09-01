@@ -200,7 +200,7 @@ int makespan;
 #include <atomic>
 #include "RCPSP.h" // assuming these are your own headers
 
-int solveRCPSP(int group, int exam, const std::string& filename) {
+int solveRCPSP(int group, int exam, const std::string& filename,const std::string& problemType="j30") {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
 
     //generateTIME= std::chrono::duration<double>(0);
@@ -209,9 +209,10 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     //  comperTime= std::chrono::duration<double>(0);
     //secssesorTIME= std::chrono::duration<double>(0);
     count=0;
-
-    getPetri(petri, group, exam);
-    getRCPSP(RCPSPex, group, exam);
+    getPetri(petri, group, exam,problemType);
+    getRCPSP(RCPSPex, group, exam,problemType);
+    // getPetri(petri, group, exam);
+    // getRCPSP(RCPSPex, group, exam);
     RCPSPex.computeAndStoreDeepDependencies();
     RCPSPState first;
     RCPSPState last = first;
@@ -302,7 +303,7 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
 
     return 0;
 }
-    int solveRCPSP_TT(int group, int exam, const std::string& filename) {
+    int solveRCPSP_TT(int group, int exam, const std::string& filename,const std::string& problemType="j30") {
     std::cout << "started solving: " << group<<":"<<exam << std::endl;
 
     //generateTIME= std::chrono::duration<double>(0);
@@ -311,8 +312,8 @@ int solveRCPSP(int group, int exam, const std::string& filename) {
     //  comperTime= std::chrono::duration<double>(0);
     //secssesorTIME= std::chrono::duration<double>(0);
     count=0;
-    getPetri(petri, group, exam);
-    getRCPSP(RCPSPex, group, exam);
+    getPetri(petri, group, exam,problemType);
+    getRCPSP(RCPSPex, group, exam,problemType);
 
     RCPSPState_TT first;
     RCPSPState_TT last = first;
@@ -952,14 +953,35 @@ void runBenchmark() {
      // solveRCPSP_TT(33, 5, filename);
      // solveRCPSP_TT(19, 4, filename);
      // // solveRCPSP_TT(17, 6, filename);
-     // solveRCPSP(19, 7, filename);
-
-     //solveRCPSP_TT(17, 6, filename);
-    solveRCPSP(26, 6, filename);
-
-
-     // solveRCPSP(19, 9, filename);
-     // solveRCPSP(19, 10, filename);
+     //  solveRCPSP(16, 9, filename);
+     //
+     // //solveRCPSP_TT(17, 6, filename);
+    //  solveRCPSP(2, 3, filename);
+    //  solveRCPSP(2, 7, filename);
+    //  solveRCPSP(3, 7, filename);
+    //  solveRCPSP(3, 8, filename);
+    // solveRCPSP(4, 1, filename);
+    // solveRCPSP(4, 2, filename);
+    // solveRCPSP(4, 4, filename);
+    // solveRCPSP(4, 5, filename);
+    // solveRCPSP(4, 6, filename);
+    // solveRCPSP(12, 1, filename);
+    // solveRCPSP(12, 2, filename);
+    // solveRCPSP(12, 3, filename);
+    // solveRCPSP(12, 4, filename);
+    // solveRCPSP(12, 5, filename);
+    // solveRCPSP(18, 2, filename);
+    // solveRCPSP(19, 9, filename);
+    // solveRCPSP(20, 1, filename);
+    // solveRCPSP(20, 2, filename);
+    // solveRCPSP(20, 3, filename);
+    // solveRCPSP(20, 4, filename);
+    // solveRCPSP(28, 7, filename);
+    // solveRCPSP(28, 8, filename);
+    //
+    //   //
+    //    solveRCPSP(26, 6, filename);
+    //   solveRCPSP(19, 10, filename);
 
     //
 
@@ -967,17 +989,19 @@ void runBenchmark() {
         //     solveRCPSP(25,j,filename);
         //     //   getinitialHcost(i,j,filename);
         // }
-    // for(int j=2;j<11;j++) {
-    //     solveRCPSP_TT(13,j,filename);
-    //     //   getinitialHcost(i,j,filename);
+    //  for(int j=3;j<11;j++) {
+    //      solveRCPSP(21,j,filename);
+    //      //   getinitialHcost(i,j,filename);
     // }
-    // for(int i=14;i<49;i++) {
-    //      for(int j=1;j<11;j++) {
-    //      solveRCPSP_TT(i,j,filename);
-    //   //   getinitialHcost(i,j,filename);
-    //      }
-    //  }
-    // solveRCPSP_TT(1, 10, filename);
+    // solveRCPSP(26,6,filename);
+    // solveRCPSP_TT(26,6,filename);
+    for(int i=1;i<49;i++) {
+         for(int j=1;j<11;j++) {
+         solveRCPSP(i,j,filename,"j60");
+      //   getinitialHcost(i,j,filename);
+         }
+     }
+  //  solveRCPSP_TT(1, 10, filename);
   //  solveRCPSP(8, 9,filename);
     //solveRCPSP_Bi(39, 4, filename);
  // solveRCPSP_TT(6,7,filename);

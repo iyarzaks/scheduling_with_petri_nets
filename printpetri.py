@@ -11,7 +11,7 @@ def to_json():
     Saves full RCPSP data including deep dependencies, and full Petri net structure.
     """
     base_path = "extract_problems/data/j30.sm.tgz"
-    output_base_dir = "json_outputs"
+    output_base_dir = "json_outputs_j30"
 
     os.makedirs(output_base_dir, exist_ok=True)
 

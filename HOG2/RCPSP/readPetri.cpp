@@ -4,21 +4,34 @@
 
 using json = nlohmann::json;  // alias for nlohmann::json
 
-void getPetri(PetriExample& petriExample,int group,int exam) {
-    // Open the file for reading
-    //std::ifstream input_file("petriExample.json");
-    //std::ifstream input_file("petriExample.json");
+void getPetri(PetriExample& petriExample, int group, int exam, const std::string &instanceType = "j30") {
     petriExample.reset();
     std::string folderName;
-    if (group==-1) {
-         folderName = "json_outputs/smallData";;
-        //std::ifstream input_file("rcpspExample.json");
-    }
-    else {
-        std::string basePath = "json_outputs/j30";
-         folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
 
+    // Decide base path depending on instance type
+    std::string basePath;
+    if (instanceType == "j30") {basePath = "json_outputs_j30/j30";}
+    else if (instanceType == "j60") {basePath = "json_outputs_j60/j60";}
+    else if (instanceType == "j90") {basePath = "json_outputs_j90/j90";}
+    else if (instanceType == "j120") {basePath = "json_outputs_j120/j120";}
+    else {
+        throw std::runtime_error("Unsupported instance type: " + instanceType);
     }
+
+    // Handle special case group == -1
+    if (group == -1) {
+        folderName = basePath + "/smallData";
+    } else {
+        folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
+    }
+
+    // Try opening a file (example: rcpsp.json or petriExample.json)
+    // std::ifstream test_file(folderName + "/petri.json");
+    // if (!test_file) {
+    //     throw std::runtime_error("Could not open: " + folderName + "/petri.json");
+    // }
+
+
     //std::ifstream input_file("rcpspExample.json");
     std::ifstream input_file(folderName+"/petri.json");
     // If the file could not be opened
@@ -76,24 +89,41 @@ void getPetri(PetriExample& petriExample,int group,int exam) {
     }
 
 }
-void getRCPSP(RCPSP_example& rcpsp_example,int group,int exam) {
+void getRCPSP(RCPSP_example& rcpsp_example,int group,int exam, const std::string &instanceType = "j30") {
     // Open the file for reading
     rcpsp_example.reset();
     std::string folderName;
-    if (group==-1) {
-        folderName = "json_outputs/smallData";;
-    }
+    std::string basePath;
+    if (instanceType == "j30") {basePath = "json_outputs_j30/j30";}
+    else if (instanceType == "j60") {basePath = "json_outputs_j60/j60";}
+    else if (instanceType == "j90") {basePath = "json_outputs_j90/j90";}
+    else if (instanceType == "j120") {basePath = "json_outputs_j120/j120";}
     else {
-        std::string basePath = "json_outputs/j30";
+        throw std::runtime_error("Unsupported instance type: " + instanceType);
+    }
+
+    // Handle special case group == -1
+    if (group == -1) {
+        folderName = basePath + "/smallData";
+    } else {
         folderName = basePath + std::to_string(group) + "_" + std::to_string(exam);
     }
-    std::ifstream input_file(folderName+"/rcpsp.json");
 
+    // Try opening a file (example: rcpsp.json or petriExample.json)
+    // std::ifstream test_file(folderName + "/petri.json");
+    // if (!test_file) {
+    //     throw std::runtime_error("Could not open: " + folderName + "/petri.json");
+    // }
+
+
+    //std::ifstream input_file("rcpspExample.json");
+    std::ifstream input_file(folderName+"/rcpsp.json");
     // If the file could not be opened
     if (!input_file.is_open()) {
         std::cerr << "Failed to open rcpsp.json" << std::endl;
         return;
     }
+
     // Create JSON object
     json j;
 
